@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    meta.helm.sh/release-name: lidarr
+    meta.helm.sh/release-namespace: media
+    volume.beta.kubernetes.io/storage-provisioner: csi.san.synology.com
+    volume.kubernetes.io/storage-provisioner: csi.san.synology.com
+  creationTimestamp: "2022-10-08T20:27:04Z"
+  finalizers:
+    - kubernetes.io/pvc-protection
+  labels:
+    app.kubernetes.io/instance: lidarr
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: lidarr
+    app.kubernetes.io/version: v1.0.0.2255
+    helm.sh/chart: lidarr-14.2.2
+    helm.toolkit.fluxcd.io/name: lidarr
+    helm.toolkit.fluxcd.io/namespace: media
+  name: lidarr-config
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: synology-csi-retain
+  volumeMode: Filesystem
+  volumeName: pvc-74fc30d0-9dbb-4106-9048-861127a77511

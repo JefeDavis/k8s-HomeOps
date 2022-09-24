@@ -1,0 +1,120 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: &app vaultwarden
+  namespace: security
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 30m
+  install:
+    remediation:
+      retries: 5
+  upgrade:
+    remediation:
+      retries: 5
+  values:
+    controller:
+      type: statefulset
+      annotations:
+        reloader.stakater.com/auto: "true"
+    image:
+      repository: vaultwarden/server
+      pullPolicy: IfNotPresent
+      tag: 1.28.1
+    upgradeStrategy: recreate
+    envFrom:
+      - secretRef:
+          name: vaultwarden-secret
+    strategy:
+      type: Recreate
+    env:
+      DATA_FOLDER: "config"
+      ICON_CACHE_FOLDER: "config/icon_cache"
+      ATTACHMENTS_FOLDER: "config/attachments"
+      SENDS_FOLDER: "config/sends"
+      DOMAIN: "https://vault.${EXTERNAL_DOMAIN}"
+      WEBSOCKET_ADDRESS: 0.0.0.0
+      WEBSOCKET_ENABLED: true
+      WEBSOCKET_PORT: &websocket-port 3012
+      ROCKET_PORT: &port 8080
+      SIGNUPS_ALLOWED: "false"
+      INVITATIONS_ALLOWED: true
+      SENDS_ALLOWED: true
+      EMERGENCY_ACCESS_ALLOWED: true
+      DISABLE_ICON_DOWNLOAD: false
+      DISABLE_2FA_REMEMBER: false
+      PASSWORD_HINTS_ALLOWED: false
+      A_DATABASE_USERNAME:
+        valueFrom:
+          secretKeyRef:
+            name: pg-vaultwarden-app
+            key: username
+      A_DATABASE_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: pg-vaultwarden-app
+            key: password
+      DATABASE_URL: 'postgres://$(A_DATABASE_USERNAME):$(A_DATABASE_PASSWORD)@pg-vaultwarden-rw:5432/vaultwarden'
+    service:
+      main:
+        ports:
+          http:
+            port: *port 
+          websocket:
+            enabled: true
+            port: *websocket-port
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: "nginx"
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          theme.home.arpa/enabled: "true"
+        hosts:
+          - host: vault.${EXTERNAL_DOMAIN}
+            paths: &paths
+              - path: /
+                pathType: Prefix
+                service:
+                  port: *port
+              - path: /notifications/hub
+                pathType: Prefix
+                service:
+                  port: *websocket-port
+              - path: /notifications/hub/negotiate
+                pathType: Prefix
+                service:
+                  port: *port
+          - host: vaultwarden.${EXTERNAL_DOMAIN}
+            paths: *paths
+        tls:
+          - hosts:
+              - vault.${EXTERNAL_DOMAIN}
+              - vaultwarden.${EXTERNAL_DOMAIN}
+            secretName: "vaultwarden-tls-external"
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 15Gi
+        storageClass: synology-csi-retain
+    resources:
+      requests:
+        memory: 64Mi
+        cpu: 5m
+      limits:
+        memory: 164Mi

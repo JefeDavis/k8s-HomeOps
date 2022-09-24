@@ -1,0 +1,40 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: themepark-skin
+  annotations:
+    policies.kyverno.io/title: ThemePark Skin
+    policies.kyverno.io/category: Theme-Park
+    policies.kyverno.io/subject: Ingress
+    policies.kyverno.io/severity: low
+    policies.kyverno.io/minversion: 1.6.0
+    policies.kyverno.io/description: |
+      This policy applies an ingress notation that will apply a theme-park theme.
+      You can apply an optional label on the ingress to adjust the theme:
+      - "theme-park.home/theme": should match the theme that you want, and will default to nord if not specified.
+spec:
+  mutateExistingOnPolicyUpdate: true
+  generateExistingOnPolicyUpdate: true
+  rules:
+    - name: theme
+      context:
+        - name: appName
+          variable:
+            jmesPath: request.object.metadata.name == 'vaultwarden' && 'bitwarden' || request.object.metadata.name
+        - name: theme
+          variable:
+            jmesPath: request.object.metadata.labels."theme-park.home/theme" || 'nord'
+      match:
+        any:
+          - resources:
+              kinds: ["Ingress"]
+              annotations:
+                theme.home.arpa/enabled: "true"
+      mutate:
+        patchStrategicMerge:
+          metadata:
+            annotations:
+              +(nginx.ingress.kubernetes.io/configuration-snippet): |-
+                proxy_set_header Accept-Encoding "";
+                sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.${EXTERNAL_DOMAIN}/css/base/{{ appName }}/{{ theme }}.css"></head>';
+                sub_filter_once on;

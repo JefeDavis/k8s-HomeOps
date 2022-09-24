@@ -1,0 +1,82 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: bazarr
+  namespace: media
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.4.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 30m
+  values:
+    controller:
+      annotations:
+        reloader.stakater.com/auto: "true"
+    image:
+      repository: ghcr.io/onedr0p/bazarr
+      tag: 1.2.0@sha256:bf0e79aebf1f88d6c0e0b4f1f4536cf9a4e1cc09dc8591269c35a6acc45e0de8
+    env:
+      TZ: America/New_York
+      BAZARR__INSTANCE_NAME: Bazarr
+      BAZARR__PORT: &port 6767
+      BAZARR__APPLICATION_URL: https://bazarr.${EXTERNAL_DOMAIN}
+      BAZARR__LOG_LEVEL: info
+      BAZARR__API_KEY:
+        valueFrom:
+          secretKeyRef:
+            name: starr-apps-secret
+            key: BAZARR_API_KEY
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          theme.home.arpa/enabled: "true"
+          auth.home.arpa/enabled: "true"
+        hosts:
+          - host: bazarr.${EXTERNAL_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - bazarr.${EXTERNAL_DOMAIN}
+            secretName: bazarr-tls-external
+    persistence:
+      config:
+        enabled: true
+        existingClaim: bazarr-config
+      media:
+        enabled: true
+        existingClaim: nfs-media
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: OnRootMismatch
+      supplementalGroups:
+        - 65539
+    resources:
+      requests:
+        memory: 350Mi
+        cpu: 25m
+      limits:
+        memory: 500Mi
+    serviceMonitor:
+      podmonitor:
+        enabled: true
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 10m
+            scrapeTimeout: 2m

@@ -1,0 +1,81 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: authentik
+  namespace: security
+spec:
+  interval: 30m
+  chart:
+    spec:
+      # renovate: registryUrl=https://charts.goauthentik.io
+      chart: authentik
+      version: 2023.4.1
+      sourceRef:
+        kind: HelmRepository
+        name: authentik
+        namespace: flux-system
+      interval: 30m
+  values:
+    global:
+      storageClass: synology-csi-retain
+
+    authentik:
+      security_key: ""
+      log_level: debug
+      error_reporting:
+        enabled: false
+        send_pii: false
+      postgresql:
+        host: pg-authentik-rw
+        port: 5432
+        name: ""
+        user: ""
+        password: ""
+
+    envValueFrom:
+      AUTHENTIK_SECRET_KEY:
+        secretKeyRef:
+          name: authentik-secret
+          key: AUTHENTIK_KEY
+      AUTHENTIK_POSTGRESQL__NAME:
+        secretKeyRef:
+          name: pg-authentik-app
+          key: username
+      AUTHENTIK_POSTGRESQL__USER:
+        secretKeyRef:
+          name: pg-authentik-app
+          key: username
+      AUTHENTIK_POSTGRESQL__PASSWORD:
+        secretKeyRef:
+          name: pg-authentik-app
+          key: password
+
+    image:
+      repository: ghcr.io/goauthentik/server
+      tag: 2023.4.1
+      pullPolicy: IfNotPresent
+
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+        nginx.org/websocket-services: authentik
+        nginx.ingress.kubernetes.io/enable-global-auth: "false"
+      hosts:
+      - host: auth.${EXTERNAL_DOMAIN}
+        paths:
+        - path: /
+
+      tls:
+      - hosts:
+        - auth.${EXTERNAL_DOMAIN}
+        secretName: authentik-tls-external
+    redis:
+      enabled: true
+
+    blueprints: []

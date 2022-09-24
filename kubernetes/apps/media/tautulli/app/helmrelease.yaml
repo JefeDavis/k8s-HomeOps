@@ -1,0 +1,64 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: tautulli
+  namespace: media
+spec:
+  chart:
+    spec:
+      chart: app-template
+      version: 1.4.0
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  interval: 30m
+  values:
+    image:
+      repository: ghcr.io/onedr0p/tautulli
+      tag: 2.12.3@sha256:873832cec51b99d5fbcf179bad9a7bbe609518d821eb982dab0b297b8c0cfc6a
+
+    service:
+      main:
+        ports:
+          http:
+            port: 8181
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          theme.home.arpa/enabled: "true"
+          auth.home.arpa/enabled: "true"
+        hosts:
+          - host: &host tautulli.${EXTERNAL_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+            secretName: tautulli-tls-external
+
+    persistence:
+      config:
+        enabled: true
+        existingClaim: tautulli-config
+
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+
+    resources:
+      requests:
+        cpu: 5m
+        memory: 82Mi
+      limits:
+        memory: 82Mi
