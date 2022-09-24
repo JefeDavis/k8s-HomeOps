@@ -34,7 +34,7 @@ installFlux() {
   fi
   flux bootstrap github \
     --owner=JefeDavis \
-    --repository=home-ops \
+    --repository=k8s-HomeOps \
     --branch main \
     --private=true \
     --personal \
