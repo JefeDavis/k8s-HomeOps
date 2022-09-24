@@ -16,9 +16,9 @@ spec:
         name: nfs-subdir-external-provisioner-charts
         namespace: flux-system
       interval: 5m
-      values:
-        nfs:
-          server: jsdyb-nas-001.internal.davishaus.dev
-          path: /volume1/cloudnative1
-        storageClass:
-          defaultClass: true
+  values:
+    nfs:
+      server: jsdyb-nas-001.internal.davishaus.dev
+      path: /volume1/cloudnative1
+    storageClass:
+      defaultClass: true
