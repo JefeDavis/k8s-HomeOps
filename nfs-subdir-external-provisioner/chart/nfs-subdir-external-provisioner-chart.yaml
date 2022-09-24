@@ -18,7 +18,7 @@ spec:
       interval: 5m
   values:
     nfs:
-      server: jsdyb-nas-001.internal.davishaus.dev
+      server: jsdyb-nas-001.davishaus.lab
       path: /volume1/cloudnative1
     storageClass:
       defaultClass: true
