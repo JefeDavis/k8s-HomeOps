@@ -26,13 +26,14 @@ spec:
     #     operator: "Exists"
     ingress:
       enabled: true
-      # annotations:
-      #   kubernetes.io/ingress.class: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
       path: /oauth2
       hosts: [auth.davishaus.dev]
       tls:
       - hosts:
         - auth.davishaus.dev
+        secretName: oauth2-proxy-tls-external
     extraArgs:
       provider: oidc
       oidc-issuer-url: https://davishaus.us.auth0.com/
