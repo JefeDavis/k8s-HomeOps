@@ -175,7 +175,8 @@ loadSecretsToVault() {
   # helm chart values
   ####################
   # kvault "kube-system/kured/kured-helm-values.txt"
-  kvault "auth/chart/oauth2-proxy-helm-values.txt"
+  kvault "auth/oauth2/chart/oauth2-proxy-helm-values.txt"
+  kvault "mqtt/emqx/chart/emqx-helm-values.txt"
   kvault "external-dns/chart/external-dns-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
   # kvault "monitoring/botkube/botkube-helm-values.txt"
@@ -197,7 +198,8 @@ loadSecretsToVault-oneoff() {
   message "writing secrets to vault"
   kvault "monitoring/kube-prometheus-stack/kube-prometheus-stack-helm-values.txt"
   kvault "external-dns/chart/external-dns-helm-values.txt"
-  kvault "auth/chart/oauth2-proxy-helm-values.txt"
+  kvault "auth/oauth2-proxy/chart/oauth2-proxy-helm-values.txt"
+  kvault "mqtt/emqx/chart/emqx-helm-values.txt"
   kvault "home-assistant/chart/home-assistant-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
   
