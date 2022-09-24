@@ -1,0 +1,11 @@
+---
+apiVersion: ricoberger.de/v1alpha1
+kind: VaultSecret
+metadata:
+  name: external-dns-helm-values
+  namespace: external-dns
+spec:
+  keys:
+    - values.yaml
+  path: secrets/external-dns/external-dns-helm-values
+  type: Opaque
