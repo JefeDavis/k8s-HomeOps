@@ -27,6 +27,15 @@ spec:
       prometheusRule:
         enabled: true
     controller:
+      tolerations:
+      - key: "arm"
+        operator: "Exists"
     speaker:
+      tolerations:
+      - key: "arm"
+        operator: "Exists"
+      - key: "armhf"
+        operator: "Exists"
       - key: "node-role.kubernetes.io/master"
         operator: "Exists"
+
