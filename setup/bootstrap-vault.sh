@@ -185,7 +185,7 @@ loadSecretsToVault() {
   # kvault "monitoring/uptimerobot-prometheus/uptimerobot-prometheus-helm-values.txt"
   # kvault "default/emqx/emqx-helm-values.txt"
   # kvault "default/frigate/frigate-helm-values.txt"
-  # kvault "default/home-assistant/home-assistant-helm-values.txt"
+  kvault "home-assistant/chart/home-assistant-helm-values.txt"
   # kvault "default/monica/monica-helm-values.txt"
   # kvault "default/plex/plex-helm-values.txt"
   # kvault "default/rtorrent-flood/rtorrent-flood-helm-values.txt"
@@ -198,6 +198,7 @@ loadSecretsToVault-oneoff() {
   kvault "monitoring/kube-prometheus-stack/kube-prometheus-stack-helm-values.txt"
   kvault "external-dns/chart/external-dns-helm-values.txt"
   kvault "auth/chart/oauth2-proxy-helm-values.txt"
+  kvault "home-assistant/chart/home-assistant-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
   
 

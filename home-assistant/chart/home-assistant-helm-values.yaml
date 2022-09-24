@@ -1,0 +1,10 @@
+apiVersion: ricoberger.de/v1alpha1
+kind: VaultSecret
+metadata:
+  name: home-assistant-helm-values
+  namespace: home-assistant
+spec:
+  keys:
+    - values.yaml
+  path: secrets/home-assistant/chart/home-assistant-helm-values
+  type: Opaque
