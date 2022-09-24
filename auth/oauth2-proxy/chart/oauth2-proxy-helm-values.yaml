@@ -7,5 +7,5 @@ metadata:
 spec:
   keys:
     - values.yaml
-  path: secrets/auth/chart/oauth2-proxy-helm-values
+  path: secrets/auth/oauth2-proxy/chart/oauth2-proxy-helm-values
   type: Opaque
