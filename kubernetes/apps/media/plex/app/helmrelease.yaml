@@ -1,0 +1,152 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: plex
+  namespace: media
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 30m
+  values:
+    controller:
+      type: statefulset
+      annotations:
+        reloader.stakater.com/auto: "true"
+    image:
+      repository: plexinc/pms-docker
+      tag: 1.32.0.6973-a787c5a8e
+    env:
+      TZ: "America/New_York"
+      ALLOWED_NETWORKS: "10.0.0.0/8"
+    envFrom:
+      - secretRef:
+          name: plex-secret
+    podSecurityContext:
+      supplementalGroups:
+      - 39
+      - 44
+      - 109
+      - 100
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: 10.77.1.134
+        externalTrafficPolicy: Local
+        annotations:
+          metallb.universe.tf/allow-shared-ip: plex
+        ports:
+          http:
+            port: 32400
+            targetPort: 32400
+            nodePort: 32400
+          dnla-tcp:
+            enabled: true
+            port: 32469
+            protocol: TCP
+            targetPort: 32469
+            nodePort: 32469
+          dnla-udp:
+            enabled: true
+            port: 1900
+            protocol: UDP
+            targetPort: 1900
+            nodePort: 1900
+          bonjour-udp:
+            enabled: true
+            port: 5353
+            protocol: UDP
+            targetPort: 5353
+            nodePort: 5353
+          gdm-1:
+            enabled: true
+            port: 32410
+            protocol: UDP
+            targetPort: 32410
+            nodePort: 32410
+          gdm-2:
+            enabled: true
+            port: 32412
+            protocol: UDP
+            targetPort: 32412
+            nodePort: 32412
+          gdm-3:
+            enabled: true
+            port: 32413
+            protocol: UDP
+            targetPort: 32413
+            nodePort: 32413
+          gdm-4:
+            enabled: true
+            port: 32414
+            protocol: UDP
+            targetPort: 32414
+            nodePort: 32414
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          theme.home.arpa/enabled: "true"
+          nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+        hosts:
+        - host: "plex.${EXTERNAL_DOMAIN}"
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+        - hosts:
+          - "plex.${EXTERNAL_DOMAIN}"
+          secretName: plex-tls-external
+    persistence:
+      preference-bootstrap:
+        enabled: true
+        type: configMap
+        name: plex-preferences-bootstrap
+        mountPath: /etc/cont-init.d/41-Plex-Preferences
+        subPath: 41-Plex-Preferences
+        defaultMode: 493
+      preferences:
+        enabled: true
+        type: configMap
+        name: plex-preferences
+        mountPath: /etc/cont-config.d
+        defaultMode: 493
+      transcode:
+        enabled: true
+        type: emptyDir
+        sizeLimit: 400Gi
+      tmp:
+        enabled: true
+        type: emptyDir
+        sizeLimit: 10Gi
+      media:
+        enabled: true
+        existingClaim: nfs-media
+        mountPath: /data
+        readOnly: false
+    nodeSelector:
+      intel.feature.node.kubernetes.io/gpu: "true"
+    resources:
+      requests:
+        gpu.intel.com/i915: 1
+        cpu: 500m
+        memory: 1500Mi
+      limits:
+        gpu.intel.com/i915: 1
+        memory: 8Gi
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 35Gi
+        storageClass: synology-csi-retain
