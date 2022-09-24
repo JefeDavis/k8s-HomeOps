@@ -22,7 +22,6 @@ kubeconfig
 # Other
 report.html
 .env
-auth
 master.key
 *.snap
 setup/cluster/*cluster.yml

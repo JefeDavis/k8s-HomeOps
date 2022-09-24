@@ -1,0 +1,11 @@
+---
+apiVersion: ricoberger.de/v1alpha1
+kind: VaultSecret
+metadata:
+  name: oauth2-proxy-helm-values
+  namespace: auth
+spec:
+  keys:
+    - values.yaml
+  path: secrets/auth/chart/oauth2-proxy-helm-values
+  type: Opaque
