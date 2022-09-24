@@ -39,7 +39,7 @@ initVault() {
   message "initializing and unsealing vault (if necesary)"
   VAULT_READY=1
   while [ $VAULT_READY != 0 ]; do
-    kubectl -n kube-system wait --for condition=Initialized pod/vault-0 > /dev/null 2>&1
+    kubectl -n vault wait --for condition=Initialized pod/vault-0 > /dev/null 2>&1
     VAULT_READY="$?"
     if [ $VAULT_READY != 0 ]; then
       echo "waiting for vault pod to be somewhat ready..."
@@ -50,7 +50,7 @@ initVault() {
 
   VAULT_READY=1
   while [ $VAULT_READY != 0 ]; do
-    init_status=$(kubectl -n kube-system exec "vault-0" -- vault status -format=json 2>/dev/null | jq -r '.initialized')
+    init_status=$(kubectl -n vault exec "vault-0" -- vault status -format=json 2>/dev/null | jq -r '.initialized')
     if [ "$init_status" == "false" ] || [ "$init_status" == "true" ]; then
       VAULT_READY=0
     else
@@ -59,12 +59,12 @@ initVault() {
     fi
   done
 
-  sealed_status=$(kubectl -n kube-system exec "vault-0" -- vault status -format=json 2>/dev/null | jq -r '.sealed')
-  init_status=$(kubectl -n kube-system exec "vault-0" -- vault status -format=json 2>/dev/null | jq -r '.initialized')
+  sealed_status=$(kubectl -n vault exec "vault-0" -- vault status -format=json 2>/dev/null | jq -r '.sealed')
+  init_status=$(kubectl -n vault exec "vault-0" -- vault status -format=json 2>/dev/null | jq -r '.initialized')
 
   if [ "$init_status" == "false" ]; then
     echo "initializing vault"
-    vault_init=$(kubectl -n kube-system exec "vault-0" -- vault operator init -format json -recovery-shares=1 -recovery-threshold=1) || exit 1
+    vault_init=$(kubectl -n vault exec "vault-0" -- vault operator init -format json -recovery-shares=1 -recovery-threshold=1) || exit 1
     export VAULT_RECOVERY_TOKEN=$(echo $vault_init | jq -r '.recovery_keys_b64[0]')
     export VAULT_ROOT_TOKEN=$(echo $vault_init | jq -r '.root_token')
     echo "VAULT_RECOVERY_TOKEN is: $VAULT_RECOVERY_TOKEN"
@@ -87,7 +87,7 @@ initVault() {
     sleep 10
     for replica in "${REPLIACS_LIST[@]:1}"; do
       echo "joining pod vault-${replica} to raft cluster"
-      kubectl -n kube-system exec "vault-${replica}" -- vault operator raft join http://vault-0.vault-internal:8200 || exit 1
+      kubectl -n vault exec "vault-${replica}" -- vault operator raft join http://vault-0.vault-internal:8200 || exit 1
     done
 
     FIRST_RUN=0
@@ -97,14 +97,14 @@ initVault() {
     echo "unsealing vault"
     for replica in $REPLIACS; do
       echo "unsealing vault-${replica}"
-      kubectl -n kube-system exec "vault-${replica}" -- vault operator unseal "$VAULT_RECOVERY_TOKEN" || exit 1
+      kubectl -n vault exec "vault-${replica}" -- vault operator unseal "$VAULT_RECOVERY_TOKEN" || exit 1
     done
   fi
 }
 
 portForwardVault() {
   message "port-forwarding vault"
-  kubectl -n kube-system port-forward svc/vault 8200:8200 >/dev/null 2>&1 &
+  kubectl -n vault port-forward svc/vault 8200:8200 >/dev/null 2>&1 &
   export VAULT_FWD_PID=$!
 
   sleep 5
@@ -122,7 +122,7 @@ loginVault() {
   vault auth list >/dev/null 2>&1
   if [[ "$?" -ne 0 ]]; then
     echo "not logged into vault!"
-    echo "1. port-forward the vault service (e.g. 'kubectl -n kube-system port-forward svc/vault 8200:8200 &')"
+    echo "1. port-forward the vault service (e.g. 'kubectl -n vault port-forward svc/vault 8200:8200 &')"
     echo "2. set VAULT_ADDR (e.g. 'export VAULT_ADDR=http://localhost:8200')"
     echo "3. login: (e.g. 'vault login <some token>')"
     exit 1
@@ -140,11 +140,11 @@ setupVaultSecretsOperator() {
   }
 EOF
 
-  export VAULT_SECRETS_OPERATOR_NAMESPACE=$(kubectl -n kube-system get sa vault-secrets-operator -o jsonpath="{.metadata.namespace}")
-  export VAULT_SECRET_NAME=$(kubectl -n kube-system get sa vault-secrets-operator -o jsonpath="{.secrets[*]['name']}")
-  export SA_JWT_TOKEN=$(kubectl -n kube-system get secret $VAULT_SECRET_NAME -o jsonpath="{.data.token}" | base64 --decode; echo)
-  export SA_CA_CRT=$(kubectl -n kube-system get secret $VAULT_SECRET_NAME -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
-  export K8S_HOST=$(kubectl -n kube-system config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+  export VAULT_SECRETS_OPERATOR_NAMESPACE=$(kubectl -n vault get sa vault-secrets-operator -o jsonpath="{.metadata.namespace}")
+  export VAULT_SECRET_NAME=$(kubectl -n vault get sa vault-secrets-operator -o jsonpath="{.secrets[*]['name']}")
+  export SA_JWT_TOKEN=$(kubectl -n vault get secret $VAULT_SECRET_NAME -o jsonpath="{.data.token}" | base64 --decode; echo)
+  export SA_CA_CRT=$(kubectl -n vault get secret $VAULT_SECRET_NAME -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
+  export K8S_HOST=$(kubectl -n vault config view --minify -o jsonpath='{.clusters[0].cluster.server}')
 
   # Verify the environment variables
   # env | grep -E 'VAULT_SECRETS_OPERATOR_NAMESPACE|VAULT_SECRET_NAME|SA_JWT_TOKEN|SA_CA_CRT|K8S_HOST'
