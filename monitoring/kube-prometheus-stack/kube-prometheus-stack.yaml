@@ -34,8 +34,6 @@ spec:
         resources:
           limits:
             cpu: 200m
-      admissionWebhooks:
-        enabled: false
     alertmanager:
       alertmanagerSpec:
         storage:
