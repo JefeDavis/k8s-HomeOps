@@ -54,9 +54,10 @@ spec:
         podAntiAffinity: "hard"
       ingress:
         enabled: true
+        ingressClassName: nginx
         pathType: Prefix
         annotations:
-          kubernetes.io/ingress.class: "nginx"
+          cert-manager.io/cluster-issuer: "letsencrypt-staging"
           nginx.ingress.kubernetes.io/auth-url: "https://auth.davishaus.dev/oauth2/auth"
           nginx.ingress.kubernetes.io/auth-signin: https://auth.davishaus.dev/oauth2/start
         hosts:
@@ -169,9 +170,10 @@ spec:
     prometheus:
       ingress:
         enabled: true
+        ingressClassName: nginx
         pathType: Prefix
         annotations:
-          kubernetes.io/ingress.class: "nginx"
+          cert-manager.io/cluster-issuer: "letsencrypt-staging"
           nginx.ingress.kubernetes.io/auth-url: "https://auth.davishaus.dev/oauth2/auth"
           nginx.ingress.kubernetes.io/auth-signin: https://auth.davishaus.dev/oauth2/start
         hosts:
