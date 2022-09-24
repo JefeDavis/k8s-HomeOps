@@ -1,0 +1,11 @@
+---
+apiVersion: ricoberger.de/v1alpha1
+kind: VaultSecret
+metadata:
+  name: zigbee2mqtt-helm-values
+  namespace: zigbee
+spec:
+  keys:
+    - values.yaml
+  path: secrets/zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values
+  type: Opaque

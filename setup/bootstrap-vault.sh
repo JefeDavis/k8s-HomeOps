@@ -177,6 +177,7 @@ loadSecretsToVault() {
   # kvault "kube-system/kured/kured-helm-values.txt"
   kvault "auth/oauth2/chart/oauth2-proxy-helm-values.txt"
   kvault "mqtt/emqx/chart/emqx-helm-values.txt"
+  kvault "zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values.txt"
   kvault "external-dns/chart/external-dns-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
   # kvault "monitoring/botkube/botkube-helm-values.txt"
@@ -201,6 +202,7 @@ loadSecretsToVault-oneoff() {
   kvault "auth/oauth2-proxy/chart/oauth2-proxy-helm-values.txt"
   kvault "mqtt/emqx/chart/emqx-helm-values.txt"
   kvault "home-assistant/chart/home-assistant-helm-values.txt"
+  kvault "zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
   
 
