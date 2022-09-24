@@ -204,7 +204,7 @@ spec:
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: rook-ceph-block
+              storageClassName: nfs-client
               resources:
                 requests:
                   storage: 10Gi
