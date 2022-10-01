@@ -39,6 +39,7 @@ spec:
       #       secretName: home-assistant-tls-internal
       external:
         enabled: true
+        hostNetwork: true
         annotations:
           nginx.org/websocket-services: home-assistant
           cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -57,11 +58,11 @@ spec:
         storageClass: "nfs-client"
         accessMode: ReadWriteOnce
         size: 10Gi
-    zigbee:
+      zigbee:
         enabled: true
         type: hostPath
         hostPath: /dev/ttyUSB0
-    zwave:
+      zwave:
         enabled: true
         type: hostPath
         hostPath: /dev/ttyUSB1
