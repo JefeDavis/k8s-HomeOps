@@ -22,6 +22,16 @@ spec:
     env:
       TZ: "America/New York"
     dnsPolicy: ClusterFirstWithHostNet
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: "10.77.1.133"
+        ports:
+          http:
+            port: 8123
+          sonos:
+            enabled: true
+            port: 1400
     ingress:
       # internal:
       #   enabled: true
