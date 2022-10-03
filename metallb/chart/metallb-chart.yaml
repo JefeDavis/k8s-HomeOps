@@ -18,7 +18,7 @@ spec:
       interval: 5m
   values:
     crds:
-      enabled: true
+      enabled: false
     prometheus:
       namespace: monitoring
       serviceAccount: kube-prometheus-stack-prometheus
