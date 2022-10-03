@@ -65,7 +65,7 @@ spec:
     persistence:
       config:
         enabled: true
-        storageClass: "nfs-client"
+        storageClass: "synology-csi-retain"
         accessMode: ReadWriteOnce
         size: 10Gi
       zigbee:
@@ -122,7 +122,7 @@ spec:
       primary:
         persistence:
           enabled: true
-          storageClass: "nfs-client"
+          storageClass: "synology-csi-retain"
           size: 10Gi
           mountPath: "/data/"
     # configmap:

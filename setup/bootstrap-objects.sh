@@ -28,8 +28,19 @@ installManualObjects(){
   ##########
   # secrets
   ##########
+read -r -d '' SYNOLOGY_CLIENT << EOM
+clients:
+- host: jsdyb-nas-001.internal.davishaus.dev
+  https: true
+  password: ${SYNOLOGY_CSI_PASSWORD}
+  port: 5001
+  username: k3s
+EOM
+
+
   kubectl -n vault create secret generic kms-vault --from-literal=account.json="$(echo $VAULT_KMS_ACCOUNT_JSON | base64 --decode)"
   kubectl -n kube-system create secret docker-registry registry-creds-secret --namespace kube-system --docker-username=$DOCKER_USERNAME --docker-password=$DOCKER_TOKEN --docker-email=$EMAIL
+  kubectl -n storage-controllers create secret generic synology-csi-secret --from-literal=client-info.yaml="${SYNOLOGY_CLIENT}"
 
 }
 

@@ -96,7 +96,7 @@ spec:
     persistence:
       data:
         enabled: true
-        storageClass: "nfs-client"
+        storageClass: "synology-csi-retain"
         accessMode: ReadWriteOnce
         size: 1Gi
       zigbee:

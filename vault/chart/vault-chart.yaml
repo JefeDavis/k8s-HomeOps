@@ -20,7 +20,7 @@ spec:
     server:
       dataStorage:
         enabled: true
-        storageClass: "nfs-client"
+        storageClass: "synology-csi-retain"
       extraEnvironmentVars:
         GOOGLE_APPLICATION_CREDENTIALS: /vault/userconfig/kms-vault/account.json
       extraVolumes:

@@ -39,7 +39,7 @@ spec:
         storage:
           volumeClaimTemplate:
             spec:
-              storageClassName: nfs-client
+              storageClassName: synology-csi-retain
               resources:
                 requests:
                   storage: 10Gi
@@ -202,7 +202,7 @@ spec:
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: nfs-client
+              storageClassName: synology-retain
               resources:
                 requests:
                   storage: 10Gi
