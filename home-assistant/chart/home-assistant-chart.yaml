@@ -22,6 +22,7 @@ spec:
     env:
       TZ: "America/New York"
     dnsPolicy: ClusterFirstWithHostNet
+    hostNetwork: true
     service:
       main:
         type: LoadBalancer
@@ -49,7 +50,6 @@ spec:
       #       secretName: home-assistant-tls-internal
       external:
         enabled: true
-        hostNetwork: true
         annotations:
           nginx.org/websocket-services: home-assistant
           cert-manager.io/cluster-issuer: letsencrypt-prod
