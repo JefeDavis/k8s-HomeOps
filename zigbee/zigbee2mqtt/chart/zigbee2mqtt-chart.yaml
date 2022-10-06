@@ -10,7 +10,7 @@ spec:
     spec:
       # renovate: registryUrl=https://helm.samipsolutions.fi/
       chart: zigbee2mqtt
-      version: v4.0.34
+      version: 9.5.1
       sourceRef:
         kind: HelmRepository
         name: truecharts-charts
