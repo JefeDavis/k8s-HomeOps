@@ -100,11 +100,11 @@ spec:
         requiredDuringSchedulingIgnoredDuringExecution:
           nodeSelectorTerms:
             - matchExpressions:
-              - key: feature.kubernetes.io/zwave
+              - key: feature.node.kubernetes.io/custom-zwave
                 operator: In
                 values:
                   - "true"
-              - key: feature.kubernetes.io/zigbee
+              - key: feature.node.kubernetes.io/custom-zigbee
                 operator: In
                 values:
                   - "true"
