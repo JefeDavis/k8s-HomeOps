@@ -46,15 +46,13 @@ spec:
             - name: "zigbee"
               matchOn:
                 - usbId:
-                    class: ["02"]
-                    vendor: ["10c4", "8a2a" ]
-                    device: ["0400"]
+                    vendor: ["10c4"]
+                    device: ["8a2a"]
             - name: "zwave"
               matchOn:
                 - usbId:
-                    class: ["02"]
-                    vendor: ["10c4", "8a2a" ]
-                    device: ["0400"]
+                    vendor: ["10c4"]
+                    device: ["8a2a"]
             - name: "coral-tpu"
               matchOn:
                 - usbId:
