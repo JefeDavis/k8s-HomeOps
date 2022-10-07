@@ -1,0 +1,66 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: nzbget
+  namespace: media
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://k8s-at-home.com/charts/
+      chart: nzbget
+      version: 12.4.2
+      sourceRef:
+        kind: HelmRepository
+        name: k8s-at-home-charts
+        namespace: flux-system
+      interval: 5m
+  values:
+    image:
+      repository: ghcr.io/k8s-at-home/nzbget
+      tag: v21.1
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: 10.77.1.136
+    env:
+      TZ: "America/New_York"
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+        hosts:
+        - host: nzbget.davishaus.dev
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+        - hosts:
+          - "nzbget.davishaus.dev"
+          secretName: nzbget-tls-external
+    persistence:
+      config:
+        enabled: true
+        storageClass: "synology-csi-retain"
+        size: 30Gi
+      media:
+        enabled: true
+        existingClaim: nfs-media-pvc
+    podSecurityContext:
+      runAsUser: 1001
+      runAsGroup: 1001
+      fsGroup: 1001
+    podAnnotations:
+      backup.velero.io/backup-volumes: config
+    tolerations:
+    - key: "arm"
+      operator: "Exists"
+    resources:
+      requests:
+        memory: 300Mi
+        cpu: 25m
+      limits:
+        memory: 2Gi
