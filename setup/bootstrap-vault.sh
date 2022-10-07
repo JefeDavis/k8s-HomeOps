@@ -175,14 +175,14 @@ loadSecretsToVault() {
   # helm chart values
   ####################
   # kvault "kube-system/kured/kured-helm-values.txt"
-  kvault "auth/oauth2/chart/oauth2-proxy-helm-values.txt"
+  kvault "auth/oauth2-proxy/chart/oauth2-proxy-helm-values.txt"
   kvault "mqtt/emqx/chart/emqx-helm-values.txt"
   kvault "zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values.txt"
   kvault "external-dns/chart/external-dns-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
   # kvault "monitoring/botkube/botkube-helm-values.txt"
   # kvault "monitoring/grafana/grafana-helm-values.txt"
-  kvault "monitoring/kube-prometheus-stack/kube-prometheus-stack-helm-values.txt"
+  kvault "monitoring/kube-prometheus-stack/chart/kube-prometheus-stack-helm-values.txt"
   # kvault "monitoring/thanos/thanos-helm-values.txt"
   # kvault "monitoring/uptimerobot-prometheus/uptimerobot-prometheus-helm-values.txt"
   # kvault "default/emqx/emqx-helm-values.txt"
@@ -193,21 +193,21 @@ loadSecretsToVault() {
   # kvault "default/rtorrent-flood/rtorrent-flood-helm-values.txt"
   # kvault "default/teslamate/teslamate-helm-values.txt"
   # kvault "velero/velero/velero-helm-values.txt"
+  kvault "vpn-gateway/chart/vpn-gateway-helm-values.txt"
 }
 
 loadSecretsToVault-oneoff() {
   message "writing secrets to vault"
-  kvault "monitoring/kube-prometheus-stack/kube-prometheus-stack-helm-values.txt"
+  kvault "monitoring/kube-prometheus-stack/chart/kube-prometheus-stack-helm-values.txt"
   kvault "external-dns/chart/external-dns-helm-values.txt"
   kvault "auth/oauth2-proxy/chart/oauth2-proxy-helm-values.txt"
   kvault "mqtt/emqx/chart/emqx-helm-values.txt"
   kvault "home-assistant/chart/home-assistant-helm-values.txt"
   kvault "zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
-  
-
-
+  kvault "vpn-gateway/chart/vpn-gateway-helm-values.txt"
 }
+
 
 FIRST_RUN=1
 export KUBECONFIG="$REPO_ROOT/setup/kubeconfig"
@@ -220,6 +220,6 @@ if [ $FIRST_RUN == 0 ]; then
   setupVaultSecretsOperator
 fi
 # loadSecretsToVault
-loadSecretsToVault-oneoff
+loadSecretsToVault
 
 kill $VAULT_FWD_PID

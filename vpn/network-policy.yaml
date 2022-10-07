@@ -1,0 +1,23 @@
+# NetworkPolicy.yaml
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: vpn-namespace
+  namespace: vpn
+spec:
+  podSelector: {}
+  ingress:
+  - from:
+    # Only allow ingress from K8S
+    - ipBlock:
+        cidr: 10.42.0.0/15
+  egress:
+  - to:
+    # Only allow egress to K8S
+    - ipBlock:
+        cidr: 10.42.0.0/15
+  policyTypes:
+    - Ingress
+    - Egress
+
