@@ -25,4 +25,5 @@ report.html
 master.key
 *.snap
 setup/cluster/*cluster.yml
+*.ovpn
 

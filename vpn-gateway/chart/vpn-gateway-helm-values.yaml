@@ -1,0 +1,10 @@
+apiVersion: ricoberger.de/v1alpha1
+kind: VaultSecret
+metadata:
+  name: openvpn-auth
+  namespace: vpn-gateway
+spec:
+  keys:
+    - values.yaml
+  path: secrets/vpn-gateway/openvpn-auth
+  type: Opaque
