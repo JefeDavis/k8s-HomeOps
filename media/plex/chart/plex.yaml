@@ -54,7 +54,7 @@ spec:
     persistence:
       config:
         enabled: true
-        storageClass: "nfs-client"
+        storageClass: "synology-csi-retain"
         accessMode: ReadWriteOnce
         size: 35Gi
       transcode:
