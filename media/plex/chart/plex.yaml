@@ -98,7 +98,7 @@ spec:
       #     readOnly: true
       #   securityContext:
       #     runAsUser: 0
-  # valuesFrom:
-  # - kind: Secret
-    # name: "plex-helm-values"
-    # optional: false
+  valuesFrom:
+  - kind: Secret
+    name: "plex-helm-values"
+    optional: false

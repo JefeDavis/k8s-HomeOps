@@ -189,7 +189,7 @@ loadSecretsToVault() {
   # kvault "default/frigate/frigate-helm-values.txt"
   kvault "home-assistant/chart/home-assistant-helm-values.txt"
   # kvault "default/monica/monica-helm-values.txt"
-  # kvault "default/plex/plex-helm-values.txt"
+  kvault "media/plex/chart/plex-helm-values.txt"
   # kvault "default/rtorrent-flood/rtorrent-flood-helm-values.txt"
   # kvault "default/teslamate/teslamate-helm-values.txt"
   # kvault "velero/velero/velero-helm-values.txt"
@@ -204,6 +204,7 @@ loadSecretsToVault-oneoff() {
   kvault "mqtt/emqx/chart/emqx-helm-values.txt"
   kvault "home-assistant/chart/home-assistant-helm-values.txt"
   kvault "zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values.txt"
+  kvault "media/plex/chart/plex-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
   kvault "vpn-gateway/chart/vpn-gateway-helm-values.txt"
 }
