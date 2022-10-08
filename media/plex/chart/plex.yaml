@@ -54,7 +54,7 @@ spec:
     persistence:
       config:
         enabled: true
-        storageClass: "synology-csi-retain"
+        storageClass: "local-path"
         accessMode: ReadWriteOnce
         size: 35Gi
       transcode:
