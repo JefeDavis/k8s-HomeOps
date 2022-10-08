@@ -1,0 +1,66 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: lidarr
+  namespace: vpn 
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://k8s-at-home.com/charts/
+      chart: lidarr
+      version: 14.2.2
+      sourceRef:
+        kind: HelmRepository
+        name: k8s-at-home-charts
+        namespace: flux-system
+      interval: 5m
+  values:
+    image:
+      repository: ghcr.io/k8s-at-home/lidarr
+      tag: v1.0.2.2592
+    env:
+      TZ: "America/New York"
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          nginx.ingress.kubernetes.io/auth-url: "https://auth.davishaus.dev/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.davishaus.dev/oauth2/start
+        hosts:
+        - host: "lidarr.davishaus.dev"
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+        - hosts:
+          - "lidarr.davishaus.dev"
+          secretName: lidarr-tls-external
+    persistence:
+      config:
+        enabled: true
+        storageClass: "synology-csi-retain"
+        size: 3Gi
+      media:
+        enabled: true
+        existingClaim: nfs-vpn-media-pvc
+    podSecurityContext:
+      runAsUser: 1001
+      runAsGroup: 1001
+      fsGroup: 1001
+    resources:
+      requests:
+        memory: 350Mi
+        cpu: 25m
+      limits:
+        memory: 500Mi
+    tolerations:
+    - key: "arm"
+      operator: "Exists"
+    prometheus:
+      podMonitor:
+        enabled: true
+        interval: 10m
+        scrapeTimeout: 2s
+
