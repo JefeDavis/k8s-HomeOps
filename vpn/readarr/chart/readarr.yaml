@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: readarr
-  namespace: media
+  namespace: vpn
 spec:
   interval: 5m
   chart:
@@ -48,7 +48,7 @@ spec:
         size: 5Gi
       media:
         enabled: true
-        existingClaim: nfs-media-pvc
+        existingClaim: nfs-vpn-media-pvc
     podSecurityContext:
       runAsUser: 1001
       runAsGroup: 1001

@@ -2,15 +2,15 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: sonarr
-  namespace: media
+  name: prowlarr
+  namespace: vpn
 spec:
   interval: 5m
   chart:
     spec:
       # renovate: registryUrl=https://k8s-at-home.com/charts/
-      chart: sonarr
-      version: 16.3.2
+      chart: prowlarr
+      version: 4.5.2
       sourceRef:
         kind: HelmRepository
         name: k8s-at-home-charts
@@ -18,45 +18,45 @@ spec:
       interval: 5m
   values:
     image:
-      repository: ghcr.io/k8s-at-home/sonarr
-      tag: v3.0.9.1549
+      repository: ghcr.io/k8s-at-home/prowlarr
+      tag: v0.4.0.1802
     env:
       TZ: "America/New_York"
     ingress:
       main:
         enabled: true
-        ingress-class-name: nginx
+        ingressClassName: nginx
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
         hosts:
-        - host: sonarr.davishaus.dev
-          paths:
-          - path: /
-            pathType: Prefix
+          - host: "prowlarr.davishaus.dev"
+            paths:
+              - path: /
+                pathType: Prefix
         tls:
-        - hosts:
-          - "sonarr.davishaus.dev"
-          secretName: sonarr-tls-external
-    podAnnotations:
-      backup.velero.io/backup-volumes: config
+          - hosts:
+              - "prowlarr.davishaus.dev"
+            secretName: prowlarr-tls-external
     persistence:
       config:
         enabled: true
         storageClass: "synology-csi-retain"
-        size: 2Gi
+        size: 5Gi
       media:
         enabled: true
-        existingClaim: nfs-media-pvc
+        existingClaim: nfs-vpn-media-pvc
+    resources:
+      requests:
+        memory: 100Mi
+        cpu: 100m
+      limits:
+        memory: 500Mi
     podSecurityContext:
       runAsUser: 1001
       runAsGroup: 1001
       fsGroup: 1001
-    resources:
-      requests:
-        memory: 350Mi
-        cpu: 25m
-      limits:
-        memory: 500Mi
+    podAnnotations:
+      backup.velero.io/backup-volumes: config
     tolerations:
     - key: "arm"
       operator: "Exists"

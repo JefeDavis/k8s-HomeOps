@@ -2,14 +2,14 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: radarr
-  namespace: media
+  name: sonarr
+  namespace: vpn
 spec:
   interval: 5m
   chart:
     spec:
       # renovate: registryUrl=https://k8s-at-home.com/charts/
-      chart: radarr
+      chart: sonarr
       version: 16.3.2
       sourceRef:
         kind: HelmRepository
@@ -18,35 +18,35 @@ spec:
       interval: 5m
   values:
     image:
-      repository: ghcr.io/k8s-at-home/radarr
-      tag: v4.1.0.6175
+      repository: ghcr.io/k8s-at-home/sonarr
+      tag: v3.0.9.1549
     env:
       TZ: "America/New_York"
     ingress:
       main:
         enabled: true
-        ingressClassName: nginx
+        ingress-class-name: nginx
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
         hosts:
-        - host: radarr.davishaus.dev
+        - host: sonarr.davishaus.dev
           paths:
           - path: /
             pathType: Prefix
         tls:
         - hosts:
-          - "radarr.davishaus.dev"
-          secretName: radarr-tls-external
+          - "sonarr.davishaus.dev"
+          secretName: sonarr-tls-external
     podAnnotations:
       backup.velero.io/backup-volumes: config
     persistence:
       config:
         enabled: true
         storageClass: "synology-csi-retain"
-        size: 3Gi
+        size: 2Gi
       media:
         enabled: true
-        existingClaim: nfs-media-pvc
+        existingClaim: nfs-vpn-media-pvc
     podSecurityContext:
       runAsUser: 1001
       runAsGroup: 1001
@@ -64,4 +64,4 @@ spec:
       podMonitor:
         enabled: true
         interval: 10m
-        scrapeTimeout: 2s
+        scrapeTimeout: 2m
