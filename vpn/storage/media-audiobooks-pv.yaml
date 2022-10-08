@@ -13,7 +13,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     server: 10.77.0.2
-    path: "/volume1/media/audiobooks"
+    path: "/volume1/media/library/audiobooks"
   mountOptions:
   - nfsvers=3
   - tcp
