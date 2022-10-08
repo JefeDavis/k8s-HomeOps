@@ -22,6 +22,9 @@ spec:
       tag: 1.29.0.6244-819d3678c
     env:
       TZ: "America/New_York"
+      ALLOWED_NETWORKS: "10.0.0.0/8"
+      PLEX_PREFERENCE_1: "FriendlyName=plex-davishaus"
+      PLEX_PREFERENCE_2: "LanNetworksBandwidth=10.0.0.0/8"
     podSecurityContext:
       supplementalGroups:
       - 44
@@ -58,10 +61,10 @@ spec:
         accessMode: ReadWriteOnce
         size: 35Gi
       transcode:
-        enabled: false
-        existingClaim: nfs-media-pvc
-        subPath: Videos/transcode/
-        readOnly: false
+        enabled: true
+        storageClass: local-path
+        accessMode: ReadWriteOnce
+        size: 40Gi
       tmp:
         enabled: true
         type: emptyDir
