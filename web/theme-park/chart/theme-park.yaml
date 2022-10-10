@@ -1,0 +1,48 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: theme-park
+  namespace: web
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 0.2.1
+      interval: 15m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+  values:
+    image:
+      repository: ghcr.io/onedr0p/theme-park
+      tag: 1.10.1@sha256:0dcde933654316b6d0f4c9c8d4130f3a95e02927d753952f5199fe348627d7b5
+    service:
+      main:
+        ports:
+          http:
+            port: 8080
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.davishaus.dev/oauth2/start
+        nginx.ingress.kubernetes.io/auth-url: https://auth.davishaus.dev/oauth2/auth
+        hosts:
+          - host: &host "theme-park.davishaus.dev"
+            paths:
+              - path: /
+        tls:
+          - hosts:
+              - *host
+            secretName: theme-park-tls-external
+    resources:
+      requests:
+        cpu: 15m
+        memory: 64M
+      limits:
+        memory: 64M
