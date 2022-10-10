@@ -37,6 +37,8 @@ spec:
         pullPolicy: Always
         tag: dev
     addons:
+      netshoot:
+        enabled: true
       vpn:
         enabled: true
         type: openvpn
@@ -45,12 +47,18 @@ spec:
             repository: dperson/openvpn-client
             pullPolicy: Always
             tag: latest
+          env:
+            - name: FIREWALL
+              value: "off"
+            - name: DOT
+              value: "off"
+
         livenessProbe:
           exec:
             command:
               - sh
               - -c
-              - if [ $(wget -q -O- https://ipinfo.io/country) == 'US' ]; then exit 0; else exit $?; fi
+              - if [ $(wget -q -O- https://ipinfo.io/country) == 'BE' ]; then exit 0; else exit $?; fi
           initialDelaySeconds: 30
           periodSeconds: 60
           failureThreshold: 3
@@ -62,7 +70,7 @@ spec:
                   cidr: 0.0.0.0/0
               ports:
               # VPN traffic
-              - port: 1198
+              - port: 51820
                 protocol: UDP
             - to:
               - ipBlock:
@@ -77,7 +85,7 @@ spec:
       # -- Prevent non VPN traffic to leave the gateway
       VPN_BLOCK_OTHER_TRAFFIC: true
       # -- If VPN_BLOCK_OTHER_TRAFFIC is true, allow VPN traffic over this port
-      VPN_TRAFFIC_PORT: 1198
+      VPN_TRAFFIC_PORT: 51820
       # -- Traffic to these IPs will be send through the K8S gateway
       VPN_LOCAL_CIDRS: "10.0.0.0/8"
       # -- DNS queries to these domains will be resolved by K8S DNS instead of the default
@@ -90,9 +98,9 @@ spec:
       IP: 10
       ports:
       - type: udp
-        port: 18289
+        port: 56202
       - type: tcp
-        port: 18289
+        port: 56202
   valuesFrom:
     - kind: Secret
       name: "vpn-gateway-helm-values"
