@@ -22,6 +22,15 @@ spec:
       tag: v1.1.1
     env:
       TZ: "America/New_York"
+      BAZARR__INSTANCE_NAME: Bazarr
+      BAZARR__PORT: &port 6767
+      BAZARR__APPLICATION_URL: "https://bazarr.davishaus.dev"
+      BAZARR__LOG_LEVEL: info
+      BAZARR__API_KEY:
+        valueFrom:
+          secretKeyRef:
+            name: starr-apps-secret
+            key: BAZARR_API_KEY
     ingress:
       main:
         enabled: true
@@ -30,6 +39,10 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           nginx.ingress.kubernetes.io/auth-url: "https://auth.davishaus.dev/oauth2/auth"
           nginx.ingress.kubernetes.io/auth-signin: https://auth.davishaus.dev/oauth2/start
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+            proxy_set_header Accept-Encoding "";
+            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.davishaus.dev/css/base/bazarr/nord.css"></head>';
+            sub_filter_once on;
         hosts:
         - host: bazarr.davishaus.dev
           paths:
@@ -50,9 +63,12 @@ spec:
         enabled: true
         existingClaim: nfs-vpn-media-pvc
     podSecurityContext:
-      runAsUser: 1001
-      runAsGroup: 1001
-      fsGroup: 1001
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+      supplementalGroups:
+        - 65539
     resources:
       requests:
         memory: 350Mi

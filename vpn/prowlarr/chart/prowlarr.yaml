@@ -22,6 +22,16 @@ spec:
       tag: v0.4.0.1802
     env:
       TZ: "America/New_York"
+      PROWLARR__INSTANCE_NAME: Prowlarr
+      PROWLARR__PORT: &port 9696
+      PROWLARR__LOG_LEVEL: info
+      PROWLARR__ANALYTICS_ENABLED: "False"
+      PROWLARR__APPLICATION_URL: "https://prowlarr.davishaus.dev"
+      PROWLARR__API_KEY:
+        valueFrom:
+          secretKeyRef:
+            name: starr-apps-secret
+            key: PROWLARR_API_KEY
     ingress:
       main:
         enabled: true
@@ -30,6 +40,10 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           nginx.ingress.kubernetes.io/auth-url: "https://auth.davishaus.dev/oauth2/auth"
           nginx.ingress.kubernetes.io/auth-signin: https://auth.davishaus.dev/oauth2/start
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+            proxy_set_header Accept-Encoding "";
+            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.davishaus.dev/css/base/prowlarr/nord.css"></head>';
+            sub_filter_once on;
         hosts:
           - host: "prowlarr.davishaus.dev"
             paths:
@@ -44,9 +58,6 @@ spec:
         enabled: true
         storageClass: "synology-csi-retain"
         size: 5Gi
-      media:
-        enabled: true
-        existingClaim: nfs-vpn-media-pvc
     resources:
       requests:
         memory: 100Mi
@@ -54,9 +65,12 @@ spec:
       limits:
         memory: 500Mi
     podSecurityContext:
-      runAsUser: 1001
-      runAsGroup: 1001
-      fsGroup: 1001
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+      supplementalGroups:
+        - 65539
     podAnnotations:
       backup.velero.io/backup-volumes: config
     tolerations:

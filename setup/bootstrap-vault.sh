@@ -35,6 +35,19 @@ kvault() {
   fi
 }
 
+
+kvault-env() {
+  name="secrets/$(dirname "$@")/$(basename -s .txt "$@")"
+  echo "Writing $name to vault"
+  if output=$(envsubst < "$REPO_ROOT/$*"); then
+    for line in $output
+    do
+      submit="$submit $line"
+    done
+      vault kv put "$name" $submit
+  fi
+}
+
 initVault() {
   message "initializing and unsealing vault (if necesary)"
   VAULT_READY=1
@@ -194,6 +207,7 @@ loadSecretsToVault() {
   # kvault "default/teslamate/teslamate-helm-values.txt"
   # kvault "velero/velero/velero-helm-values.txt"
   kvault "vpn-gateway/chart/vpn-gateway-helm-values.txt"
+  kvault-env "vpn/starr-apps-secret.txt"
 }
 
 loadSecretsToVault-oneoff() {
@@ -207,6 +221,7 @@ loadSecretsToVault-oneoff() {
   kvault "media/plex/chart/plex-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
   kvault "vpn-gateway/chart/vpn-gateway-helm-values.txt"
+  kvault-env "vpn/starr-apps-secret.txt"
 }
 
 

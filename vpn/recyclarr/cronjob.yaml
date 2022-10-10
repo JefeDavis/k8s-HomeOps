@@ -1,0 +1,90 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: recyclarr
+  namespace: vpn
+  labels:
+    app: recyclarr
+spec:
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          automountServiceAccountToken: false
+
+          dnsConfig:
+            options:
+              - name: ndots
+                value: "1"
+
+          initContainers:
+            - name: render-config
+              image: ghcr.io/onedr0p/recyclarr:2.5.0@sha256:bd4dc562a12c31857c2e198de154d4ffa734d5e7f6fe817283c6fdf5807c5fb1
+              command:
+                - "/bin/bash"
+                - -c
+              args:
+                - "envsubst < /config/recyclarr.yaml > /shared/recyclarr.yaml"
+              env:
+                - name: RADARR_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: starr-apps-secret
+                      key: RADARR_API_KEY
+                - name: SONARR_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: starr-apps-secret
+                      key: SONARR_API_KEY
+              volumeMounts:
+                - name: config
+                  mountPath: /config
+                - name: shared
+                  mountPath: /shared
+
+          containers:
+            - name: recyclarr-sonarr
+              image: ghcr.io/onedr0p/recyclarr:2.5.0@sha256:bd4dc562a12c31857c2e198de154d4ffa734d5e7f6fe817283c6fdf5807c5fb1
+              imagePullPolicy: IfNotPresent
+              command:
+                - /app/recyclarr
+              args:
+                - sonarr
+                - --app-data
+                - /tmp/recyclarr
+                - --config
+                - /config/recyclarr.yaml
+              volumeMounts:
+                - name: shared
+                  mountPath: /config/recyclarr.yaml
+                  subPath: recyclarr.yaml
+                  readOnly: true
+
+            - name: recyclarr-radarr
+              image: ghcr.io/onedr0p/recyclarr:2.5.0@sha256:bd4dc562a12c31857c2e198de154d4ffa734d5e7f6fe817283c6fdf5807c5fb1
+              imagePullPolicy: IfNotPresent
+              command:
+                - /app/recyclarr
+              args:
+                - radarr
+                - --app-data
+                - /tmp/recyclarr
+                - --config
+                - /config/recyclarr.yaml
+              volumeMounts:
+                - name: shared
+                  mountPath: /config/recyclarr.yaml
+                  subPath: recyclarr.yaml
+                  readOnly: true
+
+          restartPolicy: OnFailure
+
+          volumes:
+            - name: config
+              configMap:
+                name: recyclarr-config
+            - name: shared
+              emptyDir: {}
