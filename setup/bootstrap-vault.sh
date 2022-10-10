@@ -194,6 +194,7 @@ loadSecretsToVault() {
   # kvault "default/teslamate/teslamate-helm-values.txt"
   # kvault "velero/velero/velero-helm-values.txt"
   kvault "vpn-gateway/chart/vpn-gateway-helm-values.txt"
+  kvault "vpn/starr-apps-secret.txt"
 }
 
 loadSecretsToVault-oneoff() {
@@ -207,6 +208,7 @@ loadSecretsToVault-oneoff() {
   kvault "media/plex/chart/plex-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
   kvault "vpn-gateway/chart/vpn-gateway-helm-values.txt"
+  kvault "vpn/starr-apps-secret.txt"
 }
 
 

@@ -22,6 +22,15 @@ spec:
       tag: v0.1.1.1352
     env:
       TZ: "America/New_York"
+      SONARR__INSTANCE_NAME: Sonarr
+      SONARR__PORT: &port 8989
+      SONARR__APPLICATION_URL: "https://sonarr.davishaus.dev"
+      SONARR__LOG_LEVEL: info
+      SONARR__API_KEY:
+        valueFrom:
+          secretKeyRef:
+            name: starr-apps-secret
+            key: READARR_API_KEY
       # PUID: 1001
       # PGID: 1001
     ingress:
@@ -52,9 +61,12 @@ spec:
         enabled: true
         existingClaim: nfs-vpn-media-pvc
     podSecurityContext:
-      runAsUser: 1001
-      runAsGroup: 1001
-      fsGroup: 1001
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+      supplementalGroups:
+        - 65539 
     resources:
       requests:
         memory: 750Mi
