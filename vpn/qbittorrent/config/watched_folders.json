@@ -6,7 +6,7 @@
           "download_path": "",
           "operating_mode": "AutoManaged",
           "ratio_limit": -2,
-          "save_path": "/media/downloads/complete/movies",
+          "save_path": "/media/downloads/torrents/movies",
           "seeding_time_limit": -2,
           "skip_checking": false,
           "tags": [
@@ -23,7 +23,7 @@
           "download_path": "",
           "operating_mode": "AutoManaged",
           "ratio_limit": -2,
-          "save_path": "/media/downloads/complete/series",
+          "save_path": "/media/downloads/torrents/series",
           "seeding_time_limit": -2,
           "skip_checking": false,
           "tags": [
@@ -40,7 +40,7 @@
           "download_path": "",
           "operating_mode": "AutoManaged",
           "ratio_limit": -2,
-          "save_path": "/media/downloads/complete/special",
+          "save_path": "/media/downloads/torrents/special",
           "seeding_time_limit": -2,
           "skip_checking": false,
           "tags": [

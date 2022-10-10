@@ -114,8 +114,8 @@ spec:
 
       media:
         enabled: true
-        existingClaim: nfs-vpn-media-pvc
-        mountPath: /media
+        existingClaim: nfs-vpn-downloads-pvc
+        mountPath: /media/downloads
 
     resources:
       requests:
