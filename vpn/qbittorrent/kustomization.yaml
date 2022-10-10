@@ -1,0 +1,17 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: vpn
+resources:
+  - ./chart/qbittorrent.yaml
+commonLabels:
+  app.kubernetes.io/name: qbittorrent
+  app.kubernetes.io/instance: qbittorrent
+configMapGenerator:
+  - name: qbittorrent-config
+    files:
+      - config/categories.json
+      - config/qBittorrent.conf
+      - config/watched_folders.json
+generatorOptions:
+  disableNameSuffixHash: true

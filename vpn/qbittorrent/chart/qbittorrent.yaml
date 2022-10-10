@@ -8,67 +8,62 @@ spec:
   interval: 5m
   chart:
     spec:
-      chart: qbittorrent
-      version: 13.5.2
+      chart: app-template
+      version: 0.2.2
+      interval: 5m
       sourceRef:
         kind: HelmRepository
-        name: k8s-at-home-charts
+        name: bjw-s-charts
         namespace: flux-system
-      interval: 5m
+
   values:
     image:
-      # renovate: docker-image
-      repository: ghcr.io/k8s-at-home/qbittorrent
-      tag: v4.4.2
-      pullPolicy: Always
+      repository: ghcr.io/onedr0p/qbittorrent
+      tag: 4.4.5@sha256:8d3a198a125e08940c0a2615d1885e6111113d19cd727efd2883e78cf734504b
 
-    hostname: qb
+    podAnnotations:
+      setGateway: "true"
 
-    # initContainers:
-    #   copy-config:
-    #     image: busybox:latest
-    #     command:
-    #       - "/bin/sh"
-    #       - -c
-    #     args:
-    #       - cp /data/configfiles/* /data/config/; chown -R 568:568 /data/config
-    #     volumeMounts:
-    #       - name: config
-    #         mountPath: /data/config
-    #       - name: configfiles
-    #         mountPath: /data/configfiles
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+      supplementalGroups:
+        - 65539
 
-    # podSecurityContext:
-      # runAsUser: 568
-      # runAsGroup: 568
-      # fsGroup: 568
-      # fsGroupChangePolicy: OnRootMismatch
-      # supplementalGroups:
-      #   - 65539
+    initContainers:
+      copy-config:
+        image: busybox:latest@sha256:9810966b5f712084ea05bf28fc8ba2c8fb110baa2531a10e2da52c1efc504698
+        command:
+          - "/bin/sh"
+          - -c
+        args:
+          - cp /data/configfiles/* /data/config/
+        volumeMounts:
+          - name: config
+            mountPath: /data/config
+          - name: configfiles
+            mountPath: /data/configfiles
 
-    settings:
-      automaticPortSetup: false
+    dnsConfig:
+      options:
+        - name: ndots
+          value: "1"
 
     env:
-      TZ: "America/New York"
       UMASK: "022"
-      USE_PROFILE: "true"
+      QBITTORRENT__PORT: &port 8080
+      QBITTORRENT__USE_PROFILE: "true"
 
-    persistence:
-      cache:
-        enabled: true
-        type: emptyDir
-        mountPath: /config/qBittorrent/cache
+    hostname: qbittorrent
 
-      config:
-        enabled: true
-        storageClass: nfs-client
-        size: 5Gi
+    service:
+      main:
+        ports:
+          http:
+            port: *port
 
-      media:
-        enabled: true
-        existingClaim: nfs-vpn-media-pvc
-        mountPath: /media
     ingress:
       main:
         enabled: true
@@ -82,17 +77,49 @@ spec:
             proxy_hide_header "content-security-policy";
             proxy_hide_header "X-Frame-Options";
             proxy_set_header Accept-Encoding "";
+            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.davishaus.dev/css/base/qbittorrent/nord.css"></head>';
+            sub_filter_once on;
         hosts:
-        - host: qb.davishaus.dev
-          paths:
-          - path: /
+          - host: &host "qb.davishaus.dev"
+            paths:
+              - path: /
         tls:
-        - secretName: qbittorrent-tls-external
-          hosts:
-            - qb.davishaus.dev
+          - hosts:
+              - *host
+            secretName: qbittorrent-tls-external
+
+    persistence:
+      config:
+        enabled: true
+        type: emptyDir
+        mountPath: /config/qBittorrent/config
+
+      cache:
+        enabled: true
+        type: emptyDir
+        mountPath: /config/qBittorrent/cache
+
+      configfiles:
+        enabled: true
+        type: configMap
+        name: qbittorrent-config
+        mountPath: "-"
+
+      data:
+        enabled: true
+        storageClass: nfs-client
+        size: 5Gi
+        mountPath: /config/qBittorrent/data
+        accessMode: ReadWriteOnce
+
+      media:
+        enabled: true
+        existingClaim: nfs-vpn-media-pvc
+        mountPath: /media
+
     resources:
       requests:
-        cpu: 35m
+        cpu: 49m
         memory: 765M
       limits:
         memory: 1426M
