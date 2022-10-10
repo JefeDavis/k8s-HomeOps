@@ -18,8 +18,8 @@ spec:
       interval: 5m
   values:
     image:
-      repository: ghcr.io/k8s-at-home/bazarr
-      tag: v1.1.1
+      repository: ghcr.io/onedr0p/bazarr
+      tag: 1.1.1@sha256:8a71a5ddd1ba91347eda2b1eda26325a9208ebd5d9452492856ec32c97feee64
     env:
       TZ: "America/New_York"
       BAZARR__INSTANCE_NAME: Bazarr

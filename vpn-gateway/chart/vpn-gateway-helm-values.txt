@@ -6,7 +6,7 @@ addons:
       client
       dev tun
       proto udp
-      remote brussels.privacy.network 1198
+      remote us-atlanta.privacy.network 1198
       resolv-retry infinite
       nobind
       persist-key
