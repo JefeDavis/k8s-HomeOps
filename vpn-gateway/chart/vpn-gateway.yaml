@@ -26,7 +26,7 @@ spec:
       repository: ghcr.io/angelnu/pod-gateway
       # Use dev version
       pullPolicy: Always
-      tag: dev
+      tag: latest
     podAnnotations:
       configmap.reloader.stakater.com/reload: "vpn-gateway-pod-gateway"
       secret.reloader.stakater.com/reload: "vpn-gateway-vpnconfig"
@@ -35,8 +35,10 @@ spec:
         repository: ghcr.io/angelnu/gateway-admision-controller
         # Use dev version
         pullPolicy: Always
-        tag: dev
+        tag: latest
     addons:
+      netshoot:
+        enabled: true
       vpn:
         enabled: true
         type: openvpn
@@ -50,7 +52,7 @@ spec:
             command:
               - sh
               - -c
-              - if [ $(wget -q -O- https://ipinfo.io/country) == 'US' ]; then exit 0; else exit $?; fi
+              - if [ $(wget -q -O- https://ipinfo.io/country) == 'BE' ]; then exit 0; else exit $?; fi
           initialDelaySeconds: 30
           periodSeconds: 60
           failureThreshold: 3
@@ -64,6 +66,8 @@ spec:
               # VPN traffic
               - port: 1198
                 protocol: UDP
+              - port: 1198
+                protocol: TCP
             - to:
               - ipBlock:
                   cidr: 10.42.0.0/15
@@ -90,9 +94,9 @@ spec:
       IP: 10
       ports:
       - type: udp
-        port: 18289
+        port: 56202
       - type: tcp
-        port: 18289
+        port: 56202
   valuesFrom:
     - kind: Secret
       name: "vpn-gateway-helm-values"
