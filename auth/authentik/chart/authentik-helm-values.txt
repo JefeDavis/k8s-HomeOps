@@ -1,0 +1,10 @@
+authentik:
+  secret_key: "$AUTHENTIK_KEY"
+  log_level: debug
+  postgresql:
+    password: "$AUTHENTIK_POSTGRESQL_PASSWORD"
+postgresql:
+  enabled: true
+  postgresqlPassword: "$AUTHENTIK_POSTGRESQL_PASSWORD"
+  global:
+    storageClass: synology-csi-retain

@@ -1,0 +1,50 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: authentik
+  namespace: auth
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://charts.goauthentik.io
+      chart: authentik
+      version: 2022.9.0
+      sourceRef:
+        kind: HelmRepository
+        name: authentik-charts
+        namespace: flux-system
+      interval: 5m
+  values:
+    image:
+      repository: ghcr.io/goauthentik/server
+      tag: 2022.9.0
+      pullPolicy: IfNotPresent
+
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+        nginx.org/websocket-services: authentik
+        nginx.ingress.kubernetes.io/enable-global-auth: "false"
+
+      hosts:
+      - host: authentik.davishaus.dev
+        paths:
+        - path: /
+
+      tls:
+      - hosts:
+        - authentik.davishaus.dev
+        secretName: authentik-tls-external
+    redis:
+      enabled: true
+      global:
+        storageClass: synology-csi-retain
+  valuesFrom:
+  - kind: Secret
+    name: authentik-helm-values
+    optional: false
