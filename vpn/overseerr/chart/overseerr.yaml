@@ -1,0 +1,72 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: overseerr
+  namespace: vpn
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 0.2.2
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+
+  values:
+    image:
+      repository: ghcr.io/sct/overseerr
+      tag: 1.30.0
+
+    dnsConfig:
+      options:
+        - name: ndots
+          value: "1"
+
+    env:
+      LOG_LEVEL: "info"
+      PORT: 80
+
+    service:
+      main:
+        ports:
+          http:
+            port: 80
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: "nginx"
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          nginx.ingress.kubernetes.io/auth-url: "https://auth.davishaus.dev/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.davishaus.dev/oauth2/start
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+            proxy_set_header Accept-Encoding "";
+            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.davishaus.dev/css/base/overseerr/nord.css"></head>';
+            sub_filter_once on;
+        hosts:
+          - host: &host "overseerr.davishaus.dev"
+            paths:
+              - path: /
+        tls:
+          - hosts:
+              - *host
+            secretName: overseerr-tls-external
+
+    persistence:
+      config:
+        enabled: true
+        storageClass: synology-csi-retain
+        accessMode: ReadWriteOnce
+        mountPath: /app/config
+
+    resources:
+      requests:
+        cpu: 15m
+        memory: 226M
+      limits:
+        memory: 1937M
