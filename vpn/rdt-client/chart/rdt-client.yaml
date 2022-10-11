@@ -1,0 +1,82 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: rdt-client
+  namespace: vpn
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 0.2.2
+      interval: 5m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+
+  values:
+    image:
+      repository: rogerfar/rdtclient 
+      tag: 2.0.17
+    podAnnotations:
+      setGateway: "true"
+
+    # podSecurityContext:
+    #   runAsUser: 568
+    #   runAsGroup: 568
+    #   fsGroup: 568
+    #   fsGroupChangePolicy: "OnRootMismatch"
+    #   supplementalGroups:
+    #     - 65539
+
+    dnsConfig:
+      options:
+        - name: ndots
+          value: "1"
+
+    hostname: rdt
+
+    service:
+      main:
+        ports:
+          http:
+            port: 6500
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: "nginx"
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.davishaus.dev/oauth2/start
+          nginx.ingress.kubernetes.io/auth-url: https://auth.davishaus.dev/oauth2/auth
+        hosts:
+          - host: &host "rdt.davishaus.dev"
+            paths:
+              - path: /
+        tls:
+          - hosts:
+              - *host
+            secretName: rdt-client-tls-external
+
+    persistence:
+      data:
+        enabled: true
+        storageClass: synology-csi-retain
+        size: 5Gi
+        mountPath: /data/db
+        accessMode: ReadWriteOnce
+
+      media:
+        enabled: true
+        existingClaim: nfs-vpn-downloads-pvc
+        mountPath: /data/downloads
+
+    resources:
+      requests:
+        cpu: 49m
+        memory: 765M
+      limits:
+        memory: 1426M
