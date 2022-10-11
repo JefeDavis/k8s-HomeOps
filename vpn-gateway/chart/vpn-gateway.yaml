@@ -36,6 +36,9 @@ spec:
         # Use dev version
         pullPolicy: Always
         tag: latest
+        gatewayAnnotation: setGateway
+        gatewayDefault: false
+        gatewayLabel: setGateway
     addons:
       netshoot:
         enabled: true
