@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # trap "exit" INT TERM
 # trap "kill 0" EXIT
 
@@ -195,7 +196,7 @@ loadSecretsToVault() {
   kvault "external-dns/chart/external-dns-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
   # kvault "monitoring/botkube/botkube-helm-values.txt"
-  # kvault "monitoring/grafana/grafana-helm-values.txt"
+  kvault "monitoring/grafana/chart/grafana-helm-values.txt"
   kvault "monitoring/kube-prometheus-stack/chart/kube-prometheus-stack-helm-values.txt"
   # kvault "monitoring/thanos/thanos-helm-values.txt"
   # kvault "monitoring/uptimerobot-prometheus/uptimerobot-prometheus-helm-values.txt"
@@ -214,6 +215,7 @@ loadSecretsToVault() {
 loadSecretsToVault-oneoff() {
   message "writing secrets to vault"
   kvault "monitoring/kube-prometheus-stack/chart/kube-prometheus-stack-helm-values.txt"
+  kvault "monitoring/grafana/chart/grafana-helm-values.txt"
   kvault "external-dns/chart/external-dns-helm-values.txt"
   kvault "auth/oauth2-proxy/chart/oauth2-proxy-helm-values.txt"
   kvault "auth/authentik/chart/authentik-helm-values.txt"
