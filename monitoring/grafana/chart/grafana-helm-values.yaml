@@ -1,10 +1,10 @@
 apiVersion: ricoberger.de/v1alpha1
 kind: VaultSecret
 metadata:
-  name: kube-prometheus-stack-helm-values
+  name: grafana-helm-values
   namespace: monitoring
 spec:
   keys:
     - values.yaml
-  path: secrets/monitoring/kube-prometheus-stack/chart/kube-prometheus-stack-helm-values
+  path: secrets/monitoring/grafana/chart/grafana-helm-values
   type: Opaque

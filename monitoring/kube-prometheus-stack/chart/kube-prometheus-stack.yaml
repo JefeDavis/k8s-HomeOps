@@ -56,8 +56,6 @@ spec:
         pathType: Prefix
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-prod"
-          nginx.ingress.kubernetes.io/auth-url: "https://auth.davishaus.dev/oauth2/auth"
-          nginx.ingress.kubernetes.io/auth-signin: https://auth.davishaus.dev/oauth2/start
         hosts:
         - prom-alert.davishaus.dev
         tls:
@@ -94,9 +92,6 @@ spec:
           # Apply inhibition if the alertname is the same.
           equal: ['alertname', 'namespace']
         templates: ["*.tmpl"]
-      templateFiles:
-        pagerduty-custom.tmpl: |-
-          {{- define "pagerduty.custom.description" -}}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ if ne .CommonAnnotations.summary ""}}{{ .CommonAnnotations.summary }} {{ else if ne .CommonAnnotations.message ""}}{{ .CommonAnnotations.message }} {{ else if ne .CommonAnnotations.description ""}}{{ .CommonAnnotations.description }} {{ else }}{{ .CommonLabels.alertname }}{{ end }}{{- end -}}
     nodeExporter:
       enabled: true
     prometheus-node-exporter:
@@ -212,12 +207,6 @@ spec:
         podMetadata:
           annotations:
             backup.velero.io/backup-volumes: prometheus-kube-prometheus-stack-prometheus-db
-        thanos:
-          image: quay.io/thanos/thanos:v0.28.0
-          version: v0.24.0
-          objectStorageConfig:
-            name: thanos-objstore-secret
-            key: objstore.yml
         resources:
           requests:
             memory: 2000Mi
@@ -235,10 +224,6 @@ spec:
         #           - prometheus
         #       topologyKey: "kubernetes.io/hostname"
         podAntiAffinity: "hard"
-      thanosService:
-        enabled: true
-      thanosServiceMonitor:
-        enabled: true
   valuesFrom:
   - kind: Secret
     name: "kube-prometheus-stack-helm-values"
