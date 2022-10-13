@@ -3,7 +3,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: recyclarr
-  namespace: vpn
+  namespace: media
   labels:
     app: recyclarr
 spec:
