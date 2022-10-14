@@ -1,0 +1,34 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: flaresolverr
+  namespace: vpn
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: flaresolverr
+      version: 6.0.41
+      interval: 5m
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts-charts
+        namespace: flux-system
+  values:
+    flaresolverr:
+      image:
+        repository: flaresolverr/flaresolverr
+        tag: v2.2.9
+      env:
+        TZ: US/New York
+        LOG_LEVEL: info
+        LOG_HTML: "false"
+        CAPTCHA_SOLVER: none
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          cpu: 1000m
+          memory: 1024Mi
