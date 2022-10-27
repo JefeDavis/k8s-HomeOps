@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    meta.helm.sh/release-name: readarr
+    meta.helm.sh/release-namespace: media
+    volume.beta.kubernetes.io/storage-provisioner: csi.san.synology.com
+    volume.kubernetes.io/storage-provisioner: csi.san.synology.com
+  creationTimestamp: "2022-10-12T17:04:50Z"
+  finalizers:
+    - kubernetes.io/pvc-protection
+  labels:
+    app.kubernetes.io/instance: readarr
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: readarr
+    app.kubernetes.io/version: v0.1.0.715
+    helm.sh/chart: readarr-6.4.2
+    helm.toolkit.fluxcd.io/name: readarr
+    helm.toolkit.fluxcd.io/namespace: media
+  name: readarr-config
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: synology-csi-retain
+  volumeMode: Filesystem
+  volumeName: pvc-1cbd6bf7-8e12-40c6-b0f7-93374e4d505a
