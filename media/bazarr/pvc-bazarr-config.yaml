@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    meta.helm.sh/release-name: bazarr
+    meta.helm.sh/release-namespace: media
+    volume.beta.kubernetes.io/storage-provisioner: csi.san.synology.com
+    volume.kubernetes.io/storage-provisioner: csi.san.synology.com
+  creationTimestamp: "2022-10-08T02:59:17Z"
+  finalizers:
+    - kubernetes.io/pvc-protection
+  labels:
+    app.kubernetes.io/instance: bazarr
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: bazarr
+    app.kubernetes.io/version: v1.0.3
+    helm.sh/chart: bazarr-10.6.2
+    helm.toolkit.fluxcd.io/name: bazarr
+    helm.toolkit.fluxcd.io/namespace: media
+  name: bazarr-config
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: synology-csi-retain
+  volumeMode: Filesystem
+  volumeName: pvc-d417ac8e-230c-4fa0-9edd-657155fb6987
