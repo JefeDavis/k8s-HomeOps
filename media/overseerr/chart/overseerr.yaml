@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: overseerr
-  namespace: vpn
+  namespace: media
 spec:
   interval: 30m
   chart:
@@ -69,8 +69,9 @@ spec:
     persistence:
       config:
         enabled: true
-        storageClass: synology-csi-retain
-        accessMode: ReadWriteOnce
+        existingClaim: overseerr-config
+        # storageClass: synology-csi-retain
+        # accessMode: ReadWriteOnce
         mountPath: /app/config
 
     resources:
