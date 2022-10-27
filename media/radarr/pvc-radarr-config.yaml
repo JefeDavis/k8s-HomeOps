@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    meta.helm.sh/release-name: radarr
+    meta.helm.sh/release-namespace: media
+    volume.beta.kubernetes.io/storage-provisioner: csi.san.synology.com
+    volume.kubernetes.io/storage-provisioner: csi.san.synology.com
+  creationTimestamp: "2022-10-10T19:52:30Z"
+  finalizers:
+    - kubernetes.io/pvc-protection
+  labels:
+    app.kubernetes.io/instance: radarr
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: radarr
+    app.kubernetes.io/version: v4.1.0.6175
+    helm.sh/chart: radarr-16.3.2
+    helm.toolkit.fluxcd.io/name: radarr
+    helm.toolkit.fluxcd.io/namespace: media
+  name: radarr-config
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: synology-csi-retain
+  volumeMode: Filesystem
+  volumeName: pvc-7c11a4c4-92b2-4511-8649-db65e1c0bef2
