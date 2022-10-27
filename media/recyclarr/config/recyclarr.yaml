@@ -3,7 +3,7 @@
 
 # Configuration specific to Sonarr
 sonarr:
-  - base_url: http://sonarr.vpn.svc.cluster.local:8989
+  - base_url: http://sonarr.media.svc.cluster.local:8989
     api_key: ${SONARR_API_KEY}
     delete_old_custom_formats: true
     # Quality Definition Settings
@@ -85,7 +85,7 @@ sonarr:
 
 # Configuration specific to Radarr.
 radarr:
-  - base_url: http://radarr.vpn.svc.cluster.local:7878
+  - base_url: http://radarr.media.svc.cluster.local:7878
     api_key: ${RADARR_API_KEY}
     delete_old_custom_formats: true
     quality_definition:
