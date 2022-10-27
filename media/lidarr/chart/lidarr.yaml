@@ -2,7 +2,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: lidarr
-  namespace: vpn 
+  namespace: media 
 spec:
   interval: 5m
   chart:
@@ -62,11 +62,10 @@ spec:
     persistence:
       config:
         enabled: true
-        storageClass: "synology-csi-retain"
-        size: 3Gi
+        existingClaim: lidarr-config
       media:
         enabled: true
-        existingClaim: nfs-vpn-media-pvc
+        existingClaim: nfs-media-pvc
     podSecurityContext:
       runAsUser: 568
       runAsGroup: 568
