@@ -45,7 +45,7 @@ spec:
       #   ingressClassName: nginx
       #   hosts:
       #     - host: home.davishaus.lab
-      #       paths:
+      #       paths::
       #         - path: /
       #   tls:
       #     - hosts:
@@ -71,6 +71,12 @@ spec:
           - hosts:
               - home.davishaus.dev
             secretName: home-assistant-tls-external
+    metrics:
+      enabled: true
+      serviceMonitor:
+        bearerTokenSecret:
+          name: home-assistant-token
+          key: token
     persistence:
       config:
         enabled: true

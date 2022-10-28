@@ -224,7 +224,3 @@ spec:
         #           - prometheus
         #       topologyKey: "kubernetes.io/hostname"
         podAntiAffinity: "hard"
-  valuesFrom:
-  - kind: Secret
-    name: "kube-prometheus-stack-helm-values"
-    optional: false
