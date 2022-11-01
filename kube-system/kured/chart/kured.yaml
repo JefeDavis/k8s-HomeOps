@@ -30,3 +30,7 @@ spec:
       operator: "Exists"
     metrics:
       create: true
+  valuesFrom:
+  - kind: Secret
+    name: "kured-helm-values"
+    optional: false

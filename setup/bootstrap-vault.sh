@@ -189,7 +189,7 @@ loadSecretsToVault() {
   ####################
   # helm chart values
   ####################
-  # kvault "kube-system/kured/kured-helm-values.txt"
+  kvault "kube-system/kured/chart/kured-helm-values.txt"
   kvault "auth/oauth2-proxy/chart/oauth2-proxy-helm-values.txt"
   kvault "auth/authentik/chart/authentik-helm-values.txt"
   kvault "mqtt/emqx/chart/emqx-helm-values.txt"
