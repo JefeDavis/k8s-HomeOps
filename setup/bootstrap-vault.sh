@@ -196,7 +196,7 @@ loadSecretsToVault() {
   kvault "zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values.txt"
   kvault "external-dns/chart/external-dns-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
-  # kvault "monitoring/botkube/botkube-helm-values.txt"
+  kvault "monitoring/botkube/chart/botkube-helm-values.txt"
   kvault "monitoring/grafana/chart/grafana-helm-values.txt"
   kvault "monitoring/kube-prometheus-stack/chart/kube-prometheus-stack-helm-values.txt"
   # kvault "monitoring/thanos/thanos-helm-values.txt"
