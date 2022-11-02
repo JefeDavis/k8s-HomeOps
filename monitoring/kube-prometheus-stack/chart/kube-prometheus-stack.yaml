@@ -79,10 +79,6 @@ spec:
             - match:
                 alertname: InfoInhibitor
               receiver: 'null'
-            - receiver: 'pagerduty'
-              match:
-                severity: critical
-              continue: true
             - receiver: 'slack-notifications'
         inhibit_rules:
         - source_match:
@@ -227,3 +223,7 @@ spec:
         #           - prometheus
         #       topologyKey: "kubernetes.io/hostname"
         podAntiAffinity: "hard"
+  valuesFrom:
+    - kind: Secret
+      name: "kube-prometheus-stack-helm-values"
+      optional: false
