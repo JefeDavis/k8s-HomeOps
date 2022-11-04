@@ -25,6 +25,11 @@ spec:
       ALLOWED_NETWORKS: "10.0.0.0/8"
       PLEX_PREFERENCE_1: "FriendlyName=plex-davishaus"
       PLEX_PREFERENCE_2: "LanNetworksBandwidth=10.0.0.0/8"
+      PLEX_CLAIM:
+        valueFrom:
+          secretKeyRef:
+            name: plex-claim-token
+            key: claimToken    
     podSecurityContext:
       supplementalGroups:
       - 44
@@ -100,7 +105,3 @@ spec:
       #     readOnly: true
       #   securityContext:
       #     runAsUser: 0
-  valuesFrom:
-  - kind: Secret
-    name: "plex-helm-values"
-    optional: false
