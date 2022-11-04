@@ -62,9 +62,8 @@ spec:
         size: 35Gi
       transcode:
         enabled: true
-        storageClass: local-path
-        accessMode: ReadWriteOnce
-        size: 40Gi
+        type: emptyDir
+        sizeLimit: 400Gi
       tmp:
         enabled: true
         type: emptyDir
