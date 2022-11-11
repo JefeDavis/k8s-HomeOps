@@ -10,7 +10,7 @@ spec:
     spec:
       # renovate: registryUrl=https://charts.truecharts.org
       chart: flaresolverr
-      version: 7.0.0
+      version: 7.0.2
       interval: 5m
       sourceRef:
         kind: HelmRepository
