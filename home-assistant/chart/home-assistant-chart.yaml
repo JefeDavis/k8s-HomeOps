@@ -40,20 +40,6 @@ spec:
             enabled: true
             port: 8095
     ingress:
-      # internal:
-      #   enabled: true
-      #   annotations:
-      #     nginx.org/websocket-services: home-assistant
-      #     cert-manager.io/cluster-issuer: davishaus-lab-issuer
-      #   ingressClassName: nginx
-      #   hosts:
-      #     - host: home.davishaus.lab
-      #       paths::
-      #         - path: /
-      #   tls:
-      #     - hosts:
-      #         - home.davishaus.lab
-      #       secretName: home-assistant-tls-internal
       external:
         enabled: true
         annotations:
@@ -86,14 +72,14 @@ spec:
         storageClass: "synology-csi-retain"
         accessMode: ReadWriteOnce
         size: 10Gi
-      zigbee:
-        enabled: true
-        type: hostPath
-        hostPath: /dev/ttyUSB0
-      zwave:
-        enabled: true
-        type: hostPath
-        hostPath: /dev/ttyUSB1
+      # zigbee:
+      #   enabled: true
+      #   type: hostPath
+      #   hostPath: /dev/ttyUSB0
+      # zwave:
+      #   enabled: true
+      #   type: hostPath
+      #   hostPath: /dev/ttyUSB1
       # configuration:
       #   enabled: true
       #   type: configMap
@@ -119,19 +105,19 @@ spec:
         enabled: false
       startup:
         enabled: false
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-              - key: feature.node.kubernetes.io/custom-zwave
-                operator: In
-                values:
-                  - "true"
-              - key: feature.node.kubernetes.io/custom-zigbee
-                operator: In
-                values:
-                  - "true"
+    # affinity:
+    #   nodeAffinity:
+    #     requiredDuringSchedulingIgnoredDuringExecution:
+    #       nodeSelectorTerms:
+    #         - matchExpressions:
+    #           - key: feature.node.kubernetes.io/custom-zwave
+    #             operator: In
+    #             values:
+    #               - "true"
+    #           - key: feature.node.kubernetes.io/custom-zigbee
+    #             operator: In
+    #             values:
+    #               - "true"
     postgresql:
       enabled: true
       auth:
@@ -149,38 +135,6 @@ spec:
           storageClass: "synology-csi-retain"
           size: 10Gi
           mountPath: "/data/"
-    # configmap:
-    #   configuration:
-    #     enabled: true
-    #     data:
-    #       configuration.yaml: |
-    #         homeassistant:
-    #           packages: !include_dir_named packages
-
-    #         default_config:
-            
-    #         # Text to speech
-    #         tts:
-    #           - platform: google_translate
-
-    #         http:
-    #           server_host: 0.0.0.0
-    #           ip_ban_enabled: true
-    #           login_attempts_threshold: 5
-    #           use_x_forwarded_for: true
-    #           trusted_proxies:
-    #           # Pod CIDR
-    #           - 10.42.0.0/22
-    #           # Node CIDR
-    #           - 10.77.1.0/24
-            
-    #         automation: !include automations.yaml
-    #         script: !include scripts.yaml
-    #         scene: !include scenes.yaml
-
-    #         withings:
-    #           use_webhook: true
-
     addons:
       codeserver:
         enabled: true
