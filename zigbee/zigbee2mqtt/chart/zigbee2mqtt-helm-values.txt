@@ -1,3 +1,16 @@
-secretEnv:
-  ZIGBEE2MQTT_CONFIG_MQTT_USER: mqtt
-  ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD: $EMQX_MQTT_USER_PASSWORD
+config:
+  mqtt:
+    # MQTT base topic for zigbee2mqtt MQTT messages
+    base_topic: zigbee2mqtt
+    # MQTT server URL
+    server: "mqtt://emqx.mqtt.svc.cluster.local:1883"
+    # MQTT server authentication, uncomment if required:
+    user: mqtt
+    password: $EMQX_MQTT_USER_PASSWORD
+    # client_id: my_id
+    # Alternatively, credentials may be put into a separate file, managed through a secret:
+    # password: '!secret password'
+
+    # Optional: Include device information to mqtt messages (default: false)
+    include_device_information: true
+
