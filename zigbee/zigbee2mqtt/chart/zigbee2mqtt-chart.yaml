@@ -8,12 +8,12 @@ spec:
   interval: 5m
   chart:
     spec:
-      # renovate: registryUrl=https://charts.truecharts.org
+      # renovate: registryUrl=https://k8s-at-home.com/charts
       chart: zigbee2mqtt
-      version: 5.0.2
+      version: 9.4.2
       sourceRef:
         kind: HelmRepository
-        name: truecharts-charts
+        name: k8s-at-home-charts
         namespace: flux-system
       interval: 5m
   upgrade:
