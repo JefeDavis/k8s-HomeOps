@@ -74,9 +74,6 @@ spec:
         nginx-dashboard:
           url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json
           datasource: Prometheus
-        speedtest-exporter:
-          url: https://raw.githubusercontent.com/billimek/k8s-gitops/master/monitoring/grafana/dashboards/speedtest-exporter.json
-          datasource: Prometheus
     sidecar:
       datasources:
         enabled: true
