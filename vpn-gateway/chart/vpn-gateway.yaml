@@ -119,9 +119,9 @@ spec:
       IP: 10
       ports:
       - type: udp
-        port: 56202
+        port: 55985
       - type: tcp
-        port: 56202
+        port: 55985
   valuesFrom:
     - kind: Secret
       name: "vpn-gateway-helm-values"

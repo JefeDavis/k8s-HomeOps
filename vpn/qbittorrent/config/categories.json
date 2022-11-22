@@ -1,17 +1,17 @@
 {
-  "Movies": {
+  "movies": {
       "save_path": "/media/downloads/torrents/movies"
   },
-  "Music": {
+  "music": {
       "save_path": "/media/downloads/torrents/music"
   },
-  "Seeding": {
+  "seeding": {
       "save_path": "/media/downloads/torrents/seeding"
   },
-  "Series": {
+  "series": {
       "save_path": "/media/downloads/torrents/series"
   },
-  "Special": {
+  "special": {
       "save_path": "/media/downloads/torrents/special"
   }
 }
