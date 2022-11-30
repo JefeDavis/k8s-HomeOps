@@ -26,6 +26,7 @@ sonarr:
         filter:
           exclude:
             - ea83f4740cec4df8112f3d6dd7c82751 # Prefer Season Packs
+            - 6f2aefa61342a63387f2a90489e90790 # ignore retags
         tags: [tv]
     # custom_formats:
     #   - trash_ids:
