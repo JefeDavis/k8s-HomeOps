@@ -19,7 +19,7 @@ spec:
   values:
     image:
       repository: ghcr.io/onedr0p/radarr
-      tag: 4.2.4.6635@sha256:f2773903378aa5a7c3702f2731eca21bf40cf78c83971c6b37385d5586eb9e02
+      tag: 4.2.4.6635@sha256:4d8c97490c7ff8b1c0e961a49e869e433d05ac2d1981157826692f85e2f5d7f0
     env:
       TZ: America/New_York
       RADARR__INSTANCE_NAME: Radarr
