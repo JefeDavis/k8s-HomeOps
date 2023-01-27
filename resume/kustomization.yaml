@@ -1,0 +1,6 @@
+# Adds namespace to all resources.
+namespace: resume
+
+bases:
+- ./resume-operator
+- ./resume

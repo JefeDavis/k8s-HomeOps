@@ -1,0 +1,10 @@
+# Adds namespace to all resources.
+namespace: resume
+
+bases:
+- ./overview.yaml
+- ./certifications/certs.yaml
+- ./experience/20cs-usaf.yaml
+- ./experience/691cos-usaf.yaml
+- ./experience/epic.yaml
+- ./experience/vmware.yaml
