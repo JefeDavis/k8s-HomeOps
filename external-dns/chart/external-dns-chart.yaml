@@ -30,13 +30,13 @@ spec:
     registry: txt
     txtPrefix: "jsdyb-kube-001-"
     domainFilters:
-      - davishaus.lab
+      - internal.davishaus.dev
     provider: rfc2136
 
     extraArgs:
       - --rfc2136-host=10.77.0.2
       - --rfc2136-port=53
-      - --rfc2136-zone=davishaus.lab
+      - --rfc2136-zone=internal.davishaus.dev
       - --rfc2136-tsig-axfr
   valuesFrom:
     - kind: Secret
