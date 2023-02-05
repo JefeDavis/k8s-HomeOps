@@ -179,6 +179,37 @@ EOF
     ttl=24h
 }
 
+setupExternalSecrets() {
+  message "configuring vault for external-secrets"
+  vault secrets enable -path=secrets -version=2 kv
+
+  # create read-only policy for kubernetes
+  cat <<EOF | vault policy write external-secrets -
+  path "secrets/data/*" {
+    capabilities = ["read"]
+  }
+EOF
+
+  export EXTERNAL_SECRETS_NAMESPACE=$(kubectl -n external-secrets get sa external-secrets -o jsonpath="{.metadata.namespace}")
+  export K8S_HOST=$(kubectl -n external-secrets config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+
+  # Verify the environment variables
+  # env | grep -E 'VAULT_SECRETS_OPERATOR_NAMESPACE|VAULT_SECRET_NAME|SA_JWT_TOKEN|SA_CA_CRT|K8S_HOST'
+
+  vault auth enable kubernetes
+
+  # Tell Vault how to communicate with the Kubernetes cluster
+  vault write auth/kubernetes/config \
+    kubernetes_host="$K8S_HOST" \
+
+  # Create a role named, 'vault-secrets-operator' to map Kubernetes Service Account to Vault policies and default token TTL
+  vault write auth/kubernetes/role/external-secrets \
+    bound_service_account_names="external-secrets" \
+    bound_service_account_namespaces="$EXTERNAL_SECRETS_NAMESPACE" \
+    policies=external-secrets \
+    ttl=24h
+}
+
 loadSecretsToVault() {
   message "writing secrets to vault"
   vault kv put secrets/home-assistant/home-assistant-token token="$HASS_TOKEN"
@@ -242,8 +273,9 @@ portForwardVault
 loginVault
 if [ $FIRST_RUN == 0 ]; then
   setupVaultSecretsOperator
+  setupExternalSecrets
 fi
-# loadSecretsToVault
+
 loadSecretsToVault
 
 kill $VAULT_FWD_PID
