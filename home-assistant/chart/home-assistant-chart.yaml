@@ -21,7 +21,7 @@ spec:
   values:
     image:
       repository: ghcr.io/home-assistant/home-assistant
-      tag: 2023.1.7
+      tag: 2023.2.2
     env:
       TZ: "America/New York"
     dnsPolicy: ClusterFirstWithHostNet
