@@ -1,3 +1,6 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
+
 # For more details on the configuration, see the Configuration Reference on the wiki here:
 # https://github.com/recyclarr/recyclarr/wiki/Configuration-Reference
 
@@ -7,7 +10,7 @@ sonarr:
     api_key: ${SONARR_API_KEY}
     delete_old_custom_formats: true
     # Quality Definition Settings
-    quality_definition: hybrid
+    quality_definition: series
 
     # Release Profile Settings
     release_profiles:
