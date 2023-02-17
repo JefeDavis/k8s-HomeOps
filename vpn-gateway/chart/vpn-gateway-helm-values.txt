@@ -17,7 +17,7 @@ additionalContainers:
         value: $WIREGUARD_PRIVATE_KEY
       - name: WIREGUARD_ADDRESSES
         value: $WIREGUARD_ADDRESSES
-#      - name: SERVER_CITIES
-#        value: "Atlanta GA"
+      - name: SERVER_CITIES
+        value: "Atlanta GA"
       - name: FIREWALL_VPN_INPUT_PORTS
         value: "55985"
