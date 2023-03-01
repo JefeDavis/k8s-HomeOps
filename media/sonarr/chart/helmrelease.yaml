@@ -19,7 +19,7 @@ spec:
   values:
     image:
       repository: ghcr.io/onedr0p/sonarr
-      tag: 3.0.9.1549@sha256:3e208c3eaf14eb895bb022532070927535a6965fc66ea643ba8f48205254d915
+      tag: 3.0.9.1549@sha256:c713e52a6e71d29dcdd38741a4b92384c2911a63a378af1b8e0ebf9f954a0498
     env:
       TZ: America/New_York
       SONARR__INSTANCE_NAME: Sonarr
