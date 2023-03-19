@@ -58,12 +58,16 @@ spec:
             sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.davishaus.dev/css/base/overseerr/nord.css"></head>';
             sub_filter_once on;
         hosts:
-          - host: &host "overseerr.davishaus.dev"
+          - host: "overseerr.davishaus.dev"
+            paths:
+              - path: /
+          - host: "request.davishaus.dev"
             paths:
               - path: /
         tls:
           - hosts:
-              - *host
+              - "overseerr.davishaus.dev"
+              - "request.davishaus.dev"
             secretName: overseerr-tls-external
 
     persistence:
