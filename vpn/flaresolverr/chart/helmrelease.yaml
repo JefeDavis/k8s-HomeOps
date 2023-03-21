@@ -20,7 +20,7 @@ spec:
     flaresolverr:
       image:
         repository: flaresolverr/flaresolverr
-        tag: v3.0.4
+        tag: v3.1.0
       env:
         TZ: US/New York
         LOG_LEVEL: info
