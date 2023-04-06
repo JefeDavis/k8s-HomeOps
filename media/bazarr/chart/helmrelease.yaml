@@ -19,7 +19,7 @@ spec:
   values:
     image:
       repository: ghcr.io/onedr0p/bazarr
-      tag: 1.2.0@sha256:8d0a08e4608a6ef27b71b107c1745b0e311b563b2e1c08b2927dc34a8335aed7
+      tag: 1.2.0@sha256:e11328126c07614deb881a6d9291900cc2fe1b39038abe1df4634ed9c49aae45
     env:
       TZ: America/New_York
       BAZARR__INSTANCE_NAME: Bazarr
