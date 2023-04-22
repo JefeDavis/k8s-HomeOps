@@ -44,6 +44,11 @@ spec:
       enabled: true
       global:
         storageClass: synology-csi-retain
+      master:
+        securityContext:
+          enabled: true
+          runAsUser: 0
+          fsGroup: 2000
   valuesFrom:
   - kind: Secret
     name: authentik-helm-values
