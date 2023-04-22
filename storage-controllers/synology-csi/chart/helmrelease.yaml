@@ -19,6 +19,9 @@ spec:
   values:
     clientInfoSecret:
       name: synology-csi-secret
+    images:
+      plugin:
+        tag: latest
     storageClasses:
       delete: 
         parameters:
