@@ -30,7 +30,7 @@ spec:
       # -- image repository
       repository: koenkk/zigbee2mqtt
       # -- image tag
-      tag: 1.30.2
+      tag: 1.30.3
       # -- image pull policy
       pullPolicy: IfNotPresent
 
