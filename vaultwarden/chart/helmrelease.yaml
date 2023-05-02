@@ -36,6 +36,7 @@ spec:
       WEBSOCKET_ADDRESS: 0.0.0.0
       WEBSOCKET_ENABLED: true
       WEBSOCKET_PORT: 3012
+      SIGNUPS_ALLOWED: "false"
     service:
       main:
         ports:
