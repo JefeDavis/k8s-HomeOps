@@ -6,7 +6,6 @@
 Thumbs.db
 # Binaries
 bin
-/flux
 *.iso
 # Temp folders
 .temp*

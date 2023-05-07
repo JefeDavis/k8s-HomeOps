@@ -1,0 +1,7 @@
+---
+apiVerison: kustomize.config.k8s.io/v1beta1
+kind: Kustomize
+namespace: system
+resources:
+  - ./helmrelease.yaml
+  - ./nodefeaturerule.yaml
