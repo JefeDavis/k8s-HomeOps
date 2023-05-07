@@ -233,7 +233,7 @@ loadSecretsToVault() {
   # helm chart values
   ####################
   kvault-tpl "apps/system/kured/secret/kured.tpl"
-  kvault "auth/authentik/chart/authentik-helm-values.txt"
+  kvault-tpl "apps/auth/authentik/secret/authentik.tpl"
   kvault "mqtt/emqx/chart/emqx-helm-values.txt"
   kvault "zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values.txt"
   kvault "external-dns/chart/external-dns-helm-values.txt"
