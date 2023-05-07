@@ -49,6 +49,19 @@ kvault-env() {
   fi
 }
 
+kvault-tpl() {
+  name="secrets/$(dirname "$@")/$(basename -s .tpl "$@")"
+  echo "Writing $name to vault"
+  if output=$(envsubst < "$REPO_ROOT/$*"); then
+    for line in $output
+    do
+      submit="$submit $line"
+    done
+      vault kv put "$name" $submit
+  fi
+}
+
+
 initVault() {
   message "initializing and unsealing vault (if necesary)"
   VAULT_READY=1
@@ -215,14 +228,11 @@ loadSecretsToVault() {
   vault kv put secrets/home-assistant/home-assistant-token token="$HASS_TOKEN"
   vault kv put secrets/flux-system/discord-webhook address="$DISCORD_FLUX_WEBHOOK_URL"
   vault kv put secrets/media/plex/claim-token claimToken="$PLEX_CLAIM_TOKEN"
-  # vault kv put secrets/kube-system/nginx-basic-auth-jeff auth="$JEFF_AUTH"
-  # vault kv put secrets/cert-manager/cloudflare-api-key api-key="$CF_API_KEY"
 
   ####################
   # helm chart values
   ####################
-  kvault "kube-system/kured/chart/kured-helm-values.txt"
-  kvault "auth/oauth2-proxy/chart/oauth2-proxy-helm-values.txt"
+  kvault-tpl "apps/system/kured/secret/kured.tpl"
   kvault "auth/authentik/chart/authentik-helm-values.txt"
   kvault "mqtt/emqx/chart/emqx-helm-values.txt"
   kvault "zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values.txt"
