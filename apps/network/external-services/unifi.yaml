@@ -1,0 +1,57 @@
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: unifi
+  namespace: network
+subsets:
+  - addresses:
+    - ip: 10.0.1.1
+    ports:
+    - port: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: octoprint
+  namespace: network
+spec:
+ ports:
+   - name: http
+     port: 443
+     protocol: TCP
+     targetPort: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/auth-response-headers: Set-Cookie,X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid
+    nginx.ingress.kubernetes.io/auth-signin: https://unifi.davishaus.dev/outpost.goauthentik.io/start?rd=$escaped_request_uri
+    nginx.ingress.kubernetes.io/auth-snippet: |
+      proxy_set_header X-Forwarded-Host $http_host;
+    nginx.ingress.kubernetes.io/auth-url: http://ak-outpost-davishaus.auth.svc.cluster.local:9000/outpost.goauthentik.io/auth/nginx
+  labels:
+    app.kubernetes.io/instance: unifi
+    app.kubernetes.io/name: unifi
+  name: unifi
+  namespace: network
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: unifi.davishaus.dev
+    http:
+      paths:
+      - backend:
+          service:
+            name: unifi
+            port:
+              number: 443
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - unifi.davishaus.dev
+    secretName: unifi-tls-external
