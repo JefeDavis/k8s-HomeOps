@@ -1,0 +1,55 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: recyclarr
+  namespace: media
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.4.0
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+
+  values:
+    controller:
+      type: cronjob
+      cronjob:
+        schedule: "@daily"
+        ttlSecondsAfterFinished: 86400
+
+    restartPolicy: OnFailure
+
+    image:
+      repository: ghcr.io/recyclarr/recyclarr
+      tag: edge@sha256:f540a13fc5ce9f653552332498d0e1dbce782798b735f9d4a6fb6f16d9e8ab41
+
+    command: ["/app/recyclarr/recyclarr"]
+    args: 
+      - "sync"
+      - "-c"
+      - "/config/recyclarr.yml"
+
+    envFrom:
+      - secretRef:
+          name: starr-apps-secret
+
+    service:
+      main:
+        enabled: false
+
+    persistence:
+      config:
+        enabled: true
+        type: configMap
+        name: recyclarr-configmap
+        subPath: recyclarr.yml
+        mountPath: /config/recyclarr.yml
+        defaultMode: 0775
+        readOnly: true
