@@ -30,11 +30,11 @@ installManualObjects(){
   ##########
 read -r -d '' SYNOLOGY_CLIENT << EOM
 clients:
-- host: jsdyb-nas-001.internal.davishaus.dev
+- host: ${SYNOLOGY_URL}
   https: true
-  password: ${SYNOLOGY_CSI_PASSWORD}
+  password: ${SYNOLOGY_PASSWORD}
   port: 5001
-  username: k3s
+  username: ${SYNOLOGY_USERNAME}
 EOM
 
 

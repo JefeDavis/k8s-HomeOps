@@ -235,6 +235,8 @@ loadSecretsToVault() {
   kvault-tpl "apps/system/kured/secret/kured.tpl"
   kvault-tpl "apps/auth/authentik/secret/authentik.tpl"
   kvault-tpl "apps/network/external-dns/secret/external-dns.tpl"
+  kvault-tpl "apps/storage/synology-csi/secret/synology-secret.tpl"
+
   kvault "mqtt/emqx/chart/emqx-helm-values.txt"
   kvault "zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values.txt"
   # kvault "logs/loki/loki-helm-values.txt"
