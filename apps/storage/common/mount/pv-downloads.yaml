@@ -3,7 +3,7 @@ kind: PersistentVolume
 metadata:
   name: nfs-media-downloads-pv
 spec:
-  storageClassName: media-downloads
+  storageClassName: downloads
   capacity:
     storage: 1Mi
   accessModes:

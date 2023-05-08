@@ -236,6 +236,7 @@ loadSecretsToVault() {
   kvault-tpl "apps/auth/authentik/secret/authentik.tpl"
   kvault-tpl "apps/network/external-dns/secret/external-dns.tpl"
   kvault-tpl "apps/storage/synology-csi/secret/synology-secret.tpl"
+  kvault-tpl "apps/media/common/secret/starr-apps-secret.tpl"
 
   kvault "mqtt/emqx/chart/emqx-helm-values.txt"
   kvault "zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values.txt"
@@ -255,7 +256,6 @@ loadSecretsToVault() {
   # kvault "velero/velero/velero-helm-values.txt"
   kvault "vpn-gateway/chart/vpn-gateway-helm-values.txt"
   kvault-env "vaultwarden/vaultwarden-secret.txt"
-  kvault-env "vpn/starr-apps-secret.txt"
 }
 
 loadSecretsToVault-oneoff() {

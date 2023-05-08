@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: readarr-config
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: synology-csi-retain
+  volumeMode: Filesystem
+  volumeName: pvc-1cbd6bf7-8e12-40c6-b0f7-93374e4d505a

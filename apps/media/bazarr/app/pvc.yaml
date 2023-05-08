@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bazarr-config
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: synology-csi-retain
+  volumeMode: Filesystem
+  volumeName: pvc-d417ac8e-230c-4fa0-9edd-657155fb6987
