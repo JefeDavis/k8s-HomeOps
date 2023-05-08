@@ -10,12 +10,20 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: davishaus-lab-root
+  name: davishaus-internal-root
   namespace: cert-manager
 spec:
   isCA: true
-  commonName: davishaus-root
-  secretName: root-secret
+  dnsNames:
+    - internal.davishaus.dev
+  secretName: root-ca
+  subject:
+    countries:
+      - "US"
+    organizations:
+      - "DavisHaus"
+    organizationUnits:
+      - "Internal"
   privateKey:
     algorithm: ECDSA
     size: 256
@@ -27,7 +35,7 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: davishaus-lab-issuer
+  name: davishaus-internal-issuer
 spec:
   ca:
-    secretName: root-secret
+    secretName: root-ca
