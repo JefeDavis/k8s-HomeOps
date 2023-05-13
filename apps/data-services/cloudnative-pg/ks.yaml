@@ -2,13 +2,13 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: apps-authentik
+  name: apps-cloudnative-pg
   namespace: flux-system
   labels:
     substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
-  path: "./apps/auth/authentik/app"
+  path: "./apps/data-services/cloudnative-pg/app"
   prune: true
   sourceRef:
     kind: GitRepository
@@ -17,8 +17,7 @@ spec:
   healthChecks:
     - apiVersion: helm.toolkit.fluxcd.io/v2beta1
       kind: HelmRelease
-      name: authentik
-      namespace: auth
+      name: cloudnative-pg
+      namespace: data-services
   dependsOn:
-    - name: apps-cloudnative-pg
-    - name: apps-external-secret-stores
+    - name: apps-synology-csi
