@@ -3,17 +3,17 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: theme-park
-  namespace: web
+  namespace: self-hosted
 spec:
-  interval: 15m
+  interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 0.2.1
+      version: 1.4.0
       interval: 15m
       sourceRef:
         kind: HelmRepository
-        name: bjw-s-charts
+        name: bjw-s
         namespace: flux-system
   values:
     image:
@@ -30,15 +30,6 @@ spec:
         ingressClassName: nginx
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
-          # nginx.ingress.kubernetes.io/auth-url: |-
-            # http://ak-outpost-davishaus.auth.svc.cluster.local:9000/outpost.goauthentik.io/auth/nginx
-          # If you're using domain-level auth, use the authentication URL instead of the application URL
-          # nginx.ingress.kubernetes.io/auth-signin: |-
-              # https://theme-park.davishaus.dev/outpost.goauthentik.io/start?rd=$escaped_request_uri
-          # nginx.ingress.kubernetes.io/auth-response-headers: |-
-              # Set-Cookie,X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid
-          # nginx.ingress.kubernetes.io/auth-snippet: |
-              # proxy_set_header X-Forwarded-Host $http_host;
         hosts:
           - host: &host "theme-park.davishaus.dev"
             paths:
@@ -55,7 +46,7 @@ spec:
         mountPath: /usr/share/nginx/html/css/base/rdt/
     resources:
       requests:
-        cpu: 15m
-        memory: 64M
+        cpu: 5m
+        memory: 10Mi
       limits:
-        memory: 64M
+        memory: 10Mi
