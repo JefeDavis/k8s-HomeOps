@@ -2,15 +2,15 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: "pg-authentik"
-  namespace: "auth"
+  name: pg-authentik
+  namespace: security
 spec:
   instances: 3
-  imageName: "ghcr.io/cloudnative-pg/postgresql:15.2-11"
+  imageName: ghcr.io/cloudnative-pg/postgresql:15.2-11
   primaryUpdateStrategy: unsupervised # let k8s handle upgrades
   primaryUpdateMethod: restart # prefer downtime of image download from registry instead of switching primary instance (promote a standby instance to primary) when current primary pod is updated
   storage:
-    size: "8Gi"
+    size: 8Gi
     storageClass: synology-csi-retain
   postgresql:
     parameters:
@@ -24,10 +24,10 @@ spec:
     initdb:
       dataChecksums: true
       database: authentik
-      owner: "authentik"
+      owner: authentik
       encoding: "UTF8"
-      localeCollate: "en_US.utf8"
-      localeCType: "en_US.utf8"
+      localeCollate: en_US.utf8
+      localeCType: en_US.utf8
 
 #  # RECOVERY
 #  bootstrap:

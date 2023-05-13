@@ -233,7 +233,7 @@ loadSecretsToVault() {
   # helm chart values
   ####################
   kvault-tpl "apps/system/kured/secret/kured.tpl"
-  kvault-tpl "apps/auth/authentik/secret/authentik.tpl"
+  kvault-tpl "apps/security/authentik/secret/authentik.tpl"
   kvault-tpl "apps/network/external-dns/secret/external-dns.tpl"
   kvault-tpl "apps/storage/synology-csi/secret/synology-secret.tpl"
   kvault-tpl "apps/media/common/secret/starr-apps-secret.tpl"
