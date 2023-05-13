@@ -23,6 +23,29 @@ spec:
 
     authentik:
       log_level: debug
+      error_reporting:
+        enabled: false
+        send_pii: false
+      postgresql:
+        host: 'pg-authentik-rw'
+        port: 5432
+        name: ""
+        user: ""
+        password: ""
+
+    envValueFrom:
+      AUTHENTIK_POSTGRESQL__NAME:
+        secretKeyRef:
+          name: pg-authentik-app
+          key: username
+      AUTHENTIK_POSTGRESQL__USER:
+        secretKeyRef:
+          name: pg-authentik-app
+          key: username
+      AUTHENTIK_POSTGRESQL__PASSWORD:
+        secretKeyRef:
+          name: pg-authentik-app
+          key: password
 
     image:
       repository: ghcr.io/goauthentik/server
@@ -37,7 +60,6 @@ spec:
         nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
         nginx.org/websocket-services: authentik
         nginx.ingress.kubernetes.io/enable-global-auth: "false"
-
       hosts:
       - host: authentik.davishaus.dev
         paths:
@@ -47,21 +69,13 @@ spec:
       - hosts:
         - authentik.davishaus.dev
         secretName: authentik-tls-external
-    postgresql:
-      enabled: true
     redis:
       enabled: true
+
+    blueprints: []
   valuesFrom:
   - targetPath: authentik.secret_key
     kind: Secret
     name: authentik-secret
     valuesKey: AUTHENTIK_KEY
-  - targetPath: authentik.postgressql.password
-    kind: Secret
-    name: authentik-secret
-    valuesKey: AUTHENTIK_POSTGRESQL_PASSWORD
-  - targetPath: postgresql.postgresqlPassword
-    kind: Secret
-    name: authentik-secret
-    valuesKey: AUTHENTIK_POSTGRESQL_PASSWORD
 

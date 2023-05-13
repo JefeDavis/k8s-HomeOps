@@ -1,9 +1,7 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: auth
+namespace: data-services
 resources:
-  - ./pgcluster.yaml
-  - ./externalsecret.yaml
   - ./helmrelease.yaml
 
