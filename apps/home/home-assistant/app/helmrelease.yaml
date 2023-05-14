@@ -1,0 +1,133 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: home
+  annotations:
+    substitution.flux.home.arpa/enabled: "false"
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 30m
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controller:
+      type: statefulset
+      annotations:
+        reloader.stakater.com/auto: "true"
+    image:
+      repository: ghcr.io/home-assistant/home-assistant
+      tag: 2023.5.2
+    # podAnnotations:
+    #   k8s.v1.cni.cncf.io/networks: macvlan-static-iot-hass
+    env:
+      TZ: "America/New York"
+      POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: pg-home-assistant-app
+            key: username
+      POSTGRES_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: pg-home-assistant-app
+            key: password
+      SECRET_RECORDER_DB_URL: "postgres://$(POSTGRES_USER):$(POSTGRES_PASS)@pg-home-assistant-rw/home-assistant"
+    envFrom:
+      - secretRef:
+          name: home-assistant-secret
+        prefix: "HASS_"
+    dnsPolicy: ClusterFirstWithHostNet
+    hostNetwork: true
+    service:
+      main:
+        ports:
+          http:
+            port: 8123
+        type: LoadBalancer
+        loadBalancerIP: "10.77.1.133"
+        ports:
+          http:
+            port: 8123
+          sonos:
+            enabled: true
+            port: 1400
+          mass:
+            enabled: true
+            port: 8095
+    ingress:
+      external:
+        enabled: true
+        annotations:
+          nginx.org/websocket-services: home-assistant
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+        ingressClassName: nginx
+        hosts:
+          - host: home.davishaus.dev
+            paths:
+              - path: /
+        tls:
+          - hosts:
+              - home.davishaus.dev
+            secretName: home-assistant-tls-external
+    metrics:
+      enabled: true
+      serviceMonitor:
+        bearerTokenSecret:
+          name: home-assistant-secret
+          key: TOKEN
+
+    persistence:
+      deploy-key:
+        enabled: true
+        type: secret
+        name: home-assistant-secret
+        defaultMode: 256
+        subPath:
+          - path: GH_DEPLOY_KEY
+            mountPath: /root/.ssh/id_rsa
+
+    probes:
+      liveness:
+        custom: true
+        spec:
+          httpGet:
+            path: /manifest.json
+            port: 8123
+          initialDelaySeconds: 3
+          periodSeconds: 3
+      readiness:
+        enabled: false
+      startup:
+        enabled: false
+    resources:
+      requests:
+        cpu: 30m
+        memory: 870Mi
+      limits:
+        memory: 870Mi
+
+    volumeClaimtemplates:
+      - name: config
+        mountPath: config
+        accessMode: ReadWriteOnce
+        size: 10Gi
+        storageClass: "synology-csi-retain"

@@ -1,11 +1,12 @@
 ---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: emqx
   namespace: mqtt
 spec:
-  interval: 5m
+  interval: 30m
   chart:
     spec:
       # renovate: registryUrl=https://repos.emqx.io/charts
@@ -15,34 +16,37 @@ spec:
         kind: HelmRepository
         name: emqx-charts
         namespace: flux-system
-      interval: 5m
+      interval: 30m
   install:
     createNamespace: true
     remediation:
-      retries: 5
+      retries: 3
   upgrade:
     remediation:
-      retries: 5
+      retries: 3
   values:
     image:
       repository: public.ecr.aws/emqx/emqx
     replicaCount: 3
     recreatePods: true
-    tolerations:
-      - key: "arm"
-        operator: "Exists"
     affinity:
       podAntiAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-            - key: app.kubernetes.io/name
-              operator: In
-              values:
-              - emqx
-          topologyKey: "kubernetes.io/hostname"
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values: ["emqx"]
+              topologyKey: "kubernetes.io/hostname"
+    metrics:
+      enabled: true
+
     emqxConfig:
       EMQX_ALLOW_ANONYMOUS: "false"
+      EMQX_AUTH__MNESIA__PASSWORD_HASH: plain
+      EMQX_DASHBOARD__DEFAULT_USERNAME: admin
     #   EMQX_ACL_NOMATCH: "deny"
 
     emqxAclConfig: >
@@ -83,19 +87,27 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           nginx.ingress.kubernetes.io/auth-url: http://ak-outpost-davishaus.auth.svc.cluster.local:9000/outpost.goauthentik.io/auth/nginx
-          # If you're using domain-level auth, use the authentication URL instead of the application URL
           nginx.ingress.kubernetes.io/auth-signin: https://emqx.davishaus.dev/outpost.goauthentik.io/start?rd=$escaped_request_uri
           nginx.ingress.kubernetes.io/auth-response-headers: Set-Cookie,X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid
           nginx.ingress.kubernetes.io/auth-snippet: |
             proxy_set_header X-Forwarded-Host $http_host;
         path: /
         hosts:
-        - emqx.davishaus.dev
-        tls:
-        - hosts:
           - emqx.davishaus.dev
-          secretName: emqx-tls-external
+        tls:
+          - hosts:
+              - emqx.davishaus.dev
+            secretName: emqx-tls-external
   valuesFrom:
-  - kind: Secret
-    name: "emqx-helm-values"
-    optional: false
+    - targetPath: emqxConfig.EMQX_DASHBOARD__DEFAULT_PASSWORD
+      kind: secret
+      name: emqx-secret
+      valuesKey: admin_password
+    - targetPath: emqxConfig.EMQX_AUTH__USER__1__USERNAME
+      kind: secret
+      name: emqx-secret
+      valuesKey: user_1_username
+    - targetPath: emqxConfig.EMQX_AUTH__USER__1__PASSWORD
+      kind: secret
+      name: emqx-secret
+      valuesKey: user_1_password
