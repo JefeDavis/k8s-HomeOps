@@ -225,7 +225,6 @@ EOF
 
 loadSecretsToVault() {
   message "writing secrets to vault"
-  vault kv put secrets/home-assistant/home-assistant-token token="$HASS_TOKEN"
   vault kv put secrets/flux-system/discord-webhook address="$DISCORD_FLUX_WEBHOOK_URL"
   vault kv put secrets/media/plex/claim-token claimToken="$PLEX_CLAIM_TOKEN"
 
@@ -237,23 +236,12 @@ loadSecretsToVault() {
   kvault-tpl "apps/network/external-dns/secret/external-dns.tpl"
   kvault-tpl "apps/storage/synology-csi/secret/synology-secret.tpl"
   kvault-tpl "apps/media/common/secret/starr-apps-secret.tpl"
+  kvault-tpl "apps/home/emqx/secret/emqx.tpl"
+  kvault-tpl "apps/home/zigbee2mqtt/secret/zigbee2mqtt.tpl"
+  kvault-tpl "apps/home/home-assistant/secret/home-assistant.tpl"
 
-  kvault "mqtt/emqx/chart/emqx-helm-values.txt"
-  kvault "zigbee/zigbee2mqtt/chart/zigbee2mqtt-helm-values.txt"
-  # kvault "logs/loki/loki-helm-values.txt"
-  kvault "monitoring/botkube/chart/botkube-helm-values.txt"
   kvault "monitoring/grafana/chart/grafana-helm-values.txt"
   kvault "monitoring/kube-prometheus-stack/chart/kube-prometheus-stack-helm-values.txt"
-  # kvault "monitoring/thanos/thanos-helm-values.txt"
-  # kvault "monitoring/uptimerobot-prometheus/uptimerobot-prometheus-helm-values.txt"
-  # kvault "default/emqx/emqx-helm-values.txt"
-  # kvault "default/frigate/frigate-helm-values.txt"
-  kvault "home-assistant/chart/home-assistant-helm-values.txt"
-  # kvault "default/monica/monica-helm-values.txt"
-  # kvault "media/plex/chart/plex-helm-values.txt"
-  # kvault "default/rtorrent-flood/rtorrent-flood-helm-values.txt"
-  # kvault "default/teslamate/teslamate-helm-values.txt"
-  # kvault "velero/velero/velero-helm-values.txt"
   kvault "vpn-gateway/chart/vpn-gateway-helm-values.txt"
   kvault-env "vaultwarden/vaultwarden-secret.txt"
 }

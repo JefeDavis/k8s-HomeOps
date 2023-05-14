@@ -1,0 +1,4 @@
+admin_password=$EMQX_MQTT_ADMIN_PASSWORD
+user_1_username=mqtt
+user_1_password=$EMQX_MQTT_USER_PASSWORD
+
