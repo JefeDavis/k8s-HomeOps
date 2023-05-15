@@ -5,7 +5,7 @@ metadata:
   name: k8s-home-ops
   namespace: flux-system
 spec:
-  interval: 1m0s
+  interval: 30m
   ref:
     branch: main
   secretRef:
@@ -19,7 +19,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: ./
+  path: ./flux
   prune: true
   wait: false
   sourceRef:
@@ -27,9 +27,13 @@ spec:
     name: k8s-home-ops
     dependsOn:
     - name: flux
+  decryption:
+    provider: sops
   postBuild:
     substituteFrom:
       - kind: ConfigMap
         name: cluster-settings
         optional: false
+      - kind: Secret
+        name: cluster-secrets
 
