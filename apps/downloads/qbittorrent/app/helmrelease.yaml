@@ -5,18 +5,22 @@ metadata:
   name: qbittorrent
   namespace: vpn
 spec:
-  interval: 5m
+  interval: 15m
   chart:
     spec:
       chart: app-template
-      version: 0.2.2
-      interval: 5m
+      version: 1.5.0
+      interval: 15m
       sourceRef:
         kind: HelmRepository
-        name: bjw-s-charts
+        name: bjw-s
         namespace: flux-system
 
   values:
+    controller:
+      type: statefulset
+      annotations:
+        reloader.stakater.com/auto: "true"
     image:
       repository: ghcr.io/onedr0p/qbittorrent
       tag: 4.5.2@sha256:621c2e012820a2f5d4a4e37ca6bf8aec40ebd0183f6f7d274808a7ac45a135d0
@@ -53,6 +57,7 @@ spec:
     env:
       UMASK: "022"
       QBITTORRENT__PORT: &port 8080
+      QBITTORRENT__BT_PORT: &port-bt 50413
       QBITTORRENT__USE_PROFILE: "true"
 
     hostname: qbittorrent
@@ -62,7 +67,14 @@ spec:
         ports:
           http:
             port: *port
-
+      bittorrent:
+        enabled: true
+        ports:
+          bittorrent:
+            enabled: true
+            port: *port-bt
+            protocol: TCP
+            targetPort: *port-bt
     ingress:
       main:
         enabled: true
@@ -111,13 +123,6 @@ spec:
         name: qbittorrent-config
         mountPath: "-"
 
-      data:
-        enabled: true
-        storageClass: nfs-client
-        size: 5Gi
-        mountPath: /config/qBittorrent/data
-        accessMode: ReadWriteOnce
-
       media:
         enabled: true
         existingClaim: nfs-vpn-downloads-pvc
@@ -125,7 +130,7 @@ spec:
 
     resources:
       requests:
-        cpu: 49m
-        memory: 765M
+        cpu: 10m
+        memory: 250Mi
       limits:
-        memory: 1426M
+        memory: 600Mi

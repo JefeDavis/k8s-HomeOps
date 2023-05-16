@@ -5,18 +5,21 @@ metadata:
   name: rdt-client
   namespace: vpn
 spec:
-  interval: 5m
+  interval: 15m
   chart:
     spec:
       chart: app-template
-      version: 0.2.2
-      interval: 5m
+      version: 1.5.0
+      interval: 15m
       sourceRef:
         kind: HelmRepository
-        name: bjw-s-charts
+        name: bjw-s
         namespace: flux-system
-
   values:
+    controller:
+      type: statefulset
+      annotations:
+        reloader.stakater.com/auto: "true"
     image:
       repository: rogerfar/rdtclient 
       tag: 2.0.30
@@ -71,20 +74,17 @@ spec:
           - hosts:
               - *host
             secretName: rdt-client-tls-external
-
-    persistence:
-      data:
-        enabled: true
-        storageClass: synology-csi-retain
-        size: 5Gi
+    volumeClaimTemplates:
+      - name: data
         mountPath: /data/db
         accessMode: ReadWriteOnce
-
+        size: 5Gi
+        storageClass: synology-csi-retain
+    persistence:
       media:
         enabled: true
-        existingClaim: nfs-vpn-downloads-pvc
+        existingClaim: nfs-downloads-pvc
         mountPath: /data/downloads
-
     resources:
       requests:
         cpu: 49m
