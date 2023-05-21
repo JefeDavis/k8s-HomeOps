@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: security
 resources:
   - ./pgcluster.yaml
-  - ./externalsecret.yaml
+  # - ./externalsecret.yaml
+  - ./secret-authentik.sops.yaml
   - ./helmrelease.yaml
 
