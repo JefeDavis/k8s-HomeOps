@@ -4,5 +4,6 @@ kind: Kustomization
 namespace: system
 resources:
   - ./helmrelease.yaml
-  - ./externalsecret.yaml
+  # - ./externalsecret.yaml
+  - ./secret-kured.sops.yaml
 
