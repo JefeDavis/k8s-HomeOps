@@ -8,7 +8,8 @@ commonLabels:
 resources:
   - ./database.yaml
   - ./volsync.yaml
-  - ./externalsecret.yaml
+  # - ./externalsecret.yaml
+  - ./secret-home-assistant.sops.yaml
   - ./helmrelease.yaml
   - ./networkattachmentdefinition.yaml
 patchesStrategicMerge:
