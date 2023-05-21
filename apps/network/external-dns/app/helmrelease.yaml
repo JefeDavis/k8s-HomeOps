@@ -56,4 +56,4 @@ spec:
                 path: /spec/template/spec/containers/0/envFrom
                 value:
                   - secretRef:
-                      name: external-dns
+                      name: external-dns-secret
