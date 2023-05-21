@@ -23,6 +23,7 @@ data:
   FRONTEND_URL: https://zigbee2mqtt.davishaus.dev
   HOMEASSISTANT: "true"
   MQTT_BASE_TOPIC: zigbee2mqtt
+  MQTT_INCLUDE_DEVICE_INFORMATION: "true"
   MQTT_KEEPALIVE: 60
   MQTT_REJECT_UNAUTHORIZED: "true"
   MQTT_SERVER: "mqtt://emqx.home.svc.cluster.local:1883"

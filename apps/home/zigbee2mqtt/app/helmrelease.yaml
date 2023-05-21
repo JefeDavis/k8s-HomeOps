@@ -26,7 +26,16 @@ spec:
     env:
       TZ: "American/New York"
       ZIGBEE2MQTT_DATA: /data
-
+      ZIGBEE2MQTT_CONFIG_MQTT_USER:
+        valueFrom:
+          secretKeyRef:
+            name: emqx-secret
+            key: EMQX_AUTH__USER__1__USERNAME
+      ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: emqx-secret
+            key: EMQX_AUTH__USER__1__PASSWORD
     service:
       main:
         ports:
@@ -85,6 +94,9 @@ spec:
     envFrom:
       - configMapRef:
           name: zigbee2mqtt-config
+          prefix: "ZIGBEE2MQTT_CONFIG_"
+      - secretRef:
+          name: zigbee2mqtt-secret
           prefix: "ZIGBEE2MQTT_CONFIG_"
       
         # channel: 11
