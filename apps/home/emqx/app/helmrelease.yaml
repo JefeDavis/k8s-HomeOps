@@ -47,7 +47,9 @@ spec:
       EMQX_ALLOW_ANONYMOUS: "false"
       EMQX_AUTH__MNESIA__PASSWORD_HASH: plain
       EMQX_DASHBOARD__DEFAULT_USERNAME: admin
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD__DEFAULT_PASSWORD}
     #   EMQX_ACL_NOMATCH: "deny"
+    envFromSecret: emqx-secret
 
     emqxAclConfig: >
       {allow, {user, "dashboard"}, subscribe, ["$SYS/#"]}.
@@ -98,16 +100,3 @@ spec:
           - hosts:
               - emqx.davishaus.dev
             secretName: emqx-tls-external
-  valuesFrom:
-    - targetPath: emqxConfig.EMQX_DASHBOARD__DEFAULT_PASSWORD
-      kind: secret
-      name: emqx-secret
-      valuesKey: admin_password
-    - targetPath: emqxConfig.EMQX_AUTH__USER__1__USERNAME
-      kind: secret
-      name: emqx-secret
-      valuesKey: user_1_username
-    - targetPath: emqxConfig.EMQX_AUTH__USER__1__PASSWORD
-      kind: secret
-      name: emqx-secret
-      valuesKey: user_1_password
