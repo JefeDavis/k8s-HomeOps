@@ -61,12 +61,12 @@ spec:
           - name: WIREGUARD_PRIVATE_KEY
             valueFrom:
               secretKeyRef:
-                name: vpn-gateway-config
+                name: vpn-gateway-secret
                 key: WIREGUARD_PRIVATE_KEY
           - name: WIREGUARD_ADDRESSES
             valueFrom:
               secretKeyRef:
-                name: vpn-gateway-config
+                name: vpn-gateway-secret
                 key: WIREGUARD_ADDRESSES
         resources:
           requests:
@@ -90,7 +90,7 @@ spec:
 
     podAnnotations:
       configmap.reloader.stakater.com/reload: vpn-gateway-pod-gateway
-      secret.reloader.stakater.com/reload: vpn-gateway-config
+      secret.reloader.stakater.com/reload: vpn-gateway-secret
 
     publicPorts:
       - IP: 10
