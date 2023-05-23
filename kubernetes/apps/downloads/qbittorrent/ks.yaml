@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: apps-qbittorrent
+  name: cluster-apps-qbittorrent
   namespace: flux-system
   labels:
     substitution.flux.home.arpa/enabled: "true"
@@ -20,5 +20,5 @@ spec:
       name: qbittorrent
       namespace: downloads
   dependsOn:
-    - name: apps-downloads-common-mounts
-    - name: apps-synology-csi
+    - name: cluster-apps-downloads-common-mounts
+    - name: cluster-apps-synology-csi

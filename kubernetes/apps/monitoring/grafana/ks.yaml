@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: apps-grafana
+  name: cluster-apps-grafana
   namespace: flux-system
 spec:
   path: ./kubernetes/apps/monitoring/grafana/app
@@ -21,7 +21,7 @@ spec:
       name: grafana
       namespace: monitoring
   dependsOn:
-    - name: apps-cloudnative-pg
-    - name: apps-external-secrets-stores
-    - name: apps-kube-prometheus-stack
-    - name: apps-authentik
+    - name: cluster-apps-cloudnative-pg
+    - name: cluster-apps-external-secrets-stores
+    - name: cluster-apps-kube-prometheus-stack
+    - name: cluster-apps-authentik

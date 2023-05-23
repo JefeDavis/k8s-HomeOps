@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: apps-authentik
+  name: cluster-apps-authentik
   namespace: flux-system
   labels:
     substitution.flux.home.arpa/enabled: "true"
@@ -21,4 +21,4 @@ spec:
       namespace: security
   decryption: sops
   dependsOn:
-    - name: apps-cloudnative-pg
+    - name: cluster-apps-cloudnative-pg

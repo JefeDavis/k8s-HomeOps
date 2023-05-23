@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: apps-ingress-nginx
+  name: cluster-apps-ingress-nginx
   namespace: flux-system
   labels:
     substitution.flux.home.arpa/enabled: "true"
@@ -15,5 +15,5 @@ spec:
     name: k8s-home-ops
   wait: true
   dependsOn:
-    - name: apps-cert-manager-issuers
+    - name: cluster-apps-cert-manager-issuers
 

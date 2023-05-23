@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: apps-radarr
+  name: cluster-apps-radarr
   namespace: flux-system
   labels:
     substitution.flux.home.arpa/enabled: "true"
@@ -17,8 +17,8 @@ spec:
   decryption:
     provider: sops
   dependsOn:
-    - name: apps-media-common
-    - name: apps-media-common-mounts
-    - name: apps-synology-csi
+    - name: cluster-apps-media-common
+    - name: cluster-apps-media-common-mounts
+    - name: cluster-apps-synology-csi
 
 

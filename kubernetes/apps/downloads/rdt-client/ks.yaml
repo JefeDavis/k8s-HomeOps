@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: apps-rdt-client
+  name: cluster-apps-rdt-client
   namespace: flux-system
   labels:
     substitution.flux.home.arpa/enabled: "true"
@@ -20,5 +20,5 @@ spec:
       name: rdt-client
       namespace: downloads
   dependsOn:
-    - name: apps-downloads-common
-    - name: apps-synology-csi
+    - name: cluster-apps-downloads-common
+    - name: cluster-apps-synology-csi
