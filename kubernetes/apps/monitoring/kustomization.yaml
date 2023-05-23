@@ -9,5 +9,3 @@ resources:
   - ./grafana/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
   - ./unpoller/ks.yaml
-  # Standard Resources
-  - ./miscellaneous
