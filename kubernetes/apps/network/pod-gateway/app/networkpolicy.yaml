@@ -2,8 +2,8 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: vpn-namespace
-  namespace: vpn
+  name: downloads-namespace
+  namespace: downloads
 spec:
   podSelector: {}
   ingress:
