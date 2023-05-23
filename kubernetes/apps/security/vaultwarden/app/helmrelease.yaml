@@ -63,7 +63,7 @@ spec:
           secretKeyRef:
             name: pg-vaultwarden-app
             key: password
-      DATABASE_URL: postgres://$(DATABASE_USER):$(DATABASE_PASSWORD)@pg-vaultwarden-rw:5432/vaultwarden
+      DATABASE_URL: 'postgres://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@pg-vaultwarden-rw:5432/vaultwarden'
     service:
       main:
         ports:
