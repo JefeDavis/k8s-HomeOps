@@ -16,9 +16,6 @@ spec:
     /*
     # include kubernetes directory
     !/kubernetes/
-    /kubernetes/apps/media
-    /kubernetes/apps/downloads
-    /kubernetes/apps/home
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
