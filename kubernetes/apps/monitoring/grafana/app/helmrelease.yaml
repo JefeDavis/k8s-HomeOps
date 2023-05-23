@@ -183,9 +183,11 @@ spec:
         cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
         - &host grafana.davishaus.dev
+        - monitoring.davishaus.dev
       tls:
         - hosts:
             - *host
+            - monitoring.davishaus.dev
           secretName: grafana-tls-external
     persistence:
       enabled: false
