@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: &app vaultwarden
-  namespace: vaultwarden
+  namespace: security
 spec:
   interval: 30m
   chart:
@@ -12,7 +12,7 @@ spec:
       version: 1.5.0
       sourceRef:
         kind: HelmRepository
-        name: bjw-s-charts
+        name: bjw-s
         namespace: flux-system
       interval: 30m
   install:
@@ -22,10 +22,15 @@ spec:
     remediation:
       retries: 5
   values:
+    controller:
+      type: statefulset
+      annotations:
+        reloader.stakater.com/auto: "true"
     image:
       repository: vaultwarden/server
       pullPolicy: IfNotPresent
       tag: 1.28.1
+    upgradeStrategy: recreate
     envFrom:
       - secretRef:
           name: vaultwarden-secret
@@ -33,19 +38,40 @@ spec:
       type: Recreate
     env:
       DATA_FOLDER: "config"
+      ICON_CACHE_FOLDER: "config/icon_cache"
+      ATTACHMENTS_FOLDER: "config/attachments"
+      SENDS_FOLDER: "config/sends"
       DOMAIN: "https://vault.davishaus.dev"
       WEBSOCKET_ADDRESS: 0.0.0.0
       WEBSOCKET_ENABLED: true
-      WEBSOCKET_PORT: 3012
+      WEBSOCKET_PORT: &websocket-port 3012
+      ROCKET_PORT: &port 8080
       SIGNUPS_ALLOWED: "false"
+      INVITATIONS_ALLOWED: true
+      SENDS_ALLOWED: true
+      EMERGENCY_ACCESS_ALLOWED: true
+      DISABLE_ICON_DOWNLOAD: false
+      DISABLE_2FA_REMEMBER: false
+      PASSWORD_HINTS_ALLOWED: false
+      DATABASE_USERNAME:
+        valueFrom:
+          secretKeyRef:
+            name: pg-vaultwarden-app
+            key: username
+      DATABASE_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: pg-vaultwarden-app
+            key: password
+      DATABASE_URL: postgres://$(DATABASE_USER):$(DATABASE_PASSWORD)@pg-vaultwarden-rw:5432/vaultwarden
     service:
       main:
         ports:
           http:
-            port: 80
+            port: *port 
           websocket:
             enabled: true
-            port: 3012
+            port: *websocket-port
     ingress:
       main:
         enabled: true
@@ -57,10 +83,16 @@ spec:
             paths:
               - path: /
                 pathType: Prefix
-              - path: /notifications/hub/negotiate
-                pathType: Prefix
+                service:
+                  port: *port
               - path: /notifications/hub
                 pathType: Prefix
+                service:
+                  port: *websocket-port
+              - path: /notifications/hub/negotiate
+                pathType: Prefix
+                service:
+                  port: *port
         tls:
           - hosts:
               - vault.davishaus.dev
@@ -70,17 +102,15 @@ spec:
       runAsGroup: 568
       fsGroup: 568
       fsGroupChangePolicy: "OnRootMismatch"
-    persistence:
-      config:
-        enabled: true
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
         accessMode: ReadWriteOnce
-        size: 1Gi
-        existingClaim: vaultwarden-config
-    podAnnotations:
-      secret.reloader.stakater.com/reload: "vaultwarden"
+        size: 15Gi
+        storageClass: synology-csi-retain
     resources:
       requests:
-        memory: 100Mi
-        cpu: 100m
+        memory: 64Mi
+        cpu: 5m
       limits:
-        memory: 2000Mi
+        memory: 164Mi

@@ -19,5 +19,5 @@ spec:
       kind: HelmRelease
       name: vaultwarden
       namespace: security
-  dependsOn:
-    - name: apps-external-secret-stores
+  decryption:
+    provider: sops
