@@ -23,6 +23,5 @@ spec:
       namespace: home
   dependsOn:
     - name: cluster-apps-cloudnative-pg
-    # - name: cluster-apps-external-secret-stores
     - name: cluster-apps-emqx
     - name: cluster-apps-synology-csi

@@ -37,6 +37,4 @@ spec:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
-  dependsOn:
-    - name: cluster-apps-external-secrets
 

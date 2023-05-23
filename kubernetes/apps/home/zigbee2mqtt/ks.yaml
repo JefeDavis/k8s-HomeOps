@@ -16,6 +16,5 @@ spec:
   wait: true
   dependsOn:
     - name: cluster-apps-emqx
-    - name: cluster-apps-external-secrets-stores
     - name: cluster-apps-synology-csi
     - name: cluster-apps-node-feature-discovery-rules
