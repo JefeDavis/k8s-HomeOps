@@ -22,6 +22,7 @@ spec:
       storageClass: synology-csi-retain
 
     authentik:
+      security_key: ""
       log_level: debug
       error_reporting:
         enabled: false
@@ -34,6 +35,10 @@ spec:
         password: ""
 
     envValueFrom:
+      AUTHENTIK_SECRET_KEY:
+        secretKeyRef:
+          name: authentik-secret
+          key: AUTHENTIK_KEY
       AUTHENTIK_POSTGRESQL__NAME:
         secretKeyRef:
           name: pg-authentik-app
@@ -73,9 +78,3 @@ spec:
       enabled: true
 
     blueprints: []
-  valuesFrom:
-  - targetPath: authentik.secret_key
-    kind: Secret
-    name: authentik-secret
-    valuesKey: AUTHENTIK_KEY
-
