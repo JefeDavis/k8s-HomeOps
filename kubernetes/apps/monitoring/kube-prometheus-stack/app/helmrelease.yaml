@@ -106,7 +106,7 @@ spec:
         tls:
           - hosts:
               - *host
-            secretName: alter-manager-tls-external
+            secretName: alert-manager-tls-external
       alertmanagerSpec:
         replicas: 3
         storage:
