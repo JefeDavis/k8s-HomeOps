@@ -19,6 +19,8 @@ spec:
       name: metallb
       namespace: network
   wait: true
+  dependsOn:
+    - name: cluster-apps-kube-prometheus-stack
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
