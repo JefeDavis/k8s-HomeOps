@@ -19,7 +19,7 @@ resource "google_project_service" "kms_api" {
 resource "google_kms_key_ring" "my_key_ring" {
   # Create the key ring on GCP
   project  = var.project
-  name     = "davishaus"
+  name     = "davishaus-keyring"
   location = "global"
   depends_on = [
   google_project_service.kms_api]
@@ -34,5 +34,5 @@ resource "google_kms_crypto_key" "my_crypto_key" {
 variable "project" {
   description = "The GCP project"
   type        = string
-  default     = "kms-vault-363503"
+  default     = "moonlit-watch-362206"
 }
