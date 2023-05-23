@@ -1,5 +1,5 @@
 ---
-apiVersion: source.toolkit.fluxcd.io/v1beta2
+apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
 metadata:
   name: flux-manifests
@@ -10,7 +10,7 @@ spec:
   ref:
     tag: v0.41.2
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: flux
@@ -35,7 +35,7 @@ spec:
         group: networking.k8s.io
         version: v1
         kind: NetworkPolicy
-    # GCP KMS: https://github.com/fluxcd/kustomize-controller/blob/5056fbf6ac5c48de434680042c5979fa79a5de04/docs/spec/v1beta2/kustomization.md#gcp-kms
+    # GCP KMS: https://github.com/fluxcd/kustomize-controller/blob/5056fbf6ac5c48de434680042c5979fa79a5de04/docs/spec/v1/kustomization.md#gcp-kms
     - target:
         kind: Deployment
         name: kustomize-controller
