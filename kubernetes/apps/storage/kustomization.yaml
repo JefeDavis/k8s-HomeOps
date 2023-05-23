@@ -7,5 +7,5 @@ resources:
   # Flux-Kustomizations
   - ./common/ks.yaml
   - ./synology-csi/ks.yaml
-  - ./nfs-subdir-external/ks.yaml
+  - ./nfs-subdir/ks.yaml
 
