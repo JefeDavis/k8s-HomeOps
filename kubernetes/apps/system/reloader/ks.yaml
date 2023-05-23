@@ -13,6 +13,4 @@ spec:
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
-  dependsOn:
-    - name: cluster-apps-snapshot-controller
   wait: true
