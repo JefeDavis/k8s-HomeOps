@@ -8,7 +8,6 @@ resources:
   # Flux-Kustomizations
   - ./grafana/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
-  - ./speedtest-exporter/ks.yaml
-  - ./unifipoller/ks.yaml
+  - ./unpoller/ks.yaml
   # Standard Resources
   - ./miscellaneous
