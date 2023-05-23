@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: apps-intel-device-plugins-operator
+  name: cluster-apps-intel-device-plugins-operator
   namespace: flux-system
   labels:
     substitution.flux.home.arpa/enabled: "true"
@@ -15,13 +15,13 @@ spec:
   prune: true
   wait: true
   dependsOn:
-    - name: apps-cert-manager
-    - name: apps-node-feature-discovery-rules
+    - name: cluster-apps-cert-manager
+    - name: cluster-apps-node-feature-discovery-rules
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: apps-intel-device-plugins-gpu
+  name: cluster-apps-intel-device-plugins-gpu
   namespace: flux-system
   labels:
     substitution.flux.home.arpa/enabled: "true"
@@ -34,4 +34,4 @@ spec:
   prune: true
   wait: true
   dependsOn:
-    - name: apps-intel-device-plugins-operator
+    - name: cluster-apps-intel-device-plugins-operator

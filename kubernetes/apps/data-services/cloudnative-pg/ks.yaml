@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: apps-cloudnative-pg
+  name: cluster-apps-cloudnative-pg
   namespace: flux-system
   labels:
     substitution.flux.home.arpa/enabled: "true"
@@ -20,4 +20,4 @@ spec:
       name: cloudnative-pg
       namespace: data-services
   dependsOn:
-    - name: apps-synology-csi
+    - name: cluster-apps-synology-csi
