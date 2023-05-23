@@ -1,6 +1,6 @@
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization.yaml
+kind: Kustomization
 metadata:
   name: secrets-emqx
   namespace: flux-system
