@@ -32,5 +32,5 @@ spec:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
-  dependsOn:
-    - name: apps-external-secrets-stores
+  decryption:
+    provider: sops
