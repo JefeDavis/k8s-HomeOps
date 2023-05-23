@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: vpn-gateway
+  name: pod-gateway
   namespace: network
 spec:
   interval: 30m
@@ -61,12 +61,12 @@ spec:
           - name: WIREGUARD_PRIVATE_KEY
             valueFrom:
               secretKeyRef:
-                name: vpn-gateway-secret
+                name: pod-gateway-secret
                 key: WIREGUARD_PRIVATE_KEY
           - name: WIREGUARD_ADDRESSES
             valueFrom:
               secretKeyRef:
-                name: vpn-gateway-secret
+                name: pod-gateway-secret
                 key: WIREGUARD_ADDRESSES
         resources:
           requests:
@@ -90,7 +90,7 @@ spec:
 
     podAnnotations:
       configmap.reloader.stakater.com/reload: vpn-gateway-pod-gateway
-      secret.reloader.stakater.com/reload: vpn-gateway-secret
+      secret.reloader.stakater.com/reload: pod-gateway-secret
 
     publicPorts:
       - IP: 10
