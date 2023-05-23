@@ -13,7 +13,7 @@ subsets:
 apiVersion: v1
 kind: Service
 metadata:
-  name: octoprint
+  name: unifi
   namespace: network
 spec:
  ports:
