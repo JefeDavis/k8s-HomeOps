@@ -66,13 +66,13 @@ spec:
         nginx.org/websocket-services: authentik
         nginx.ingress.kubernetes.io/enable-global-auth: "false"
       hosts:
-      - host: authentik.davishaus.dev
+      - host: auth.davishaus.dev
         paths:
         - path: /
 
       tls:
       - hosts:
-        - authentik.davishaus.dev
+        - auth.davishaus.dev
         secretName: authentik-tls-external
     redis:
       enabled: true
