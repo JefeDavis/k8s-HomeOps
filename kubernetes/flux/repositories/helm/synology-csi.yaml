@@ -1,5 +1,6 @@
+---
 apiVersion: source.toolkit.fluxcd.io/v1
-kind: GitRepository
+kind: HelmRepository
 metadata:
   name: synology-csi
   namespace: flux-system
