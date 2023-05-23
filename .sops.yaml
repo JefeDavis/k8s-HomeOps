@@ -1,5 +1,12 @@
 ---
 creation_rules:
+  - path_regex: flux/.*/cluster-secrets\.sops\.ya?ml
+    encrypted_regex: "^(data|stringData)$"
+    key_groups:
+      - age:
+          - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
+        gcp_kms:
+          - resource_id: projects/moonlit-watch-362206/locations/global/keyRings/davishaus-keyring/cryptoKeys/sops
   - path_regex: bootstrap/.*/secret-.*\.sops\.ya?ml
     encrypted_regex: "^(data|stringData)$"
     key_groups:
