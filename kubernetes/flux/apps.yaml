@@ -11,9 +11,9 @@ spec:
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
+  decryption:
+    provider: sops
   postBuild:
-    decryption:
-      provider: sops
     substituteFrom:
       - kind: ConfigMap
         name: cluster-settings
