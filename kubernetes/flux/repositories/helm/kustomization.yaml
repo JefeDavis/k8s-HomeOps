@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
@@ -9,6 +10,7 @@ resources:
   - bjw-s.yaml
   - emqx.yaml
   - external-secrets.yaml
+  - emberstack.yaml
   - grafana.yaml
   - hashicorp.yaml
   - influxdata.yaml
@@ -19,10 +21,9 @@ resources:
   - kubernetes-sigs-external-dns.yaml
   - kubernetes-sigs-metrics-server.yaml
   - kubernetes-sigs-nfd.yaml
-  - kustomization.yaml
+  - kubernetes-sigs-nfs-subdir.yaml
   - kyverno.yaml
   - metallb.yaml
-  - nfs-subdir-external-provisioner.yaml
   - postfinance.yaml
   - prometheus-community.yaml
   - ricoberger.yaml

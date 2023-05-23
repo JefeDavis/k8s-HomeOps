@@ -15,11 +15,9 @@ spec:
     # exclude all
     /*
     # include kubernetes directory
-    !/kubernetes/apps/system
-    !/kubernetes/apps/storage
-    !/kubernetes/apps/security
-    !/kubernetes/apps/monitoring
-    !/kubernetes/apps/networking
+    !/kubernetes/
+    /kubernetes/apps/media
+    /kubernetes/apps/downloads
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -28,13 +26,13 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: ./flux
+  path: ./kubernetes/flux
   prune: true
   wait: false
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
-    dependsOn:
+  dependsOn:
     - name: flux
   decryption:
     provider: sops
