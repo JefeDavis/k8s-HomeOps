@@ -32,7 +32,7 @@ spec:
       PLEX_CLAIM:
         valueFrom:
           secretKeyRef:
-            name: plex-claim-token
+            name: plex-secret
             key: claimToken    
     podSecurityContext:
       runAsUser: 568
