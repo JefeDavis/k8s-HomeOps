@@ -53,17 +53,17 @@ spec:
       DISABLE_ICON_DOWNLOAD: false
       DISABLE_2FA_REMEMBER: false
       PASSWORD_HINTS_ALLOWED: false
-      DATABASE_USERNAME:
+      A_DATABASE_USERNAME:
         valueFrom:
           secretKeyRef:
             name: pg-vaultwarden-app
             key: username
-      DATABASE_PASSWORD:
+      A_DATABASE_PASSWORD:
         valueFrom:
           secretKeyRef:
             name: pg-vaultwarden-app
             key: password
-      DATABASE_URL: 'postgres://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@pg-vaultwarden-rw:5432/vaultwarden'
+      DATABASE_URL: 'postgres://$(A_DATABASE_USERNAME):$(A_DATABASE_PASSWORD)@pg-vaultwarden-rw:5432/vaultwarden'
     service:
       main:
         ports:
