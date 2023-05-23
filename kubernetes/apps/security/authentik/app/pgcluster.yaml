@@ -15,7 +15,7 @@ spec:
   postgresql:
     parameters:
       max_connections: "600"
-      shared_buffers: 256Mi # amount of RAM to use for data caching, https://postgresqlco.nf/doc/en/param/shared_buffers/
+      shared_buffers: 256MB # amount of RAM to use for data caching, https://postgresqlco.nf/doc/en/param/shared_buffers/
   monitoring:
     enablePodMonitor: true
   # configured according to below link to allow customizing of initdb via Flux
