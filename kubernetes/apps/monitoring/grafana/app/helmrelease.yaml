@@ -55,7 +55,7 @@ spec:
           key: username
       GF_DATABASE_PASSWORD:
         secretKeyRef:
-          name: pg-grafana-secret
+          name: pg-grafana-app
           key: password
     grafana.ini:
       analytics:

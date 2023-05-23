@@ -5,4 +5,5 @@ kind: Kustomization
 namespace: monitoring
 resources:
   - ./secret-grafana.sops.yaml
+  - ./pgcluster.yaml
   - ./helmrelease.yaml
