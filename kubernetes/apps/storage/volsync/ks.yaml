@@ -8,7 +8,7 @@ metadata:
     substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
-  path: "./kubernetes/apps/system/volsync/app"
+  path: "./kubernetes/apps/storage/volsync/app"
   prune: true
   sourceRef:
     kind: GitRepository
@@ -17,6 +17,7 @@ spec:
     - apiVersion: helm.toolkit.fluxcd.io/v2beta1
       kind: HelmRelease
       name: volsync
-      namespace: system
+      namespace: storage
   timeout: 3m
-
+  dependsOn:
+    - name: cluster-apps-snapshot-controller-webhook

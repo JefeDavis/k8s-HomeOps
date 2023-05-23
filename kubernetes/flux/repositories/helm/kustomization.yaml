@@ -27,6 +27,7 @@ resources:
   - kubernetes-sigs-nfs-subdir.yaml
   - kyverno.yaml
   - metallb.yaml
+  - piraeus.yaml
   - postfinance.yaml
   - prometheus-community.yaml
   - ricoberger.yaml

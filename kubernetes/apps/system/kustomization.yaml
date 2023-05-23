@@ -12,5 +12,4 @@ resources:
   - ./reloader/ks.yaml
   - ./reflector/ks.yaml
   - ./system-upgrade-controller/ks.yaml
-  - ./volsync/ks.yaml
 
