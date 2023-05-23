@@ -8,6 +8,7 @@ resources:
   - authentik.yaml
   - bitnami.yaml
   - bjw-s.yaml
+  - cloudnative-pg.yaml
   - emqx.yaml
   - external-secrets.yaml
   - emberstack.yaml
@@ -17,6 +18,7 @@ resources:
   - ingress-nginx.yaml
   - intel.yaml
   - jetstack.yaml
+  - kubereboot.yaml
   - kubernetes-sigs-descheduler.yaml
   - kubernetes-sigs-external-dns.yaml
   - kubernetes-sigs-metrics-server.yaml
