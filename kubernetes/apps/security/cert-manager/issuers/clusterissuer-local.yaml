@@ -22,7 +22,7 @@ spec:
       - "US"
     organizations:
       - "DavisHaus"
-    organizationUnits:
+    organizationalUnits:
       - "Internal"
   privateKey:
     algorithm: ECDSA
