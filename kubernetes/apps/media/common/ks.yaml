@@ -34,3 +34,5 @@ spec:
   wait: true
   decryption:
     provider: sops
+  dependsOn:
+    - name: apps-reflector
