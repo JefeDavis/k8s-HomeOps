@@ -19,6 +19,6 @@ spec:
       kind: HelmRelease
       name: authentik
       namespace: security
+  decryption: sops
   dependsOn:
     - name: apps-cloudnative-pg
-    - name: apps-external-secret-stores
