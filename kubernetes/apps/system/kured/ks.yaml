@@ -16,3 +16,5 @@ spec:
   wait: true
   decryption:
     provider: sops
+  dependsOn:
+    - name: cluster-apps-kube-prometheus-stack
