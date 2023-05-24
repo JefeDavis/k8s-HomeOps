@@ -5,6 +5,5 @@ namespace: security
 resources:
   - ./secret-vaultwarden.sops.yaml
   - ./pgcluster.yaml
-  - ./pvc.yaml
   - ./helmrelease.yaml
 
