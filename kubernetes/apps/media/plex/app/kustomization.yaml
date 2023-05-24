@@ -9,4 +9,14 @@ resources:
 commonLabels:
   app.kubernetes.io/name: plex
   app.kubernetes.io/instance: plex
+configMapGenerator:
+  - name: plex-preferences-bootstrap
+    files:
+      - ./config/41-Plex-Preferences
+  - name: plex-preferences
+    files:
+      - ./config/preferences.cfg
+generatorOptions:
+  disableNameSuffixHash: true
+
 
