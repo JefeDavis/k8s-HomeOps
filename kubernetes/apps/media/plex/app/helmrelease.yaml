@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 1.4.0
+      version: 1.5.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -29,20 +29,14 @@ spec:
       ALLOWED_NETWORKS: "10.0.0.0/8"
       PLEX_PREFERENCE_1: "FriendlyName=plex-davishaus"
       PLEX_PREFERENCE_2: "LanNetworksBandwidth=10.0.0.0/8"
-      PLEX_CLAIM:
-        valueFrom:
-          secretKeyRef:
-            name: plex-secret
-            key: claimToken    
+    envFrom:
+      - secretRef:
+          name: plex-secret
     podSecurityContext:
-      runAsUser: 568
-      runAsGroup: 568
-      fsGroup: 568
-      fsGroupChangePolicy: "OnRootMismatch"
       supplementalGroups:
       - 44
       - 109
-      - 65539
+      - 100
     service:
       main:
         type: LoadBalancer
@@ -50,8 +44,9 @@ spec:
         externalTrafficPolicy: Local
         annotations:
           metallb.universe.tf/allow-shared-ip: plex
-        port:
-          port: 32400
+        ports:
+          http:
+            port: 32400
     ingress:
       main:
         enabled: true
@@ -92,9 +87,9 @@ spec:
       limits:
         gpu.intel.com/i915: 1
         memory: 8Gi
-      volumeclaimTemplates:
-        - name: config
-          mountPath: /config
-          accessMode: ReadWriteOnce
-          size: 35Gi
-          storageClass: synology-csi-retain
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 35Gi
+        storageClass: synology-csi-retain
