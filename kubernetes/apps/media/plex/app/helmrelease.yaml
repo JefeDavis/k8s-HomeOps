@@ -129,9 +129,9 @@ spec:
         enabled: true
         type: emptyDir
         sizeLimit: 10Gi
-      nfs-media-pvc:
+      media:
         enabled: true
-        existingClaim: nfs-media-pvc
+        existingClaim: nfs-media
         mountPath: /data
         readOnly: false
     nodeSelector:

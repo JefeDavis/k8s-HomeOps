@@ -64,7 +64,7 @@ spec:
         existingClaim: bazarr-config
       media:
         enabled: true
-        existingClaim: nfs-media-pvc
+        existingClaim: nfs-media
     podSecurityContext:
       runAsUser: 568
       runAsGroup: 568

@@ -8,5 +8,3 @@ resources:
   - ./flaresolverr/ks.yaml
   - ./prowlarr/ks.yaml
   - ./rdt-client/ks.yaml
-  # Resources
-  - ./common/ks.yaml

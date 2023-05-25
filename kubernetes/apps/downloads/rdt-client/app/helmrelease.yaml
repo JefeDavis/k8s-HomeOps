@@ -72,7 +72,7 @@ spec:
     persistence:
       media:
         enabled: true
-        existingClaim: nfs-downloads-pvc
+        existingClaim: nfs-downloads
         mountPath: /data/downloads
     resources:
       requests:

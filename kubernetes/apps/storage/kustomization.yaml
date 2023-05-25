@@ -5,7 +5,6 @@ resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
   # Flux-Kustomizations
-  - ./common/ks.yaml
   - ./nfs-subdir/ks.yaml
   - ./snapshot-controller/ks.yaml
   - ./synology-csi/ks.yaml
