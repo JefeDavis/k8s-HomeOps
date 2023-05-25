@@ -15,7 +15,6 @@ spec:
     name: k8s-home-ops
   wait: true
   dependsOn:
-    - name: cluster-apps-media-common
     - name: cluster-apps-synology-csi
 
 

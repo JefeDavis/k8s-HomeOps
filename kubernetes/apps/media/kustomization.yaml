@@ -8,7 +8,7 @@ resources:
   - ./common/ks.yaml
   # - ./bazarr/ks.yaml
   # - ./lidarr/ks.yaml
-  # - ./overseerr/ks.yaml
+  - ./overseerr/ks.yaml
   - ./plex/ks.yaml
   # - ./readarr/ks.yaml
   # - ./radarr/ks.yaml

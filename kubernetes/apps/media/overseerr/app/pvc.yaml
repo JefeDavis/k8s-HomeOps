@@ -11,5 +11,3 @@ spec:
     requests:
       storage: 1Gi
   storageClassName: synology-csi-retain
-  volumeMode: Filesystem
-  volumeName: pvc-becbe38e-9267-47e2-af7a-050b2e47ab02
