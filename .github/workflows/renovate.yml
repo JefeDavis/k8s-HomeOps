@@ -2,11 +2,30 @@ name: renovate
 
 on:
   workflow_dispatch:
+    inputs:
+      dryRun:
+        description: "Dry-Run"
+        default: "false"
+        required: false
+      logLevel:
+        description: "Log-Level"
+        default: "debug"
+        required: false
   schedule:
   - cron: '0 */6 * * *'
+  push:
+    branches: ["main"]
+    paths:
+      - .github/renovate.json5
+      - .github/renovate/**.json5
+
+env:
+  LOG_LEVEL: debug
+  RENOVATE_DRY_RUN: false
 
 jobs:
-  helm-releases:
+  renovate:
+    name: Renovate
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -14,26 +33,12 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 1
 
-    - name: Install yq
+    - name: Override default config from dispatch variables
       run: |
-        sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
-        sudo chmod +x /usr/local/bin/yq
+        echo "RENOVATE_DRY_RUN=${{ github.event.inputs.dryRun || env.RENOVATE_DRY_RUN }}" >> "${GITHUB_ENV}"
+        echo "LOG_LEVEL=${{ github.event.inputs.logLevel || env.LOG_LEVEL }}" >> "${GITHUB_ENV}"
 
-    - name: Renovate Helm Releases
-      uses: k8s-at-home/renovate-helm-releases@v1
+    - name: Renovate
+      uses: renovatebot/github-action@04894c0e6786581e789ebf7e6dbdf22dfc0061cd # v38.0.0
       with:
-        cluster-path: "./"
-
-    - name: Create pull request for HelmRelease annotations
-      uses: peter-evans/create-pull-request@v5
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        branch: helm-release-annotations
-        title: "[renovate] create helmrelease annotations [ci-skip]"
-        signoff: true
-        committer: "${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>"
-        author: "${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>"
-        commit-message: Create renovatebot helmrelease annotations
-        body: |
-          Signed-off-by: Jeff Davis <jefedavis@users.noreply.github.com>
-        labels: renovate/helm-release-annotations
+        token: "${{ secrets.GITHUB_TOKEN }}"
