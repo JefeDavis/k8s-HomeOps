@@ -22,7 +22,7 @@ spec:
         reloader.stakater.com/auto: "true"
     image:
       repository: ghcr.io/onedr0p/bazarr
-      tag: 1.2.0@sha256:bf0e79aebf1f88d6c0e0b4f1f4536cf9a4e1cc09dc8591269c35a6acc45e0de8
+      tag: 1.2.1@sha256:dc9fb4ae4e1d3724bff06224dc640429ff56c0326057b4a14000d2fbd84a7703
     env:
       TZ: America/New_York
       BAZARR__INSTANCE_NAME: Bazarr
