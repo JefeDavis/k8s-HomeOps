@@ -159,6 +159,9 @@ spec:
         kubernetes-pods:
           url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
           datasource: Prometheus
+        kyverno:
+          url: https://raw.githubusercontent.com/kyverno/grafana-dashboard/master/grafana/dashboard.json
+          datasource: Prometheus
     sidecar:
       dashboards:
         enabled: true
