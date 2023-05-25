@@ -39,6 +39,7 @@ spec:
     ingress:
       main:
         enabled: true
+        labels:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           nginx.ingress.kubernetes.io/auth-url: |-
@@ -50,10 +51,6 @@ spec:
               Set-Cookie,X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid
           nginx.ingress.kubernetes.io/auth-snippet: |
               proxy_set_header X-Forwarded-Host $http_host;
-          nginx.ingress.kubernetes.io/configuration-snippet: |
-            proxy_set_header Accept-Encoding "";
-            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.davishaus.dev/css/base/lidarr/nord.css"></head>';
-            sub_filter_once on;
         hosts:
         - host: "lidarr.davishaus.dev"
           paths:

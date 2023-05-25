@@ -81,6 +81,7 @@ spec:
         ingressClassName: "nginx"
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
+          theme.home.arpa/enabled: "true"
           nginx.ingress.kubernetes.io/auth-url: |-
             http://ak-outpost-davishaus.auth.svc.cluster.local:9000/outpost.goauthentik.io/auth/nginx
           # If you're using domain-level auth, use the authentication URL instead of the application URL
@@ -90,13 +91,6 @@ spec:
               Set-Cookie,X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid
           nginx.ingress.kubernetes.io/auth-snippet: |
               proxy_set_header X-Forwarded-Host $http_host;
-          nginx.ingress.kubernetes.io/configuration-snippet: |
-            proxy_hide_header "x-webkit-csp";
-            proxy_hide_header "content-security-policy";
-            proxy_hide_header "X-Frame-Options";
-            proxy_set_header Accept-Encoding "";
-            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.davishaus.dev/css/base/qbittorrent/nord.css"></head>';
-            sub_filter_once on;
         hosts:
           - host: &host "qb.davishaus.dev"
             paths:

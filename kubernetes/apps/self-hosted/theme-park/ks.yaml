@@ -19,4 +19,6 @@ spec:
       kind: HelmRelease
       name: theme-park
       namespace: self-hosted
+  dependsOn:
+    - name: cluster-apps-kyverno
  

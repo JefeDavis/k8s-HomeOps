@@ -38,8 +38,10 @@ spec:
       main:
         enabled: true
         ingress-class-name: nginx
+        labels:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
+          theme.home.arpa/enabled: "true"
           nginx.ingress.kubernetes.io/auth-url: http://ak-outpost-davishaus.auth.svc.cluster.local:9000/outpost.goauthentik.io/auth/nginx
           # If you're using domain-level auth, use the authentication URL instead of the application URL
           nginx.ingress.kubernetes.io/auth-signin: https://sonarr.davishaus.dev/outpost.goauthentik.io/start?rd=$escaped_request_uri
@@ -48,10 +50,6 @@ spec:
             proxy_set_header X-Forwarded-Host $http_host;
           # nginx.ingress.kubernetes.io/auth-url: "https://auth.davishaus.dev/oauth2/auth"
           # nginx.ingress.kubernetes.io/auth-signin: https://auth.davishaus.dev/oauth2/start
-          nginx.ingress.kubernetes.io/configuration-snippet: |
-            proxy_set_header Accept-Encoding "";
-            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.davishaus.dev/css/base/sonarr/nord.css"></head>';
-            sub_filter_once on;
         hosts:
           - host: sonarr.davishaus.dev
             paths:
