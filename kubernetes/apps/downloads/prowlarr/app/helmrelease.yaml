@@ -17,7 +17,6 @@ spec:
         namespace: flux-system
   maxHistory: 2
   install:
-    createNamespace: true
     remediation:
       retries: 3
   upgrade:
@@ -114,6 +113,7 @@ spec:
     serviceMonitor:
       podmonitor:
         enabled: true
+        serviceName: prowlarr-metrics
         endpoints:
           - port: http
             scheme: http

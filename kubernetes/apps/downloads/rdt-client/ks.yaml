@@ -20,5 +20,6 @@ spec:
       name: rdt-client
       namespace: downloads
   dependsOn:
-    - name: cluster-apps-downloads-common
+    - name: cluster-apps-downloads-common-mounts
     - name: cluster-apps-synology-csi
+    - name: cluster-apps-pod-gateway

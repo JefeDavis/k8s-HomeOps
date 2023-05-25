@@ -15,5 +15,6 @@ spec:
     name: k8s-home-ops
   wait: true
   dependsOn:
-    - name: cluster-apps-downloads-common
     - name: cluster-apps-synology-csi
+    - name: cluster-apps-kube-prometheus-stack
+    - name: cluster-apps-pod-gateway

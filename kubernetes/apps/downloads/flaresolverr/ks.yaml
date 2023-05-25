@@ -19,3 +19,5 @@ spec:
       kind: HelmRelease
       name: flaresolverr
       namespace: downloads
+  dependsOn:
+    - name: cluster-apps-pod-gateway
