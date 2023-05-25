@@ -28,7 +28,7 @@ spec:
       TZ: America/New_York
       READARR__INSTANCE_NAME: Readarr
       READARR__PORT: &port 8787
-      READARR__APPLICATION_URL: https://readarr.davishaus.dev
+      READARR__APPLICATION_URL: https://readarr.${EXTERNAL_DOMAIN}
       READARR__LOG_LEVEL: info
       READARR__API_KEY:
         valueFrom:
@@ -44,13 +44,13 @@ spec:
           theme.home.arpa/enabled: "true"
           auth.home.arpa/enabled: "true"
         hosts:
-          - host: readarr.davishaus.dev
+          - host: readarr.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 pathType: Prefix
         tls:
           - hosts:
-              - readarr.davishaus.dev
+              - readarr.${EXTERNAL_DOMAIN}
             secretName: readarr-tls-external
     persistence:
       config:

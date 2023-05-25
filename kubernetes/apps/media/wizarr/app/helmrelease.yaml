@@ -23,7 +23,7 @@ spec:
 
     env:
       TZ: America/New_York
-      APP_URL: https://join.davishaus.dev
+      APP_URL: https://join.${EXTERNAL_DOMAIN}
       DISABLE_BUILTIN_AUTH: "true"
 
     service:
@@ -40,7 +40,7 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           auth.home.arpa/enabled: "true"
         hosts:
-          - host: &host "join.davishaus.dev"
+          - host: &host "join.${EXTERNAL_DOMAIN}"
             paths:
               - path: /
                 pathType: Prefix

@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: &host flux-webhook.davishaus.dev
+    - host: &host flux-webhook.${EXTERNAL_DOMAIN}
       http:
         paths:
           - path: /hook/

@@ -91,8 +91,8 @@ spec:
           auth.home.arpa/enabled: "true"
         path: /
         hosts:
-          - emqx.davishaus.dev
+          - emqx.${EXTERNAL_DOMAIN}
         tls:
           - hosts:
-              - emqx.davishaus.dev
+              - emqx.${EXTERNAL_DOMAIN}
             secretName: emqx-tls-external

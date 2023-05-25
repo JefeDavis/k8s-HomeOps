@@ -32,7 +32,7 @@ spec:
             hajimari.io/appName: "Hass Config"
             hajimari.io/icon: cib:visual-studio-code
           hosts:
-            - host: &host hass-code.davishaus.dev
+            - host: &host hass-code.${EXTERNAL_DOMAIN}
               paths:
                 - path: /
                   pathType: Prefix

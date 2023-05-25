@@ -29,17 +29,17 @@ spec:
   values:
     replicas: 3
     env:
-      GF_AUTH_GENERIC_OAUTH_API_URL: "https://auth.davishaus.dev/application/o/userinfo/"
-      GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://auth.davishaus.dev/application/o/authorize/"
+      GF_AUTH_GENERIC_OAUTH_API_URL: "https://auth.${EXTERNAL_DOMAIN}/application/o/userinfo/"
+      GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://auth.${EXTERNAL_DOMAIN}/application/o/authorize/"
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID: grafana
-      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "https://auth.davishaus.dev/application/o/token/"
-      GF_AUTH_SIGNOUT_REDIRECT_URL: "https://auth.davishaus.dev/application/o/grafana/end-session/"
+      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "https://auth.${EXTERNAL_DOMAIN}/application/o/token/"
+      GF_AUTH_SIGNOUT_REDIRECT_URL: "https://auth.${EXTERNAL_DOMAIN}/application/o/grafana/end-session/"
       GF_DATE_FORMATS_USE_BROWSER_LOCALE: true
       GF_EXPLORE_ENABLED: true
       GF_FEATURE_TOGGLES_ENABLE: publicDashboards
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel
       GF_SECURITY_COOKIE_SAMESITE: grafana
-      GF_SERVER_ROOT_URL: https://grafana.davishaus.dev
+      GF_SERVER_ROOT_URL: https://grafana.${EXTERNAL_DOMAIN}
       GF_DATABASE_HOST: pg-grafana-rw:5432
       GF_DATABASE_TYPE: postgres
       GF_DATABASE_SSL_MODE: disable
@@ -185,12 +185,12 @@ spec:
         hajimari.io/icon: simple-icons:grafana
         cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
-        - &host grafana.davishaus.dev
-        - monitoring.davishaus.dev
+        - &host grafana.${EXTERNAL_DOMAIN}
+        - monitoring.${EXTERNAL_DOMAIN}
       tls:
         - hosts:
             - *host
-            - monitoring.davishaus.dev
+            - monitoring.${EXTERNAL_DOMAIN}
           secretName: grafana-tls-external
     persistence:
       enabled: false

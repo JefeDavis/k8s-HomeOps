@@ -48,7 +48,7 @@ spec:
           theme.home.arpa/enabled: "true"
           auth.home.arpa/enabled: "true"
         hosts:
-          - host: &host "rdt.davishaus.dev"
+          - host: &host "rdt.${EXTERNAL_DOMAIN}"
             paths:
               - path: /
         tls:

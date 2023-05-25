@@ -41,7 +41,7 @@ spec:
       ICON_CACHE_FOLDER: "config/icon_cache"
       ATTACHMENTS_FOLDER: "config/attachments"
       SENDS_FOLDER: "config/sends"
-      DOMAIN: "https://vault.davishaus.dev"
+      DOMAIN: "https://vault.${EXTERNAL_DOMAIN}"
       WEBSOCKET_ADDRESS: 0.0.0.0
       WEBSOCKET_ENABLED: true
       WEBSOCKET_PORT: &websocket-port 3012
@@ -80,7 +80,7 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           theme.home.arpa/enabled: "true"
         hosts:
-          - host: vault.davishaus.dev
+          - host: vault.${EXTERNAL_DOMAIN}
             paths: &paths
               - path: /
                 pathType: Prefix
@@ -94,12 +94,12 @@ spec:
                 pathType: Prefix
                 service:
                   port: *port
-          - host: vaultwarden.davishaus.dev
+          - host: vaultwarden.${EXTERNAL_DOMAIN}
             paths: *paths
         tls:
           - hosts:
-              - vault.davishaus.dev
-              - vaultwarden.davishaus.dev
+              - vault.${EXTERNAL_DOMAIN}
+              - vaultwarden.${EXTERNAL_DOMAIN}
             secretName: "vaultwarden-tls-external"
     podSecurityContext:
       runAsUser: 568

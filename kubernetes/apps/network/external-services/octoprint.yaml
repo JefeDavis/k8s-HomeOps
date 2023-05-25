@@ -36,7 +36,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: octoprint.davishaus.dev
+  - host: octoprint.${EXTERNAL_DOMAIN}
     http:
       paths:
       - backend:
@@ -48,5 +48,5 @@ spec:
         pathType: Prefix
   tls:
   - hosts:
-    - octoprint.davishaus.dev
+    - octoprint.${EXTERNAL_DOMAIN}
     secretName: octoprint-tls-external

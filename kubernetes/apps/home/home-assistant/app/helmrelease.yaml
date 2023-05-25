@@ -81,12 +81,12 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-prod
         ingressClassName: nginx
         hosts:
-          - host: home.davishaus.dev
+          - host: home.${EXTERNAL_DOMAIN}
             paths:
               - path: /
         tls:
           - hosts:
-              - home.davishaus.dev
+              - home.${EXTERNAL_DOMAIN}
             secretName: home-assistant-tls-external
     metrics:
       enabled: true

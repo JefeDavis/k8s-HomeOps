@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.davishaus.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# 
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -103,7 +103,7 @@ spec:
           hajimari.io/appName: "Alert Manager"
           hajimari.io/icon: mdi:alert-decagram-outline
         hosts:
-          - &host alert-manager.davishaus.dev
+          - &host alert-manager.${EXTERNAL_DOMAIN}
         tls:
           - hosts:
               - *host
@@ -203,7 +203,7 @@ spec:
           hajimari.io/icon: simple-icons:prometheus
         pathType: Prefix
         hosts:
-          - &host prometheus.davishaus.dev
+          - &host prometheus.${EXTERNAL_DOMAIN}
         tls:
           - hosts:
               - *host

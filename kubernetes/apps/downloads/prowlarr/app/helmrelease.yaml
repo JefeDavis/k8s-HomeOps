@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.davishaus.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# 
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -40,7 +40,7 @@ spec:
       PROWLARR__LOG_LEVEL: info
       PROWLARR__ANALYTICS_ENABLED: "False"
       PROWLARR__AUTHENTICATION_METHOD: External
-      PROWLARR__APPLICATION_URL: "https://prowlarr.davishaus.dev"
+      PROWLARR__APPLICATION_URL: "https://prowlarr.${EXTERNAL_DOMAIN}"
       PROWLARR__API_KEY:
         valueFrom:
           secretKeyRef:
@@ -76,13 +76,13 @@ spec:
           auth.home.arpa/enabled: "true"
           hajimari.io/icon: mdi:movie-search
         hosts:
-          - host: "prowlarr.davishaus.dev"
+          - host: "prowlarr.${EXTERNAL_DOMAIN}"
             paths:
               - path: /
                 pathType: Prefix
         tls:
           - hosts:
-              - "prowlarr.davishaus.dev"
+              - "prowlarr.${EXTERNAL_DOMAIN}"
             secretName: prowlarr-tls-external
     podSecurityContext:
       runAsUser: 568

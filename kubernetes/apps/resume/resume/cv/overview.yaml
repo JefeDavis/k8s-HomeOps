@@ -80,7 +80,7 @@ spec:
           - Prometheus
           - Grafana
           - Splunk
-  baseURL: "resume.jefedavis.dev"
+  baseURL: "resume.${PROFESSIONAL_DOMAIN}"
   certIssuer: letsencrypt-prod
   pageTitle: "Jeff Davis - CV"
   pageCount: "2"

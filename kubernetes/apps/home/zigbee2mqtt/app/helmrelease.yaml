@@ -52,13 +52,13 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           auth.home.arpa/enabled: "true"
         hosts:
-          - host: zigbee2mqtt.davishaus.dev
+          - host: zigbee2mqtt.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 pathType: Prefix
         tls:
           - hosts:
-              - zigbee2mqtt.davishaus.dev
+              - zigbee2mqtt.${EXTERNAL_DOMAIN}
             secretName: zigbee2mqtt-tls-external
 
     securityContext:

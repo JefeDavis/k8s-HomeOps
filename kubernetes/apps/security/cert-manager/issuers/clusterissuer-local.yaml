@@ -15,7 +15,7 @@ metadata:
 spec:
   isCA: true
   dnsNames:
-    - internal.davishaus.dev
+    - ${INTERNAL_DOMAIN}
   secretName: root-ca
   subject:
     countries:

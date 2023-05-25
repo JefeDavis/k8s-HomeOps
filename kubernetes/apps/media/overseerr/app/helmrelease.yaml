@@ -40,16 +40,16 @@ spec:
           theme.home.arpa/enabled: "true"
           cert-manager.io/cluster-issuer: letsencrypt-prod
         hosts:
-          - host: "overseerr.davishaus.dev"
+          - host: "overseerr.${EXTERNAL_DOMAIN}"
             paths:
               - path: /
-          - host: "request.davishaus.dev"
+          - host: "request.${EXTERNAL_DOMAIN}"
             paths:
               - path: /
         tls:
           - hosts:
-              - "overseerr.davishaus.dev"
-              - "request.davishaus.dev"
+              - "overseerr.${EXTERNAL_DOMAIN}"
+              - "request.${EXTERNAL_DOMAIN}"
             secretName: overseerr-tls-external
 
     persistence:

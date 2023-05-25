@@ -15,8 +15,8 @@ spec:
           class: nginx
       selector:
         dnsZones:
-          - 'davishaus.dev'
-          - 'jefedavis.dev'
+          - '${EXTERNAL_DOMAIN}'
+          - '${PROFESSIONAL_DOMAIN}'
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -34,5 +34,5 @@ spec:
           class: nginx
       selector:
         dnsZones:
-          - 'davishaus.dev'
-          - 'jefedavis.dev'
+          - '${EXTERNAL_DOMAIN}'
+          - '${PROFESSIONAL_DOMAIN}'

@@ -27,7 +27,7 @@ spec:
       TZ: America/New_York
       BAZARR__INSTANCE_NAME: Bazarr
       BAZARR__PORT: &port 6767
-      BAZARR__APPLICATION_URL: https://bazarr.davishaus.dev
+      BAZARR__APPLICATION_URL: https://bazarr.${EXTERNAL_DOMAIN}
       BAZARR__LOG_LEVEL: info
       BAZARR__API_KEY:
         valueFrom:
@@ -43,13 +43,13 @@ spec:
           theme.home.arpa/enabled: "true"
           auth.home.arpa/enabled: "true"
         hosts:
-          - host: bazarr.davishaus.dev
+          - host: bazarr.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 pathType: Prefix
         tls:
           - hosts:
-              - bazarr.davishaus.dev
+              - bazarr.${EXTERNAL_DOMAIN}
             secretName: bazarr-tls-external
     persistence:
       config:

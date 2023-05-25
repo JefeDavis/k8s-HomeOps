@@ -37,7 +37,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: unifi.davishaus.dev
+  - host: unifi.${EXTERNAL_DOMAIN}
     http:
       paths:
       - backend:
@@ -49,5 +49,5 @@ spec:
         pathType: Prefix
   tls:
   - hosts:
-    - unifi.davishaus.dev
+    - unifi.${EXTERNAL_DOMAIN}
     secretName: unifi-tls-external
