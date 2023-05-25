@@ -81,7 +81,7 @@ spec:
           theme.home.arpa/enabled: "true"
         hosts:
           - host: vault.davishaus.dev
-            paths:
+            paths: &paths
               - path: /
                 pathType: Prefix
                 service:
@@ -94,9 +94,12 @@ spec:
                 pathType: Prefix
                 service:
                   port: *port
+          - host: vaultwarden.davishaus.dev
+            paths: *paths
         tls:
           - hosts:
               - vault.davishaus.dev
+              - vaultwarden.davishaus.dev
             secretName: "vaultwarden-tls-external"
     podSecurityContext:
       runAsUser: 568
