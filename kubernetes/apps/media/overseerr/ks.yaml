@@ -16,5 +16,4 @@ spec:
   wait: true
   dependsOn:
     - name: cluster-apps-synology-csi
-
-
+    - name: cluster-apps-kube-prometheus-stack
