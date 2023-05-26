@@ -40,7 +40,8 @@ spec:
         type: gluetun
         image:
           repository: ghcr.io/qdm12/gluetun
-          tag: v3.33.0@sha256:cadc352ebed5988c9fbc750f2759ea703dc7587f969d70342cc5eff05282024b
+          tag: v3.34.1@sha256:cadc352ebed5988c9fbc750f2759ea703dc7587f969d70342cc5eff05282024b
+
         env:
           - name: VPN_SERVICE_PROVIDER
             value: mullvad
@@ -48,32 +49,44 @@ spec:
             value: wireguard
           - name: VPN_INTERFACE
             value: wg0
+          - name: VPN_ENDPOINT_PORT
+            value: 51820
           - name: SHADOWSOCKS
             value: "on"
           - name: FIREWALL
             value: "off"
           - name: DOT
             value: "off"
-          - name: SERVER_CITIES
-            value: Zurich
-          - name: SERVER_HOSTNAMES
-            value: ch5-wireguard
-          - name: WIREGUARD_PRIVATE_KEY
-            valueFrom:
-              secretKeyRef:
-                name: pod-gateway-secret
-                key: WIREGUARD_PRIVATE_KEY
-          - name: WIREGUARD_ADDRESSES
-            valueFrom:
-              secretKeyRef:
-                name: pod-gateway-secret
-                key: WIREGUARD_ADDRESSES
+          # - name: SERVER_CITIES
+          #   value: "Atlanta GA"
+          # - name: SERVER_HOSTNAMES
+          #   value: us167-wireguard
+          - name: LOG_LEVEL
+            value: debug
+
+        envFrom:
+          - secretRef:
+              name: pod-gateway-secret
+
+        networkPolicy:
+          enabled: true
+          egress:
+          - ports:
+            - port: 51820
+              protocol: UDP
+            to:
+            - ipBlock:
+                cidr: 0.0.0.0/0
+          - to:
+            - namespaceSelector: {}
+
         resources:
           requests:
             cpu: 5m
             memory: 64M
           limits:
             memory: 64M
+
         securityContext:
           capabilities:
             add:
@@ -105,18 +118,21 @@ spec:
       - downloads
 
     settings:
-      NOT_ROUTED_TO_GATEWAY_CIDRS: 10.0.0.0/8 192.168.0.0/16
+      NOT_ROUTED_TO_GATEWAY_CIDRS: 10.0.0.0/8
       VPN_BLOCK_OTHER_TRAFFIC: true
       VPN_INTERFACE: wg0
-      VPN_LOCAL_CIDRS: 10.0.0.0/8 192.168.0.0/16
+      VPN_LOCAL_CIDRS: 10.0.0.0/8
       VPN_TRAFFIC_PORT: "51820"
-      VXLAN_ID: 43
+      VXLAN_ID: 42
       VXLAN_IP_NETWORK: 172.16.1
 
     webhook:
-      gatewayAnnotation: setGateway
-      gatewayDefault: false
-      gatewayLabel: setGateway
+      gatewayAnnotation: vpn.home.arpa/enabled
+      gatewayDefault: true
+      gatewayLabel: vpn.home.arpa/enabled
+      namespaceSelector:
+        type: label
+        label: vpn.home.arpa/routed-gateway
       image:
         repository: ghcr.io/angelnu/gateway-admision-controller
         tag: v3.9.0@sha256:4e169da5af107a9c6c784d3e03c89da07fad45f18358ab5b7177662df12d955a
