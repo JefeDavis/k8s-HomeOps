@@ -74,17 +74,14 @@ spec:
       resources:
         requests:
           memory: 381M
-          cpu: 23m
+          cpu: 100m
         limits:
           memory: 463M
     defaultBackend:
       enabled: true
       image:
-        repository: billimek/custom-error-pages
-        tag: 0.4.4
-      resources:
-        requests:
-          memory: 250Mi
-          cpu: 25m
-        limits:
-          memory: 350Mi
+        repository: ghcr.io/tarampampam/error-pages
+        tag: 2.24.0
+      extraEnvs:
+        - { name: TEMPLATE_NAME, value: lost-in-space }
+        - { name: SHOW_DETAILS, value: "false" }
