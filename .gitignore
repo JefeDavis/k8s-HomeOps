@@ -20,7 +20,6 @@ xanmanning.k3s*
 kubeconfig
 # Terraform
 .terraform
-.terraform.locl.hcl
 # Other
 report.html
 .env

@@ -33,3 +33,8 @@ spec:
         enabled: true
         endpoint:
           interval: 1m
+    runner:
+      serviceAccount:
+        create: true
+        allowedNamespaces:
+          - downloads
