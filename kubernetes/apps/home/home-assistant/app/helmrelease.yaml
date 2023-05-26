@@ -79,6 +79,8 @@ spec:
         annotations:
           nginx.org/websocket-services: home-assistant
           cert-manager.io/cluster-issuer: letsencrypt-prod
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "simple-icons:homeassistant"
         ingressClassName: nginx
         hosts:
           - host: home.${EXTERNAL_DOMAIN}

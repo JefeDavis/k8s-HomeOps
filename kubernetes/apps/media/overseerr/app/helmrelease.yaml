@@ -39,6 +39,8 @@ spec:
         annotations:
           theme.home.arpa/enabled: "true"
           cert-manager.io/cluster-issuer: letsencrypt-prod
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:eye-circle-outline"
         hosts:
           - host: "overseerr.${EXTERNAL_DOMAIN}"
             paths:

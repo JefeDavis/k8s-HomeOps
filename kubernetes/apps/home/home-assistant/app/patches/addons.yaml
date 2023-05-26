@@ -29,8 +29,9 @@ spec:
           annotations:
             cert-manager.io/cluster-issuer: letsencrypt-prod
             auth.home.arpa/enabled: "true"
+            hajimari.io/enable: "true"
+            hajimari.io/icon: "mdi:vs-code"
             hajimari.io/appName: "Hass Config"
-            hajimari.io/icon: cib:visual-studio-code
           hosts:
             - host: &host hass-code.${EXTERNAL_DOMAIN}
               paths:

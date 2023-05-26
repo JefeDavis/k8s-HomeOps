@@ -28,6 +28,8 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     auth.home.arpa/enabled: "true"
+    hajimari.io/enable: "true"
+    hajimari.io/icon: "simple-icons:octoprint"
   labels:
     app.kubernetes.io/instance: octoprint
     app.kubernetes.io/name: octoprint
