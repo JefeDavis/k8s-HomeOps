@@ -1,12 +1,11 @@
 ---
-# 
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: prowlarr
   namespace: downloads
 spec:
-  interval: 15m
+  interval: 30m
   chart:
     spec:
       chart: app-template
@@ -15,32 +14,24 @@ spec:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-  maxHistory: 2
-  install:
-    remediation:
-      retries: 3
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
-  uninstall:
-    keepHistory: false
+      interval: 30m
   values:
     controller:
       type: statefulset
       annotations:
         reloader.stakater.com/auto: "true"
+
     image:
       repository: ghcr.io/onedr0p/prowlarr-develop
       tag: 1.4.1.3258@sha256:ffb9ec9bf6561a43f0219209782c111d5519f825cc00936075eb5bf558f11caa
+
     env:
       TZ: America/New_York
       PROWLARR__INSTANCE_NAME: Prowlarr
       PROWLARR__PORT: &port 9696
-      PROWLARR__LOG_LEVEL: info
-      PROWLARR__ANALYTICS_ENABLED: "False"
       PROWLARR__AUTHENTICATION_METHOD: External
       PROWLARR__APPLICATION_URL: "https://prowlarr.${EXTERNAL_DOMAIN}"
+      PROWLARR__LOG_LEVEL: info
       PROWLARR__API_KEY:
         valueFrom:
           secretKeyRef:
@@ -51,6 +42,7 @@ spec:
         ports:
           http:
             port: *port
+
     probes:
       liveness: &probes
         enabled: true
@@ -66,6 +58,7 @@ spec:
       readiness: *probes
       startup:
         enabled: false
+
     ingress:
       main:
         enabled: true
@@ -77,14 +70,22 @@ spec:
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:movie-search"
         hosts:
-          - host: "prowlarr.${EXTERNAL_DOMAIN}"
+          - host: &host prowlarr.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 pathType: Prefix
         tls:
           - hosts:
-              - "prowlarr.${EXTERNAL_DOMAIN}"
+              - *host
             secretName: prowlarr-tls-external
+
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: synology-csi-retain
+
     podSecurityContext:
       runAsUser: 568
       runAsGroup: 568
@@ -92,22 +93,18 @@ spec:
       fsGroupChangePolicy: OnRootMismatch
       supplementalGroups:
         - 65539
-    volumeClaimTemplates:
-      - name: config
-        mountPath: /config
-        accessMode: ReadWriteOnce
-        size: 2Gi
-        storageClass: synology-csi-retain
+
     resources:
       requests:
-        cpu: 10m
-        memory: 100Mi
+        memory: 350Mi
+        cpu: 5m
       limits:
-        memory: 500Mi
+        memory: 431Mi
+
     serviceMonitor:
       podmonitor:
         enabled: true
-        serviceName: prowlarr-metrics
+        serviceName: prowlarr-podmonitor
         endpoints:
           - port: http
             scheme: http

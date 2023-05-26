@@ -21,4 +21,3 @@ spec:
     - name: cluster-apps-media-common-mounts
     - name: cluster-apps-synology-csi
     - name: cluster-apps-kube-prometheus-stack
-

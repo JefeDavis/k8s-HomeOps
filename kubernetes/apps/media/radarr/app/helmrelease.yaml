@@ -1,5 +1,4 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -10,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 1.4.0
+      version: 1.5.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -18,6 +17,7 @@ spec:
       interval: 30m
   values:
     controller:
+      type: statefulset
       annotations:
         reloader.stakater.com/auto: "true"
 
@@ -35,6 +35,13 @@ spec:
           secretKeyRef:
             name: starr-apps-secret
             key: RADARR_API_KEY
+
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+
     ingress:
       main:
         enabled: true
@@ -47,21 +54,26 @@ spec:
           hajimari.io/icon: "mdi:movie-open-outline"
           # nginx.ingress.kubernetes.io/auth-response-headers: Set-Cookie,X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,Authorization
         hosts:
-          - host: radarr.${EXTERNAL_DOMAIN}
+          - host: &host radarr.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 pathType: Prefix
         tls:
           - hosts:
-              - radarr.${EXTERNAL_DOMAIN}
+              - *host
             secretName: radarr-tls-external
     persistence:
-      config:
-        enabled: true
-        existingClaim: radarr-config
       media:
         enabled: true
         existingClaim: nfs-media
+
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: synology-csi-retain
+
     podSecurityContext:
       runAsUser: 568
       runAsGroup: 568
@@ -69,19 +81,21 @@ spec:
       fsGroupChangePolicy: OnRootMismatch
       supplementalGroups:
         - 65539
+
     resources:
       requests:
-        memory: 431M
+        memory: 350Mi
         cpu: 5m
       limits:
-        memory: 431M
+        memory: 431Mi
+
     serviceMonitor:
       podmonitor:
         enabled: true
+        serviceName: radarr-podmonitor
         endpoints:
           - port: http
             scheme: http
             path: /metrics
             interval: 10m
             scrapeTimeout: 2m
-
