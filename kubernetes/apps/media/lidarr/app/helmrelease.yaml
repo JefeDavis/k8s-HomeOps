@@ -1,9 +1,9 @@
+---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
-# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 kind: HelmRelease
 metadata:
   name: lidarr
-  namespace: media 
+  namespace: media
 spec:
   interval: 30m
   chart:
@@ -17,6 +17,7 @@ spec:
       interval: 30m
   values:
     controller:
+      type: statefulset
       annotations:
         reloader.stakater.com/auto: "true"
 
@@ -25,7 +26,7 @@ spec:
       tag: 1.1.4.3027@sha256:d7e06edaee3b2227a0dcbf170a95d26595b0d10655d5e084c45b859f175a0672
 
     env:
-      TZ: "America/New York"
+      TZ: America/New_York
       LIDARR__INSTANCE_NAME: Lidarr
       LIDARR__PORT: &port 8686
       LIDARR__LOG_LEVEL: info
@@ -46,7 +47,7 @@ spec:
     ingress:
       main:
         enabled: true
-        labels:
+        ingressClassName: nginx
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           theme.home.arpa/enabled: "true"
@@ -54,37 +55,41 @@ spec:
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:headphones"
         hosts:
-        - host: "lidarr.${EXTERNAL_DOMAIN}"
+        - host: &host "lidarr.${EXTERNAL_DOMAIN}"
           paths:
           - path: /
             pathType: Prefix
         tls:
         - hosts:
-          - "lidarr.${EXTERNAL_DOMAIN}"
+          - *host
           secretName: lidarr-tls-external
 
     persistence:
-      config:
-        enabled: true
-        existingClaim: lidarr-config
       media:
         enabled: true
         existingClaim: nfs-media
+
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: synology-csi-retain
 
     podSecurityContext:
       runAsUser: 568
       runAsGroup: 568
       fsGroup: 568
-      fsGroupChangePolicy: "OnRootMismatch"
+      fsGroupChangePolicy: OnRootMismatch
       supplementalGroups:
         - 65539
 
     resources:
       requests:
         memory: 350Mi
-        cpu: 25m
+        cpu: 5m
       limits:
-        memory: 500Mi
+        memory: 431Mi
 
     serviceMonitor:
       podmonitor:

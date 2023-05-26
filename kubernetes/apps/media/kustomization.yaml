@@ -10,9 +10,9 @@ resources:
   - ./lidarr/ks.yaml
   - ./overseerr/ks.yaml
   - ./plex/ks.yaml
-  # - ./readarr/ks.yaml
-  # - ./radarr/ks.yaml
-  # - ./sonarr/ks.yaml
-  # - ./tautulli/ks.yaml
-  # - ./wizarr/ks.yaml
+  - ./readarr/ks.yaml
+  - ./radarr/ks.yaml
+  - ./sonarr/ks.yaml
+  - ./tautulli/ks.yaml
+  - ./wizarr/ks.yaml
 
