@@ -47,6 +47,8 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           theme.home.arpa/enabled: "true"
           auth.home.arpa/enabled: "true"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:download-circle-outline"
         hosts:
           - host: &host "rdt.${EXTERNAL_DOMAIN}"
             paths:

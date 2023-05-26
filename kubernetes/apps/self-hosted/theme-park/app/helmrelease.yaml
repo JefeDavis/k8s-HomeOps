@@ -30,6 +30,8 @@ spec:
         ingressClassName: nginx
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:paint-outline"
         hosts:
           - host: &host "theme-park.${EXTERNAL_DOMAIN}"
             paths:

@@ -51,6 +51,8 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           theme.home.arpa/enabled: "true"
           auth.home.arpa/enabled: "true"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:headphones"
         hosts:
         - host: "lidarr.${EXTERNAL_DOMAIN}"
           paths:
