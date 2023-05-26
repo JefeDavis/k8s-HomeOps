@@ -100,8 +100,9 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           auth.home.arpa/enabled: "true"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:alert-decagram-outline"
           hajimari.io/appName: "Alert Manager"
-          hajimari.io/icon: mdi:alert-decagram-outline
         hosts:
           - &host alert-manager.${EXTERNAL_DOMAIN}
         tls:
@@ -199,8 +200,9 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           auth.home.arpa/enabled: "true"
-          hajimari.io/appName: Prometheus
-          hajimari.io/icon: simple-icons:prometheus
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "simple-icons:prometheus"
+          hajimari.io/appName: "Prometheus"
         pathType: Prefix
         hosts:
           - &host prometheus.${EXTERNAL_DOMAIN}

@@ -39,6 +39,8 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           auth.home.arpa/enabled: "true"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:invite"
         hosts:
           - host: &host "join.${EXTERNAL_DOMAIN}"
             paths:

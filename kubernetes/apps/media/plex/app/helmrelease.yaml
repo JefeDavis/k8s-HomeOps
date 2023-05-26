@@ -98,6 +98,9 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           theme.home.arpa/enabled: "true"
           nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:plex"
+          hajimari.io/url: "https://plex.${EXTERNAL_DOMAIN}/web"
         hosts:
         - host: "plex.${EXTERNAL_DOMAIN}"
           paths:
