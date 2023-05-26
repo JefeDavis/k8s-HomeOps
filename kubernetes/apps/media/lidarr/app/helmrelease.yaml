@@ -8,8 +8,8 @@ spec:
   interval: 30m
   chart:
     spec:
-      chart: lidarr
-      version: 1.4.0
+      chart: app-template
+      version: 1.5.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -23,6 +23,7 @@ spec:
     image:
       repository: ghcr.io/onedr0p/lidarr
       tag: 1.1.4.3027@sha256:d7e06edaee3b2227a0dcbf170a95d26595b0d10655d5e084c45b859f175a0672
+
     env:
       TZ: "America/New York"
       LIDARR__INSTANCE_NAME: Lidarr
@@ -35,6 +36,12 @@ spec:
           secretKeyRef:
             name: starr-apps-secret
             key: LIDARR_API_KEY
+
+    service:
+      main:
+        ports:
+          http:
+            port: *port
 
     ingress:
       main:
@@ -53,6 +60,7 @@ spec:
         - hosts:
           - "lidarr.${EXTERNAL_DOMAIN}"
           secretName: lidarr-tls-external
+
     persistence:
       config:
         enabled: true
@@ -60,6 +68,7 @@ spec:
       media:
         enabled: true
         existingClaim: nfs-media
+
     podSecurityContext:
       runAsUser: 568
       runAsGroup: 568
@@ -67,19 +76,21 @@ spec:
       fsGroupChangePolicy: "OnRootMismatch"
       supplementalGroups:
         - 65539
+
     resources:
       requests:
         memory: 350Mi
         cpu: 25m
       limits:
         memory: 500Mi
+
     serviceMonitor:
       podmonitor:
         enabled: true
+        serviceName: lidarr-podmonitor
         endpoints:
           - port: http
             scheme: http
             path: /metrics
             interval: 10m
             scrapeTimeout: 2m
-
