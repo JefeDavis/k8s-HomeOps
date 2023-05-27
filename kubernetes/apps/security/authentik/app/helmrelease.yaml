@@ -23,6 +23,7 @@ spec:
 
     authentik:
       security_key: ""
+      avatars: "gravatar,initials"
       log_level: debug
       error_reporting:
         enabled: false
@@ -33,6 +34,11 @@ spec:
         name: ""
         user: ""
         password: ""
+      email:
+        host: "smtp-relay.network.svc.cluster.local"
+        port: 2525
+        use_tls: false
+        from: "authentik@${EXTERNAL_DOMAIN}"
 
     envValueFrom:
       AUTHENTIK_SECRET_KEY:
