@@ -39,7 +39,7 @@ spec:
     service:
       main:
         type: LoadBalancer
-        loadBalancerIP: 10.77.1.134
+        loadBalancerIP: ${SVC_PLEX_ADDR}
         externalTrafficPolicy: Local
         annotations:
           metallb.universe.tf/allow-shared-ip: plex

@@ -27,7 +27,7 @@ spec:
       vpn:
         enabled: true
         type: LoadBalancer
-        loadBalancerIP: 10.77.1.140
+        loadBalancerIP: ${SVC_VPN_ADDR}
         externalTrafficPolicy: Local
         ports:
           shadowsocks:

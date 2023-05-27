@@ -30,7 +30,7 @@ spec:
     provider: rfc2136
 
     extraArgs:
-      - --rfc2136-host=10.77.0.2
+      - --rfc2136-host=${SYNOLOGY_ADDR}
       - --rfc2136-port=53
       - --rfc2136-zone=${INTERNAL_DOMAIN}
       - --rfc2136-tsig-axfr
