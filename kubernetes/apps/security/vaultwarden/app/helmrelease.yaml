@@ -42,6 +42,11 @@ spec:
       ATTACHMENTS_FOLDER: "config/attachments"
       SENDS_FOLDER: "config/sends"
       DOMAIN: "https://vault.${EXTERNAL_DOMAIN}"
+      SMTP_FROM_NAME: Vault
+      SMTP_FROM: vault@${EXTERNAL_DOMAIN}
+      SMTP_HOST: smtp-relay.network.svc.cluster.local
+      SMTP_PORT: 2525
+      SMTP_SSL: "false"
       WEBSOCKET_ADDRESS: 0.0.0.0
       WEBSOCKET_ENABLED: true
       WEBSOCKET_PORT: &websocket-port 3012
