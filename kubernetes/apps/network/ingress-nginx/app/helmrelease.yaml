@@ -50,7 +50,7 @@ spec:
       service:
         enabled: true
         type: LoadBalancer
-        loadBalancerIP: 10.77.1.131
+        loadBalancerIP: ${SVC_NGINX_ADDR}
         externalTrafficPolicy: Local
       ingressClassResource:
         default: true

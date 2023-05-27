@@ -18,6 +18,9 @@ xanmanning.k3s*
 .decrypted~*
 # Kubernetes
 kubeconfig
+# Terraform
+.terraform
+.terraform.locl.hcl
 # Other
 report.html
 .env
@@ -25,4 +28,3 @@ master.key
 *.snap
 setup/cluster/*cluster.yml
 *.ovpn
-
