@@ -6,7 +6,7 @@ metadata:
   namespace: network
 spec:
   addresses:
-  - 10.77.1.130-10.77.1.250
+  - ${METALLB_IP_POOL}
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
