@@ -240,16 +240,16 @@ loadSecretsToVault() {
   kvault-tpl "apps/home/zigbee2mqtt/secret/zigbee2mqtt.tpl"
   kvault-tpl "apps/home/home-assistant/secret/home-assistant.tpl"
 
-  kvault "monitoring/grafana/chart/grafana-helm-values.txt"
-  kvault "monitoring/kube-prometheus-stack/chart/kube-prometheus-stack-helm-values.txt"
+  kvault "/grafana/chart/grafana-helm-values.txt"
+  kvault "/kube-prometheus-stack/chart/kube-prometheus-stack-helm-values.txt"
   kvault "vpn-gateway/chart/vpn-gateway-helm-values.txt"
   kvault-env "vaultwarden/vaultwarden-secret.txt"
 }
 
 loadSecretsToVault-oneoff() {
   message "writing secrets to vault"
-  kvault "monitoring/kube-prometheus-stack/chart/kube-prometheus-stack-helm-values.txt"
-  kvault "monitoring/grafana/chart/grafana-helm-values.txt"
+  kvault "/kube-prometheus-stack/chart/kube-prometheus-stack-helm-values.txt"
+  kvault "/grafana/chart/grafana-helm-values.txt"
   kvault "external-dns/chart/external-dns-helm-values.txt"
   kvault "auth/oauth2-proxy/chart/oauth2-proxy-helm-values.txt"
   kvault "auth/authentik/chart/authentik-helm-values.txt"
