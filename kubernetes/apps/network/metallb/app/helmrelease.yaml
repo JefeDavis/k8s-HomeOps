@@ -19,7 +19,7 @@ spec:
       interval: 30m
   values:
     prometheus:
-      namespace: monitoring
+      namespace: monitor
       serviceAccount: kube-prometheus-stack-prometheus
       podMonitor:
         enabled: true

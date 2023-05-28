@@ -1,12 +1,12 @@
 ---
-apiVersion: monitoring.coreos.com/v1
+apiVersion: .coreos.com/v1
 kind: PrometheusRule
 metadata:
   labels:
     prometheus: k8s
     role: alert-rules
   name: kured-rules
-  namespace: monitoring
+  namespace: monitor
 spec:
   groups:
   - name: kured.rules
