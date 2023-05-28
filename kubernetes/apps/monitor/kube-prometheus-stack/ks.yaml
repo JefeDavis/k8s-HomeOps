@@ -6,7 +6,7 @@ metadata:
   name: cluster-apps-kube-prometheus-stack
   namespace: flux-system
 spec:
-  path: ./kubernetes/apps/monitoring/kube-prometheus-stack/app
+  path: ./kubernetes/apps/monitor/kube-prometheus-stack/app
   prune: true
   sourceRef:
     kind: GitRepository
@@ -27,7 +27,7 @@ metadata:
   name: cluster-apps-prometheus-rules
   namespace: flux-system
 spec:
-  path: ./kubernetes/apps/monitoring/kube-prometheus-stack/rules
+  path: ./kubernetes/apps/monitor/kube-prometheus-stack/rules
   prune: true
   sourceRef:
     kind: GitRepository
