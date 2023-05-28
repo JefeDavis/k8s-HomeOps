@@ -19,7 +19,7 @@ jobs:
     outputs:
       files: "${{ steps.extract.outputs.files }}"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -44,16 +44,16 @@ jobs:
         file: ${{ fromJson(needs.changes.outputs.files) }}
       fail-fast: false
     steps:
-      - uses: yokawasa/action-setup-kube-tools@v0.9.3
+      - uses: yokawasa/action-setup-kube-tools@af4ebb1af1efd30c5bd84a2e9773355ad6362a33 # v0.9.3
         with:
           setup-tools: |
             helmv3
             yq
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3
         with:
           ref: ${{ env.conf_live_branch }}
           path: live
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3
         with:
           path: pr
       - id: diff
@@ -110,7 +110,7 @@ jobs:
           fi
           echo "::set-output name=message::$(echo "$message" | jq --raw-input --slurp)"
 
-      - uses: peter-evans/create-or-update-comment@v3
+      - uses: peter-evans/create-or-update-comment@ca08ebd5dc95aa0cd97021e9708fcd6b87138c9b # v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "${{ fromJSON(steps.diff.outputs.message) }}"
