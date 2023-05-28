@@ -22,7 +22,7 @@ spec:
         reloader.stakater.com/auto: "true"
     image:
       repository: ghcr.io/onedr0p/readarr-nightly
-      tag: 0.1.5.1793@sha256:acc5365f5f871b089e1e1908aa9c958bc4ff843bd6ff5ba0b3371755a42532d5
+      tag: 0.1.7.1870@sha256:599ea1dde0fbd27e182086696ded0d9b9b1d47bbac12272231bc45355026dd53
     env:
       TZ: America/New_York
       READARR__INSTANCE_NAME: Readarr
