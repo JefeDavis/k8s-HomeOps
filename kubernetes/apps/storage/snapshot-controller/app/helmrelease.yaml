@@ -29,11 +29,5 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    volumeSnapshotClasses:
-      - name: synology-snapshotclass
-        annotations:
-          snapshot.storage.kubernetes.io/is-default-class: "true"
-        driver: csi.san.synology.com
-        deletionPolicy: Delete
     serviceMonitor:
       create: true
