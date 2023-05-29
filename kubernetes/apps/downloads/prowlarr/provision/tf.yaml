@@ -1,12 +1,15 @@
+---
 apiVersion: infra.contrib.fluxcd.io/v1alpha1
 kind: Terraform
 metadata:
-  name: provision-apps-prowlarr
+  name: prowlarr-provisioner
   namespace: downloads
 spec:
-  path: ./terraform/downloads/prowlarr
+  path: "./"
   interval: 10m
   approvePlan: auto
+  backendConfig:
+    disable: true
   cliConfigSecretRef:
     name: tf-cloud-token
     namespace: flux-system
@@ -14,10 +17,10 @@ spec:
     organization: "davishaus"
     hostname: "app.terraform.io"
     workspaces:
-      name: "provision-apps-prowlarr"
+      name: "prowlarr-provisioner"
   sourceRef:
-    kind: GitRepository
-    name: k8s-home-ops
+    kind: OCIRepository
+    name: oci-terraform-prowlarr
     namespace: flux-system
   varsFrom:
     - kind: Secret
