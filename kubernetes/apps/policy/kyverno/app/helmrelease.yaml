@@ -24,7 +24,6 @@ spec:
   values:
     replicaCount: 3
     extraArgs:
-      - --autogenInternals=false
       - --clientRateLimitQPS=30
       - --clientRateLimitBurst=60
     serviceMonitor:
