@@ -23,11 +23,11 @@ spec:
       name: synology-csi-secret
     images:
       attacher:
-        image: registry\.k8s\.io/sig-storage/csi-attacher
+        image: registry.k8s.io/sig-storage/csi-attacher
         pullPolicy: IfNotPresent
         tag: v4.2.0
       nodeDriverRegistrar:
-        image: registry\.k8s\.io/sig-storage/csi-node-driver-registrar
+        image: registry.k8s.io/sig-storage/csi-node-driver-registrar
         pullPolicy: IfNotPresent
         tag: v2.6.3
       plugin:
@@ -36,15 +36,15 @@ spec:
         # Defaults to {{ $.Chart.AppVersion }} if empty or not present:
         tag: latest
       provisioner:
-        image: registry\.k8s\.io/sig-storage/csi-provisioner
+        image: registry.k8s.io/sig-storage/csi-provisioner
         pullPolicy: IfNotPresent
         tag: v3.4.0
       resizer:
-        image: registry\.k8s\.io/sig-storage/csi-resizer
+        image: registry.k8s.io/sig-storage/csi-resizer
         pullPolicy: IfNotPresent
         tag: v1.7.0
       snapshotter:
-        image: registry\.k8s\.io/sig-storage/csi-snapshotter
+        image: registry.k8s.io/sig-storage/csi-snapshotter
         pullPolicy: IfNotPresent
         tag: v6.2.1
     storageClasses:
@@ -54,3 +54,9 @@ spec:
       retain:
         parameters:
           csi.storage.k8s.io/fstype: ext4
+        isDefault: true
+    volumeSnapshotClass:
+      delete:
+        deletionPolicy: Delete
+      retain:
+        deletionPolicy: Retain
