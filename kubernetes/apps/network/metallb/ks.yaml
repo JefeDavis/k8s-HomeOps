@@ -13,11 +13,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
-  healthChecks:
-    - apiVersion: helm.toolkit.fluxcd.io/v2beta1
-      kind: HelmRelease
-      name: metallb
-      namespace: network
   wait: true
   postBuild:
     substituteFrom: []
