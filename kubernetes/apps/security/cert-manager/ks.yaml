@@ -12,6 +12,8 @@ spec:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
+  postBuild:
+    substituteFrom: []
   dependsOn:
     - name: cluster-apps-kube-prometheus-stack
 ---
@@ -28,6 +30,8 @@ spec:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
+  postBuild:
+    substituteFrom: []
   dependsOn:
     - name: cluster-apps-cert-manager
 

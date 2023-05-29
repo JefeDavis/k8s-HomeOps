@@ -18,6 +18,9 @@ spec:
       kind: HelmRelease
       name: volsync
       namespace: storage
+  wait: true
+  postBuild:
+    substituteFrom: []
   timeout: 3m
   dependsOn:
     - name: cluster-apps-snapshot-controller-webhook
