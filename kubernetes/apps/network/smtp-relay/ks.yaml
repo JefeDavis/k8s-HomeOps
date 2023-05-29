@@ -17,3 +17,5 @@ spec:
   decryption:
     provider: sops
   wait: true
+  postBuild:
+    substituteFrom: []
