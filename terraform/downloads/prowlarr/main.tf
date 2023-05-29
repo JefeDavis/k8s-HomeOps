@@ -9,7 +9,7 @@ terraform {
   cloud {
     organization = "davishaus"
     workspaces {
-      name = "home-prowlarr-provisioner"
+      name = "prowlarr-provisioner"
     }
   }
 }
