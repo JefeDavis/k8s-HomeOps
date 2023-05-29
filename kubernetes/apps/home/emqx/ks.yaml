@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: secrets-emqx
+  name: cluster-apps-emqx-secrets
   namespace: flux-system
   labels: 
     substitution.flux.home.arpa/enabled: "false"
@@ -23,7 +23,7 @@ spec:
     provider: sops
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization.yaml
+kind: Kustomization
 metadata:
   name: cluster-apps-emqx
   namespace: flux-system
@@ -43,9 +43,11 @@ spec:
       name: emqx
       namespace: home
   dependsOn:
-    - name: secrets-emqx
+    - name: cluster-apps-emqx-secrets
+  decryption:
+    provider: sops
   postBuild:
     substituteFrom:
       - kind: Secret
-        name: flux-home-assistant
+        name: flux-emqx
         optional: false
