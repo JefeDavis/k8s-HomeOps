@@ -23,7 +23,7 @@ spec:
       name: synology-csi-secret
     images:
       attacher:
-        image: k8s.gcr.io/sig-storage/csi-attacher
+        image: registry\.k8s\.io/sig-storage/csi-attacher
         pullPolicy: IfNotPresent
         tag: v4.2.0
       nodeDriverRegistrar:
