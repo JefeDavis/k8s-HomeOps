@@ -40,7 +40,7 @@ spec:
         pullPolicy: IfNotPresent
         tag: v3.4.0
       resizer:
-        image: k8s.gcr.io/sig-storage/csi-resizer
+        image: registry\.k8s\.io/sig-storage/csi-resizer
         pullPolicy: IfNotPresent
         tag: v1.7.0
       snapshotter:
