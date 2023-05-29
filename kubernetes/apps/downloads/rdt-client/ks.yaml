@@ -16,11 +16,6 @@ spec:
   wait: true
   postBuild:
     substituteFrom: []
-  healthChecks:
-    - apiVersion: helm.toolkit.fluxcd.io/v2beta1
-      kind: HelmRelease
-      name: rdt-client
-      namespace: downloads
   dependsOn:
     - name: cluster-apps-synology-csi
     - name: cluster-apps-pod-gateway

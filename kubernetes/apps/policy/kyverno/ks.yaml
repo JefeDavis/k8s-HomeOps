@@ -16,11 +16,6 @@ spec:
   wait: true
   postBuild:
     substituteFrom: []
-  healthChecks:
-    - apiVersion: helm.toolkit.fluxcd.io/v2beta1
-      kind: HelmRelease
-      name: kyverno
-      namespace: policy
   decryption: 
     provider: sops
   dependsOn:
