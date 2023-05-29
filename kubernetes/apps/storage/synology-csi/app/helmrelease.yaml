@@ -36,7 +36,7 @@ spec:
         # Defaults to {{ $.Chart.AppVersion }} if empty or not present:
         tag: latest
       provisioner:
-        image: k8s.gcr.io/sig-storage/csi-provisioner
+        image: registry\.k8s\.io/sig-storage/csi-provisioner
         pullPolicy: IfNotPresent
         tag: v3.4.0
       resizer:
