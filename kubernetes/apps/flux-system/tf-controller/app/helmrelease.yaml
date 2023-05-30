@@ -38,3 +38,4 @@ spec:
         create: true
         allowedNamespaces:
           - downloads
+          - security

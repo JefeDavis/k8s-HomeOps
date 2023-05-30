@@ -19,7 +19,7 @@ spec:
       interval: 30m
   values:
     global:
-      storageClass: synology-csi-retain
+      storageClass: synology-csi-delete
 
     authentik:
       security_key: ""
