@@ -17,6 +17,6 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cluster-apps-emqx
+    - name: cluster-apps-mosquitto
     - name: cluster-apps-synology-csi
     - name: cluster-apps-node-feature-discovery-rules

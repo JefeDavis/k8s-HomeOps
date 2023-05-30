@@ -29,13 +29,13 @@ spec:
       ZIGBEE2MQTT_CONFIG_MQTT_USER:
         valueFrom:
           secretKeyRef:
-            name: emqx-secret
-            key: EMQX_AUTH__USER__1__USERNAME
+            name: mosquitto-secret
+            key: ZIGBEE2MQTT_MQTT_USER
       ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD:
         valueFrom:
           secretKeyRef:
-            name: emqx-secret
-            key: EMQX_AUTH__USER__1__PASSWORD
+            name: mosquitto-secret
+            key: ZIGBEE2MQTT_MQTT_PASS
     service:
       main:
         ports:
@@ -87,14 +87,10 @@ spec:
         hostPath: /dev/serial/by-id/usb-Silicon_Labs_HubZ_Smart_Home_Controller_516009EA-if01-port0
 
     nodeSelector:
-      feature.kubernetes.io/zigbee: "true"
+      feature.node.kubernetes.io/zigbee: "true"
 
     envFrom:
       - configMapRef:
           name: zigbee2mqtt-config
-          prefix: "ZIGBEE2MQTT_CONFIG_"
       - secretRef:
           name: zigbee2mqtt-secret
-          prefix: "ZIGBEE2MQTT_CONFIG_"
-      
-        # channel: 11
