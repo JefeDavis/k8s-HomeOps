@@ -39,12 +39,10 @@ spec:
         port: 2525
         use_tls: false
         from: "authentik@${EXTERNAL_DOMAIN}"
-
-    envValueFrom:
-      AUTHENTIK_SECRET_KEY:
-        secretKeyRef:
+    envFrom:
+      - secretRef:
           name: authentik-secret
-          key: AUTHENTIK_KEY
+    envValueFrom:
       AUTHENTIK_POSTGRESQL__NAME:
         secretKeyRef:
           name: pg-authentik-app
