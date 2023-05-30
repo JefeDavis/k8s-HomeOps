@@ -1,0 +1,13 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: security
+resources:
+  - ./tf.yaml
+commonLabels:
+configMapGenerator:
+  - name: tf-authentik-proxy-providers
+    files:
+      - config/applications
+generatorOptions:
+  disableNameSuffixHash: true
