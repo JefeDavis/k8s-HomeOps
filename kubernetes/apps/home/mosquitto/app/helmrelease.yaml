@@ -1,0 +1,91 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: mosquitto
+  namespace: home
+  labels:
+    substitution.flux.home.arpa/enabled: "false"
+spec:
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.0
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  interval: 30m
+
+  values:
+    controller:
+      type: statefulset
+      annotations:
+        reloader.stakater.com/auto: "true"
+
+    image:
+      repository: public.ecr.aws/docker/library/eclipse-mosquitto
+      tag: 2.0.15
+
+    initContainers:
+      user-import:
+        image: public.ecr.aws/docker/library/eclipse-mosquitto:2.0.15@sha256:786ca925d7394a38dc7be5c02fc5e4da7e686c915a2673c6b3d1652c4e8c050b
+        command:
+          - "/bin/sh"
+          - -c
+        args:
+          - /data/mosquitto_init/load-users.sh /data/mosquitto_secret /data/external_config/mosquitto_pwd && mosquitto_passwd -U /data/external_config/mosquitto_pwd && echo "User import Completed"
+        volumeMounts:
+          - name: mosquitto-secret
+            mountPath: /data/mosquitto_secret
+          - name: mosquitto-init-config
+            mountPath: /data/mosquitto_init
+          - name: external-config
+            mountPath: /data/external_config
+
+    service:
+      main:
+        ports:
+          http:
+            enabled: false
+          mqtt:
+            enabled: true
+            port: 1883
+
+    persistence:
+      mosquitto-config:
+        enabled: true
+        type: configMap
+        name: mosquitto-configmap
+        mountPath: /mosquitto/config/mosquitto.conf
+        subPath: mosquitto.conf
+      mosquitto-secret:
+        enabled: true
+        type: secret
+        name: mosquitto-secret
+        mountPath: "-"
+      mosquitto-init-config:
+        enabled: true
+        type: configMap
+        name: mosquitto-init-config
+        mountPath: "-"
+        defaultMode: 0755
+      external-config:
+        enabled: true
+        type: emptyDir
+        mountPath: /mosquitto/external_config
+
+    resources:
+      requests:
+        cpu: 5m
+        memory: 10Mi
+      limits:
+        memory: 10Mi
+
+    volumeClaimTemplates:
+      - name: data
+        mountPath: /data
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: synology-csi-delete
