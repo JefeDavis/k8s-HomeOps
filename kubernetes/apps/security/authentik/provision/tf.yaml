@@ -1,0 +1,78 @@
+---
+apiVersion: infra.contrib.fluxcd.io/v1alpha1
+kind: Terraform
+metadata:
+  name: authentik-provisioner
+  namespace: security
+spec:
+  path: "./"
+  interval: 10m
+  approvePlan: auto
+  backendConfig:
+    disable: true
+  cliConfigSecretRef:
+    name: tf-cloud-token
+    namespace: flux-system
+  cloud:
+    organization: "davishaus"
+    hostname: "app.terraform.io"
+    workspaces:
+      name: "authentik-provisioner"
+  sourceRef:
+    kind: OCIRepository
+    name: oci-terraform-authentik
+    namespace: flux-system
+  vars:
+    - name: AUTHENTIK_BOOTSTRAP_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: authentik-secret
+          key: AUTHENTIK_BOOTSTRAP_TOKEN
+      name: applications
+      value:
+        Alert-Manager:
+          url: https://alert-manager.${EXTERNAL_DOMAIN}
+          group: Monitor
+        Bazarr:
+          url: https://bazarr.${EXTERNAL_DOMAIN}
+          group: Media
+        Hajimari:
+          url: https://portal.${EXTERNAL_DOMAIN}
+          group: Home Page
+        Lidarr:
+          url: https://lidarr.${EXTERNAL_DOMAIN}
+          group: Media
+        OctoPrint:
+          url: https://octoprint.${EXTERNAL_DOMAIN}
+          group: Network
+        Prometheus:
+          url: https://prometheus.${EXTERNAL_DOMAIN}
+          group: Monitor
+        Prowlarr:
+          url: https://prowlarr.${EXTERNAL_DOMAIN}
+          group: Download
+        RealDebrid-Client:
+          url: https://rdt.${EXTERNAL_DOMAIN}
+          group: Download
+        Readarr:
+          url: https://readarr.${EXTERNAL_DOMAIN}
+          group: Media
+        Radarr:
+          url: https://radarr.${EXTERNAL_DOMAIN}
+          group: Media
+        Sonarr:
+          url: https://sonarr.${EXTERNAL_DOMAIN}
+          group: Media
+        Tautulli:
+          url: https://tautulli.${EXTERNAL_DOMAIN}
+          group: Media
+        Unifi:
+          url: https://unifi.${EXTERNAL_DOMAIN}
+          group: Network
+        Wizarr:
+          url: https://join.${EXTERNAL_DOMAIN}
+          group: Media
+          skip_path_regex: '^/join/\n^/j/\n^/setup/*\n^/static/'
+        Zigbee2Mqtt:
+          url: https://zigbee2mqtt.${EXTERNAL_DOMAIN}
+          group: Media

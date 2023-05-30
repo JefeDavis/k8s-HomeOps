@@ -5,4 +5,11 @@ terraform {
       version = "2023.5.0"
     }
   }
+  cloud {
+    organization = "davishaus"
+    workspaces {
+      name = "authentik-provisioner"
+    }
+  }
 }
+
