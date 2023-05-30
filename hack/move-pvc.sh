@@ -5,6 +5,7 @@ export NAMESPACE1=$2
 export NAMESPACE2=$3
 
 export REPO_ROOT=$(git rev-parse --show-toplevel)
+export APPS_ROOT="$REPO_ROOT/kubernetes/apps"
 
 need() {
     if ! command -v "$1" &> /dev/null
@@ -24,11 +25,11 @@ message() {
 }
 
 move-folder() {
-  if [ -d $REPO_ROOT/$NAMESPACE1/$APP ]
+  if [ -d $APPS_ROOT/$NAMESPACE1/$APP ]
   then
-    if [ -d $REPO_ROOT/$NAMESPACE2 ]
+    if [ -d $APPS_ROOT/$NAMESPACE2 ]
     then
-      mv $REPO_ROOT/$NAMESPACE1/$APP $REPO_ROOT/$NAMESPACE2
+      mv $APPS_ROOT/$NAMESPACE1/$APP $APPS_ROOT/$NAMESPACE2
     else
       echo "unable to find new namespace folder"
       exit 1
@@ -61,7 +62,7 @@ move-pvcs() {
 
   for PVC in $PVCS
   do
-    FOLDER="$REPO_ROOT/$NAMESPACE2/$APP"
+    FOLDER="$APPS_ROOT/$NAMESPACE2/$APP"
     kubectl get pvc -n $NAMESPACE1 $PVC -o yaml > "$FOLDER/pvc-$PVC.yaml"
 
     cat > $FOLDER/instructions.yot <<- EOF
@@ -116,7 +117,7 @@ EOF
 }
 
 update-resources() {
-  FOLDER="$REPO_ROOT/$NAMESPACE2/$APP"
+  FOLDER="$APPS_ROOT/$NAMESPACE2/$APP"
   cat > $FOLDER/instructions.yot <<- EOF
       commonOverlays:
         - query: ..*[?(@.storageClass)]
@@ -139,8 +140,8 @@ EOF
 }
 
 commit-and-push() {
-  git add $REPO_ROOT/$NAMESPACE1/$APP
-  git add $REPO_ROOT/$NAMESPACE2/$APP
+  git add $APPS_ROOT/$NAMESPACE1/$APP
+  git add $APPS_ROOT/$NAMESPACE2/$APP
   git commit -s -m "refactor($APP): move to $NAMESPACE2 namespace"
   git pull && git push
 
