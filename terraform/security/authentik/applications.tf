@@ -18,7 +18,7 @@ resource "authentik_application" "apps" {
 }
 
 resource "authentik_service_connection_kubernetes" "kubernetes_local" {
-  name  = "Local Kubernetes Cluster"
+  name  = "Local"
   local = true
 }
 
@@ -27,3 +27,4 @@ resource "authentik_outpost" "outpost" {
   service_connection = authentik_service_connection_kubernetes.kubernetes_local.id
   protocol_providers = [for proxy in authentik_provider_proxy.proxies : proxy.id]
 }
+
