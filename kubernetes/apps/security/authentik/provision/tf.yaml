@@ -22,13 +22,13 @@ spec:
     kind: OCIRepository
     name: oci-terraform-authentik
     namespace: flux-system
+  varsFrom:
+    - kind: Secret
+      name: authentik-secret
+      varsKeys:
+        - AUTHENTIK_BOOTSTRAP_TOKEN
   vars:
-    - name: AUTHENTIK_BOOTSTRAP_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: authentik-secret
-          key: AUTHENTIK_BOOTSTRAP_TOKEN
-      name: applications
+    - name: applications
       value:
         Alert-Manager:
           url: https://alert-manager.${EXTERNAL_DOMAIN}
