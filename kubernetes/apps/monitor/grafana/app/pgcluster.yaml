@@ -3,7 +3,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: pg-grafana
-  namespace: security
+  namespace: monitor
 spec:
   instances: 3
   imageName: ghcr.io/cloudnative-pg/postgresql:15.3-4
@@ -23,8 +23,8 @@ spec:
   bootstrap:
     initdb:
       dataChecksums: true
-      database: authentik
-      owner: authentik
+      database: grafana
+      owner: grafana
       encoding: "UTF8"
       localeCollate: en_US.utf8
       localeCType: en_US.utf8
