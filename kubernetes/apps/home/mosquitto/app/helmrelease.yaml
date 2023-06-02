@@ -57,7 +57,7 @@ spec:
       mosquitto-config:
         enabled: true
         type: configMap
-        name: mosquitto-configmap
+        name: mosquitto-config
         mountPath: /mosquitto/config/mosquitto.conf
         subPath: mosquitto.conf
       mosquitto-secret:
