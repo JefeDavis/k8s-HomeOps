@@ -61,7 +61,7 @@ spec:
           location: '/volume1'
           protocol: iscsi
         isDefault: true
-    volumeSnapshotClass:
+    volumeSnapshotClasses:
       delete:
         deletionPolicy: Delete
       retain:
