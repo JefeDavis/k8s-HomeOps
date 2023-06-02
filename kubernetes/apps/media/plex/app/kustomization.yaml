@@ -13,10 +13,11 @@ configMapGenerator:
   - name: plex-preferences-bootstrap
     files:
       - ./config/41-Plex-Preferences
+    options:
+      labels:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
   - name: plex-preferences
     files:
       - ./config/preferences.cfg
 generatorOptions:
   disableNameSuffixHash: true
-
-
