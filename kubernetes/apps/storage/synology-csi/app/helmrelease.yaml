@@ -50,10 +50,16 @@ spec:
     storageClasses:
       delete: 
         parameters:
-          csi.storage.k8s.io/fstype: ext4
+          dsm: "${SYNOLOGY_ADDR}"
+          fstype: ext4
+          location: '/volume1'
+          protocol: iscsi
       retain:
         parameters:
-          csi.storage.k8s.io/fstype: ext4
+          dsm: "${SYNOLOGY_ADDR}"
+          fstype: ext4
+          location: '/volume1'
+          protocol: iscsi
         isDefault: true
     volumeSnapshotClass:
       delete:
