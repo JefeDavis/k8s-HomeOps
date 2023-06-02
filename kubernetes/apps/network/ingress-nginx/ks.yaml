@@ -17,4 +17,4 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cluster-apps-kube-promethus-stack
+    - name: cluster-apps-kube-prometheus-stack
