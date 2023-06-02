@@ -10,6 +10,11 @@ variable "AUTHENTIK_BOOTSTRAP_TOKEN" {
   sensitive   = true
 }
 
+variable "authentik_host" {
+  type = string
+  description = "public url for authentik"
+}
+
 variable "applications" {
   type = map(object({
     url             = string
