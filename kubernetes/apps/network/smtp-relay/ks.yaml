@@ -17,5 +17,7 @@ spec:
   decryption:
     provider: sops
   wait: true
+  dependsOn:
+    - name: cluster-apps-kube-prometheus-stack
   postBuild:
     substituteFrom: []
