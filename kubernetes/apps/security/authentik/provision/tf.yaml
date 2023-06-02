@@ -28,6 +28,8 @@ spec:
       varsKeys:
         - AUTHENTIK_BOOTSTRAP_TOKEN
   vars:
+    - name: authentik_host
+      value: https://auth.${EXTERNAL_DOMAIN}
     - name: applications
       value:
         Alert-Manager:
