@@ -83,5 +83,7 @@ spec:
         secretName: authentik-tls-external
     redis:
       enabled: true
-
+      master:
+        securityContext:
+          enabled: true
     blueprints: []
