@@ -27,6 +27,8 @@ spec:
       name: authentik-secret
       varsKeys:
         - AUTHENTIK_BOOTSTRAP_TOKEN
+        - AUTHENTIK_PLEX_CLIENT_ID
+        - AUTHENTIK_PLEX_TOKEN
   vars:
     - name: authentik_host
       value: https://auth.${EXTERNAL_DOMAIN}
