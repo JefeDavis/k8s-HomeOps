@@ -80,3 +80,23 @@ spec:
         Zigbee2Mqtt:
           url: https://zigbee2mqtt.${EXTERNAL_DOMAIN}
           group: Media
+
+    - name: groups
+      value:
+        DavisHaus-Admins:
+          name: "DavisHaus Admins"
+          superuser: true
+          parent: "authentik-Admins"
+        Grafana-Admins:
+          name: "Grafana Admins"
+          superuser: false
+          parent: "DavisHaus-Admins"
+
+    - name: users
+      value:
+        jefedavis:
+          name: "Jeff Davis"
+          email: "mr.jefedavis@gmail.com"
+          groups:
+            - "DavisHaus-Admins"
+            - "Grafana-Admins"
