@@ -6,3 +6,6 @@ data "authentik_flow" "default-authentication-flow" {
   slug = "default-authentication-flow"
 }
 
+data "authentik_flow" "default-enrollment-flow" {
+  slug = "default-source-enrollment"
+}
