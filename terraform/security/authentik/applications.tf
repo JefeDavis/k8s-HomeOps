@@ -18,7 +18,7 @@ resource "authentik_application" "apps" {
 }
 
 resource "authentik_service_connection_kubernetes" "local" {
-name = "Local Kubernetes Cluster"
+name = "Local"
 local = true
 }
 
@@ -27,21 +27,21 @@ resource "authentik_outpost" "outpost" {
   service_connection = authentik_service_connection_kubernetes.local.id
   protocol_providers = [for proxy in authentik_provider_proxy.proxies : proxy.id]
   config = jsonencode({
-    log_level: debug
+    log_level: "debug"
     authentik_host: format(var.authentik_url)
     authentik_host_insecure: false
     authentik_host_browser: var.authentik_host
     object_naming_template: "ak-outpost-%(name)s"
     kubernetes_replicas: 1
-    kubernetes_namespace: security
+    kubernetes_namespace: "security"
     kubernetes_ingress_annotations: {
-      cert-manager.io/cluster-issuer: letsencrypt-prod
+      "cert-manager.io/cluster-issuer": "letsencrypt-prod"
     }
-    kubernetes_ingress_secret_name: authentik-outpost-tls
-    kubernetes_service_type: ClusterIP
+    kubernetes_ingress_secret_name: "authentik-outpost-tls"
+    kubernetes_service_type: "ClusterIP"
     kubernetes_disabled_components: [
-      - "traefik middleware"
+      "traefik middleware"
     ]
-    kubernetes_ingress_class_name: nginx
+    kubernetes_ingress_class_name: "nginx"
   })
 }

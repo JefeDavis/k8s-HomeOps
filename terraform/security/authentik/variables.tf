@@ -10,8 +10,20 @@ variable "AUTHENTIK_BOOTSTRAP_TOKEN" {
   sensitive   = true
 }
 
+variable "AUTHENTIK_PLEX_CLIENT_ID" {
+  type        = string
+  description = "client id to use for plex source authentication"
+  sensitive   = true
+}
+
+variable "AUTHENTIK_PLEX_TOKEN" {
+  type        = string
+  description = "token to use for plex source authentication"
+  sensitive   = true
+}
+
 variable "authentik_host" {
-  type = string
+  type        = string
   description = "public url for authentik"
 }
 
@@ -22,6 +34,7 @@ variable "applications" {
     skip_path_regex = optional(string)
   }))
 }
+
 
 # variable "user_details" {
 #   type = object({
