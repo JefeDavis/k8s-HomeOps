@@ -35,11 +35,18 @@ variable "applications" {
   }))
 }
 
+variable "groups" {
+  type = map(object({
+    name      = string
+    parent    = optional(string)
+    superuser = optional(bool)
+  }))
+}
 
-# variable "user_details" {
-#   type = object({
-#     "name" : string,
-#     "email" : string,
-#     "username" : string,
-#   })
-# }
+variable "users" {
+  type = map(object({
+    name   = string
+    email  = string
+    groups = list(string)
+  }))
+}
