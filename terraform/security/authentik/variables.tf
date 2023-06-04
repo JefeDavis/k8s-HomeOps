@@ -27,11 +27,21 @@ variable "authentik_host" {
   description = "public url for authentik"
 }
 
-variable "applications" {
+variable "proxy_applications" {
   type = map(object({
     url             = string
     group           = string
     skip_path_regex = optional(string)
+  }))
+}
+
+variable "oauth2_applications" {
+  type = map(object({
+    url           = string
+    group         = string
+    client_id     = string
+    client_secret = string
+    redirect_uris = list(string)
   }))
 }
 
