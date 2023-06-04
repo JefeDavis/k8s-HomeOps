@@ -32,7 +32,7 @@ spec:
   vars:
     - name: authentik_host
       value: https://auth.${EXTERNAL_DOMAIN}
-    - name: applications
+    - name: proxy_applications
       value:
         Alert-Manager:
           url: https://alert-manager.${EXTERNAL_DOMAIN}
@@ -80,7 +80,15 @@ spec:
         Zigbee2Mqtt:
           url: https://zigbee2mqtt.${EXTERNAL_DOMAIN}
           group: Media
-
+    - name: oauth2_applications
+      value:
+        Grafana:
+          url: https://grafana.${EXTERNAL_DOMAIN}
+          group: Monitor
+          client_id: grafana
+          client_secret: ${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
+          redirect_uris: 
+            - https://grafana.${EXTERNAL_DOMAIN}/login/generic_oauth
     - name: groups
       value:
         DavisHaus-Admins:

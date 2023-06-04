@@ -24,6 +24,7 @@ spec:
     provider: sops
   dependsOn:
     - name: cluster-apps-cloudnative-pg
+    - name: cluster-apps-grafana
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -64,7 +65,9 @@ spec:
     name: k8s-home-ops
   wait: true
   postBuild:
-    substituteFrom: []
+    substituteFrom:
+      - kind: Secret
+        name: grafana-secret
   dependsOn:
     - name: cluster-apps-authentik
  
