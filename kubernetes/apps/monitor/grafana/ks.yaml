@@ -20,4 +20,3 @@ spec:
   dependsOn:
     - name: cluster-apps-cloudnative-pg
     - name: cluster-apps-kube-prometheus-stack
-    - name: cluster-apps-authentik
