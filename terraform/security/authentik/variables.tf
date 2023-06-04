@@ -66,3 +66,10 @@ variable "users" {
     groups = list(string)
   }))
 }
+
+variable "blueprints" {
+  type = map(object({
+    path    = string
+    context = optional(string)
+  }))
+}
