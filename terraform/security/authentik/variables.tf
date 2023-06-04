@@ -22,6 +22,12 @@ variable "AUTHENTIK_PLEX_TOKEN" {
   sensitive   = true
 }
 
+variable "PLEX_SERVER_ID" {
+  type        = string
+  description = "ID of authorized Plex server"
+  sensitive   = true
+}
+
 variable "authentik_host" {
   type        = string
   description = "public url for authentik"
