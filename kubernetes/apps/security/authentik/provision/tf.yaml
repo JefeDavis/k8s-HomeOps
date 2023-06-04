@@ -103,7 +103,6 @@ spec:
           name: "Grafana Admins"
           superuser: false
           parent: "DavisHaus-Admins"
-
     - name: users
       value:
         jefedavis:
@@ -112,3 +111,9 @@ spec:
           groups:
             - "DavisHaus-Admins"
             - "Grafana-Admins"
+    - name: blueprints
+      value:
+        default-email-recovery-blueprint:
+          path: example/flows-recovery-email-verification.yaml
+
+
