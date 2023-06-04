@@ -27,3 +27,4 @@ master.key
 *.snap
 setup/cluster/*cluster.yml
 *.ovpn
+*.tfvars
