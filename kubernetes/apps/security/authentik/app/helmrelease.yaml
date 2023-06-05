@@ -1,5 +1,4 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -9,7 +8,6 @@ spec:
   interval: 30m
   chart:
     spec:
-      # renovate: registryUrl=https://charts.goauthentik.io
       chart: authentik
       version: 2023.5.3
       sourceRef:
@@ -87,3 +85,10 @@ spec:
         securityContext:
           enabled: true
     blueprints: []
+    volumes:
+      - configMap:
+          name: authentik-branding
+        name: branding
+    volumeMounts:
+      - mountPath: /media/branding
+        name: branding
