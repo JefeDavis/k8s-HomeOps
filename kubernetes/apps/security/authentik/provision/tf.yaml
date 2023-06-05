@@ -36,6 +36,8 @@ spec:
   vars:
     - name: authentik_host
       value: https://auth.${EXTERNAL_DOMAIN}
+    - name: external_domain
+      value: ${EXTERNAL_DOMAIN}
     - name: proxy_applications
       value:
         Alert-Manager:
@@ -111,9 +113,5 @@ spec:
           groups:
             - "DavisHaus-Admins"
             - "Grafana-Admins"
-    - name: blueprints
-      value:
-        default-email-recovery-blueprint:
-          path: example/flows-recovery-email-verification.yaml
 
 

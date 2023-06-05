@@ -67,9 +67,7 @@ variable "users" {
   }))
 }
 
-variable "blueprints" {
-  type = map(object({
-    path    = string
-    context = optional(string)
-  }))
+variable "external_domain" {
+  type      = string
+  sensitive = true
 }
