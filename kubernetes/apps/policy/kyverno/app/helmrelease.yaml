@@ -22,47 +22,60 @@ spec:
     remediation:
       retries: 5
   values:
+    upgrade:
+      fromV2: true
     crds:
       install: true
-
-    replicaCount: 3
-
-    updateStrategy:
-      type: RollingUpdate
-      rollingUpdate:
-        maxSurge: 1
-
-    extraArgs:
-      - --clientRateLimitQPS=30
-      - --clientRateLimitBurst=60
-
     grafana:
       enabled: true
-    serviceMonitor:
-      enabled: true
-      interval: 1m
+      annotations:
+        grafana_folder: Policy
     backgroundController:
       serviceMonitor:
         enabled: true
+      rbac:
+        clusterRole:
+          extraResources:
+            - apiGroups:
+                - ""
+              resources:
+                - pods
     cleanupController:
       serviceMonitor:
         enabled: true
     reportsController:
       serviceMonitor:
         enabled: true
-
-    resources:
-      requests:
-        cpu: 247m
-        memory: 443M
-      limits:
-        memory: 1336M
-
-    topologySpreadConstraints:
-      - maxSkew: 2
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/instance: kyverno
-
+    admissionController:
+      replicas: 3
+      serviceMonitor:
+        enabled: true
+      container:
+        extraArgs:
+          clientRateLimitQPS: 30
+          clientRateLimitBurst: 60
+        resources:
+          requests:
+            cpu: 247m
+            memory: 443M
+          limits:
+            memory: 1336M
+      rbac:
+        clusterRole:
+          extraResources:
+            - apiGroups:
+                - ""
+              resources:
+                - pods
+              verbs:
+                - create
+                - update
+                - delete
+      topologySpreadConstraints:
+        - maxSkew: 2
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: kyverno
+              app.kubernetes.io/component: kyverno
