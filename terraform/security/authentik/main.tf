@@ -4,6 +4,10 @@ terraform {
       source  = "goauthentik/authentik"
       version = "2023.5.0"
     }
+    curl = {
+      source  = "marcofranssen/curl"
+      version = "0.2.2"
+    }
   }
   cloud {
     organization = "davishaus"
@@ -12,4 +16,3 @@ terraform {
     }
   }
 }
-
