@@ -32,8 +32,6 @@ spec:
     command: ["/app/recyclarr/recyclarr"]
     args: 
       - "sync"
-      - "-c"
-      - "/config/recyclarr.yml"
 
     envFrom:
       - secretRef:
@@ -48,7 +46,6 @@ spec:
         enabled: true
         type: configMap
         name: recyclarr-configmap
-        subPath: recyclarr.yml
-        mountPath: /config/recyclarr.yml
+        mountPath: /config/configs
         defaultMode: 0775
         readOnly: true
