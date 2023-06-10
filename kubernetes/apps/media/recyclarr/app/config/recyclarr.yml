@@ -1,96 +1,98 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
-
-# For more details on the configuration, see the Configuration Reference on the wiki here:
-# https://github.com/recyclarr/recyclarr/wiki/Configuration-Reference
-
-# Configuration specific to Sonarr
 sonarr:
-  - base_url: http://sonarr.media.svc.cluster.local:8989
-    api_key: ${SONARR_API_KEY}
+  main:
+    base_url: http://sonarr.downloads.svc.cluster.local:8989
+    api_key: !env_var SONARR_API_KEY
     delete_old_custom_formats: true
-    # Quality Definition Settings
-    quality_definition: series
-
-    # Release Profile Settings
-    release_profiles:
+    quality_definition:
+      type: series
+    custom_formats:
       - trash_ids:
-          - d428eda85af1df8904b4bbe4fc2f537c # Anime - First release profile
-          - 6cd9e10bb5bb4c63d2d7cd3279924c7b # Anime - Second release profile
-        strict_negative_scores: true
-        tags: [anime]
-      - trash_ids:
-          - EBC725268D687D588A20CBC5F97E538B # Low Quality Groups
-          - 1B018E0C53EC825085DD911102E2CA36 # Release Sources (Streaming Service)
-          - 71899E6C303A07AF0E4746EFF9873532 # P2P Groups + Repack/Proper
-        strict_negative_scores: false
-        tags: [tv]
-      - trash_ids: [76e060895c5b8a765c310933da0a5357] # Optionals
-        filter:
-          exclude:
-            - ea83f4740cec4df8112f3d6dd7c82751 # Prefer Season Packs
-            - 6f2aefa61342a63387f2a90489e90790 # ignore retags
-        tags: [tv]
-    # custom_formats:
-    #   - trash_ids:
-    #       # Streaming Services
-    #       - d660701077794679fd59e8bdf4ce3a29 # AMZN
-    #       - f67c9ca88f463a48346062e8ad07713f # ATVP
-    #       - 36b72f59f4ea20aad9316f475f2d9fbb # DCU
-    #       - 89358767a60cc28783cdc3d0be9388a4 # DSNP
-    #       - 7a235133c87f7da4c8cccceca7e3c7a6 # HBO
-    #       - a880d6abc21e7c16884f3ae393f84179 # HMAX
-    #       - f6cce30f1733d5c8194222a7507909bb # HULU
-    #       - 0ac24a2a68a9700bcb7eeca8e5cd644c # iT
-    #       - d34870697c9db575f17700212167be23 # NF
-    #       - 1656adc6d7bb2c8cca6acfb6592db421 # PCOK
-    #       - c67a75ae4a1715f2bb4d492755ba4195 # PMTP
-    #       - 3ac5d84fce98bab1b531393e9c82f467 # QIBI
-    #       - c30d2958827d1867c73318a5a2957eb1 # RED
-    #       - ae58039e1319178e6be73caab5c42166 # SHO
-    #       # Allowed Scene groups and tiered P2P groups
-    #       - d0c516558625b04b363fa6c5c2c7cfd4 # WEB Scene (allowed Scene groups)
-    #       - e6258996055b9fbab7e9cb2f75819294 # WEB Tier 01
-    #       - 58790d4e2fdcd9733aa7ae68ba2bb503 # WEB Tier 02
-    #       - d84935abd3f8556dcd51d4f27e22d0a6 # WEB Tier 03
-    #       # Repacks / Propers
-    #       - ec8fa7296b64e8cd390a1600981f3923 # Repack/Proper
-    #       - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
-    #       - 44e7c4de10ae50265753082e5dc76047 # Repack v3
-    #       # HDR Metadata
-    #       - 7878c33f1963fefb3d6c8657d46c2f0a # DV HDR10
-    #       - 1f733af03141f068a540eec352589a89 # DV HLG
-    #       - 27954b0a80aab882522a88a4d9eae1cd # DV SDR
-    #       - 6d0d8de7b57e35518ac0308b0ddf404e # DV
-    #       - bb019e1cd00f304f80971c965de064dc # HDR (undefined)
-    #       - 3e2c4e748b64a1a1118e0ea3f4cf6875 # HDR
-    #       - 3497799d29a085e2ac2df9d468413c94 # HDR10
-    #       - a3d82cbef5039f8d295478d28a887159 # HDR10+
-    #       - 17e889ce13117940092308f48b48b45b # HLG
-    #       - 2a7e3be05d3861d6df7171ec74cad727 # PQ
-    #       # Unwanted
-    #       - 32b367365729d530ca1c124a0b180c64 # Bad Dual Groups
-    #       - 85c61753df5da1fb2aab6f2a47426b09 # BR-DISK
-    #       - 9c14d194486c4014d422adc64092d794 # Dubs Only
-    #       - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
-    #       - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
-    #       - e1a997ddb54e3ecbfe06341ad323c458 # Obfuscated
-    #       - 06d66ab109d4d2eddb2794d21526d140 # Retags
-    #       - 1b3994c551cbb92a2c781af061f4ab44 # Scene
-    #       - 47435ece6b99a0b477caf360e79ba0bb # x265 (HD)
+          # Unwanted
+          - 85c61753df5da1fb2aab6f2a47426b09 # BR-Disk
+          - 32b367365729d530ca1c124a0b180c64 # Bad Dual Groups
+          - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
+          - 47435ece6b99a0b477caf360e79ba0bb # x265 (HD)
+          - 9c14d194486c4014d422adc64092d794 # Dubs Only
+          - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
+          - e1a997ddb54e3ecbfe06341ad323c458 # Obfuscated
+          - 06d66ab109d4d2eddb2794d21526d140 # Retags
+        quality_profiles:
+          - name: WEB-2160p
+            reset_unmatched_scores: true
+          - name: WEB-1080p
+            reset_unmatched_scores: true
 
-        # quality_profiles:
-        #   - name: HD-1080p
-        #     reset_unmatched_scores: true
-        #   - name: WEB-1080p
-        #     reset_unmatched_scores: true
-        #   - name: Ultra-HD
-        #     reset_unmatched_scores: true
+      - trash_ids:
+          - 2016d1676f5ee13a5b7257ff86ac9a93 # SDR
+          - 9b27ab6498ec0f31a3353992e19434ca # DV (WEBDL)
+        quality_profiles:
+          - name: WEB-2160p
+            reset_unmatched_scores: true
+
+      - trash_ids:
+          - ec8fa7296b64e8cd390a1600981f3923 # Repack/Proper
+          - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
+          - 44e7c4de10ae50265753082e5dc76047 # Repack v3
+        quality_profiles:
+          - name: WEB-2160p
+            reset_unmatched_scores: true
+          - name: WEB-1080p
+            reset_unmatched_scores: true
+
+      - trash_ids:
+          - d660701077794679fd59e8bdf4ce3a29 # AMZN
+          - f67c9ca88f463a48346062e8ad07713f # ATVP
+          - 36b72f59f4ea20aad9316f475f2d9fbb # DCU
+          - 89358767a60cc28783cdc3d0be9388a4 # DSNP
+          - 7a235133c87f7da4c8cccceca7e3c7a6 # HBO
+          - a880d6abc21e7c16884f3ae393f84179 # HMAX
+          - f6cce30f1733d5c8194222a7507909bb # HULU
+          - 0ac24a2a68a9700bcb7eeca8e5cd644c # IT
+          - d34870697c9db575f17700212167be23 # NF
+          - 1656adc6d7bb2c8cca6acfb6592db421 # PCOK
+          - c67a75ae4a1715f2bb4d492755ba4195 # PMTP
+          - 3ac5d84fce98bab1b531393e9c82f467 # QIBI
+          - c30d2958827d1867c73318a5a2957eb1 # RED
+          - ae58039e1319178e6be73caab5c42166 # SHO
+        quality_profiles:
+          - name: WEB-2160p
+            reset_unmatched_scores: true
+          - name: WEB-1080p
+            reset_unmatched_scores: true
+      - trash_ids:
+          # Allowed Scene groups and tiered P2P groups
+          - e6258996055b9fbab7e9cb2f75819294 # WEB Tier 01
+          - 58790d4e2fdcd9733aa7ae68ba2bb503 # WEB Tier 02
+          - d84935abd3f8556dcd51d4f27e22d0a6 # WEB Tier 03
+          - d0c516558625b04b363fa6c5c2c7cfd4 # WEB Scene (allowed Scene groups)
+        quality_profiles:
+          - name: WEB-2160p
+            reset_unmatched_scores: true
+          - name: WEB-1080p
+            reset_unmatched_scores: true
+          
+      - trash_ids:
+          # HDR Metadata
+          - 7878c33f1963fefb3d6c8657d46c2f0a # DV HDR10
+          - 6d0d8de7b57e35518ac0308b0ddf404e # DV
+          - 1f733af03141f068a540eec352589a89 # DV HLG
+          - 27954b0a80aab882522a88a4d9eae1cd # DV SDR
+          - a3d82cbef5039f8d295478d28a887159 # HDR10+
+          - 3497799d29a085e2ac2df9d468413c94 # HDR10
+          - 3e2c4e748b64a1a1118e0ea3f4cf6875 # HDR
+          - bb019e1cd00f304f80971c965de064dc # HDR (undefined)
+          - 2a7e3be05d3861d6df7171ec74cad727 # PQ
+          - 17e889ce13117940092308f48b48b45b # HLG
+        quality_profiles:
+          - name: WEB-2160p
+            reset_unmatched_scores: true
 
 # Configuration specific to Radarr.
 radarr:
-  - base_url: http://radarr.media.svc.cluster.local:7878
-    api_key: ${RADARR_API_KEY}
+  main:
+    base_url: http://radarr.downloads.svc.cluster.local:7878
+    api_key: !env_var RADARR_API_KEY
     delete_old_custom_formats: true
     quality_definition:
       type: movie
@@ -136,14 +138,13 @@ radarr:
           - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
           - 403f3f6266b90439cacc1e07cae4dc2d # HQ-Remux
           - 26fa26253af4001701fedb56cec376dc # HQ-Webdl
-          # - 66aaa8c2c03c0191a95f0d655b75ab10 # UHD CtrlHD
-          # - 4da96773192a51cf96178212642ca3bb # UHD LEGi0N
-          # - 96848626e1570c122aba8642fe2714a2 # UHD HQMUX
-          # - ffebc267e9c98d3d383f37b238550079 # UHD W4NK3R
-          # - ac49fdbf6a662d380556f40ff4856f29 # UHD WEBDV
-          # - afeb99e5db09290546f742503ce1cdb6 # UHD DON
+          - 66aaa8c2c03c0191a95f0d655b75ab10 # UHD CtrlHD
+          - 4da96773192a51cf96178212642ca3bb # UHD LEGi0N
+          - 96848626e1570c122aba8642fe2714a2 # UHD HQMUX
+          - ffebc267e9c98d3d383f37b238550079 # UHD W4NK3R
+          - ac49fdbf6a662d380556f40ff4856f29 # UHD WEBDV
+          - afeb99e5db09290546f742503ce1cdb6 # UHD DON
           - e7718d7a3ce595f289bfee26adc178f5 # Repack
-          - ae43b294509409a6a13919dedd4764c4 # Repack2
           - ed38b889b31be83fda192888e2286d83 # BR-DISK -10000
           - 90cedc1fea7ea5d11298bebd3d1d3223 # EVO (no WEBDL) -1000
           - 90a6f9a284dff5103f6346090e6280c8 # LQ -10000
