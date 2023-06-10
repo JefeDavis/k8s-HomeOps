@@ -11,6 +11,7 @@ resources:
   - ./overseerr/ks.yaml
   - ./plex/ks.yaml
   - ./readarr/ks.yaml
+  - ./recyclarr/ks.yaml
   - ./radarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./tautulli/ks.yaml
