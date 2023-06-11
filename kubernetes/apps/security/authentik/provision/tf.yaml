@@ -82,7 +82,11 @@ spec:
         Wizarr:
           url: https://join.${EXTERNAL_DOMAIN}
           group: Media
-          skip_path_regex: '^/join/\n^/j/\n^/setup/*\n^/static/'
+          skip_path_regex: |
+            ^/j/
+            ^/join/
+            ^/setup/*
+            ^/static/
         Zigbee2Mqtt:
           url: https://zigbee2mqtt.${EXTERNAL_DOMAIN}
           group: Media
