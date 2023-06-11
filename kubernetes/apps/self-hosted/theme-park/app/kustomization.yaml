@@ -12,5 +12,11 @@ configMapGenerator:
   - name: theme-park-rdt-client-config
     files:
       - config/rdt-client/nord.css
+  - name: theme-park-catppuccin-config
+    files:
+      # - https://raw.githubusercontent.com/catppuccin/theme.park/main/flavors/frappe.css
+      # - https://raw.githubusercontent.com/catppuccin/theme.park/main/flavors/latte.css
+      - catppuccin-macchiato.css=https://raw.githubusercontent.com/catppuccin/theme.park/main/flavors/macchiato.css
+      # - https://raw.githubusercontent.com/catppuccin/theme.park/main/flavors/mocha.css
 generatorOptions:
   disableNameSuffixHash: true
