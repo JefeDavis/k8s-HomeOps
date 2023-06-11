@@ -40,3 +40,4 @@ spec:
           - downloads
           - media
           - security
+          - storage
