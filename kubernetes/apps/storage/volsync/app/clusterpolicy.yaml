@@ -1,0 +1,83 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: volsync-generate-replication-source
+  annotations:
+    policies.kyverno.io/title: Generate Backup Policy
+    policies.kyverno.io/category: Volsync
+    kyverno.io/kyverno-version: 1.6.2
+    policies.kyverno.io/minversion: 1.6.2
+    policies.kyverno.io/subject: Policy
+    policies.kyverno.io/description: >-
+      Generate a volsync replication source for any Persistant Volume Claim that adds the annotation "backup.home.arpa/enable: true"
+spec:
+  background: true
+  generateExisting: true 
+  rules:
+    - context:
+        - name: name
+          variable:
+            jmesPath: request.object.metadata.labels."app.kubernetes.io/name"
+        - name: resticSecret
+          apiCall:
+            urlPath: "/api/v1/namespaces/storage/secrets/volsync-secret"
+            jmesPath: data
+      name: volsync-generate-secret
+      match:
+        any:
+        - resources:
+            kinds:
+              - PersistentVolumeClaim
+            annotations:
+              backup.home.arpa/enabled: "true"
+      generate:
+        apiVersion: v1
+        kind: Secret
+        name: "{{ name }}-restic-config"
+        namespace: "{{request.namespace}}"
+        data:
+          metadata:
+            labels:
+              app.kubernetes.io/name: "{{ name }}"
+              app.kubernetes.io/instance: "{{request.object.metadata.labels.\"app.kubernetes.io/instance\"}}"
+          stringData:
+            RESTIC_REPOSITORY: "{{ base64_decode(resticSecret.B2_BUCKET_URL) }}/{{ name }}"
+            RESTIC_PASSWORD: "{{ base64_decode(resticSecret.RESTIC_PASSWORD) }}"
+            AWS_ACCESS_KEY_ID: "{{ base64_decode(resticSecret.B2_APPLICATION_KEY_ID) }}"
+            AWS_SECRET_ACCESS_KEY: "{{ base64_decode(resticSecret.B2_APPLICATION_KEY) }}"
+    # - context:
+    #     - name: name
+    #       variable:
+    #         jmesPath: request.object.metadata.labels."app.kubernetes.io/name"
+    #   name: volsync-generate-replication-source
+    #   match:
+    #     any:
+    #     - resources:
+    #         kinds:
+    #           - PersistentVolumeClaim
+    #         annotations:
+    #           backup.home.arpa/enabled: "true"
+    #   generate:
+    #     apiVersion: volsync.backube/v1alpha1
+    #     kind: ReplicationSource
+    #     name: "{{ name }}-backup"
+    #     namespace: "{{request.namespace}}"
+    #     data:
+    #       metadata:
+    #         labels:
+    #           app.kubernetes.io/name: "{{ name }}"
+    #           app.kubernetes.io/instance: "{{request.object.metadata.labels.\"app.kubernetes.io/instance\"}}"
+    #       spec:
+    #         sourcePVC: "{{request.object.metadata.name}}"
+    #         trigger:
+    #           schedule: "@daily"
+    #         restic:
+    #           copyMethod: Snapshot
+    #           pruneIntervalDays: 7
+    #           repository: "{{ name }}-restic-secret"
+    #           cacheCapacity: 2Gi
+    #           volumeSnapshotClassName: synology-csi-delete
+    #           storageClassName: synology-csi-delete
+    #           retain:
+    #             daily: 7
+    #             within: 3d
