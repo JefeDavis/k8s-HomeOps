@@ -10,11 +10,10 @@ metadata:
     policies.kyverno.io/minversion: 1.6.0
     policies.kyverno.io/description: |
       This policy applies an ingress notation that will apply a theme-park theme.
-      You can apply an optional label on the ingress to adjust the theme:
-      - "theme-park.home/theme": should match the theme that you want, and will default to nord if not specified.
+      You can apply an optional annotation on the ingress to adjust the theme:
+      - "theme.home.arpa/theme": should match the theme that you want, and will default to catppuccin-macchiato if not specified.
 spec:
   mutateExistingOnPolicyUpdate: true
-  generateExistingOnPolicyUpdate: true
   rules:
     - name: theme
       context:
@@ -23,7 +22,7 @@ spec:
             jmesPath: request.object.metadata.name == 'vaultwarden' && 'bitwarden' || request.object.metadata.name
         - name: theme
           variable:
-            jmesPath: request.object.metadata.labels."theme-park.home/theme" || 'nord'
+            jmesPath: request.object.metadata.annotations."theme.home.arpa/theme" || 'catppuccin-macchiato'
       match:
         any:
           - resources:
@@ -32,13 +31,14 @@ spec:
                 theme.home.arpa/enabled: "true"
       mutate:
         targets:
-          - kind: Ingress
-            name: "{{ request.object.metadata.name }}"
-            namespace: "{{ request.object.metadata.namespace }}"
+          - apiVersion: networking.k8s.io/v1
+            kind: Ingress
+            name: "{{request.object.metadata.name}}"
+            namespace: "{{request.object.metadata.namespace}}"
         patchStrategicMerge:
           metadata:
             annotations:
-              +(nginx.ingress.kubernetes.io/configuration-snippet): |-
+              nginx.ingress.kubernetes.io/configuration-snippet: |-
                 proxy_set_header Accept-Encoding "";
-                sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.${EXTERNAL_DOMAIN}/css/base/{{ appName }}/{{ theme }}.css"></head>';
+                sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.${EXTERNAL_DOMAIN}/css/base/{{ appName }}/{{ appName }}-base.css"> <link rel="stylesheet" type="text/css" href="https://theme-park.${EXTERNAL_DOMAIN}/css/theme-options/{{ theme }}.css"></head>';
                 sub_filter_once on;
