@@ -22,7 +22,7 @@ spec:
         reloader.stakater.com/auto: "true"
     image:
       repository: rogerfar/rdtclient 
-      tag: 2.0.30
+      tag: 2.0.31
     podAnnotations:
       setGateway: "true"
 
