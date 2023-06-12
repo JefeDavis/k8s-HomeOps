@@ -14,7 +14,7 @@ spec:
     name: tf-cloud-token
     namespace: flux-system
   cloud:
-    organization: "davishaus"
+    organization: "${ORGANIZATION}"
     hostname: "app.terraform.io"
     workspaces:
       name: "volsync-provisioner"
