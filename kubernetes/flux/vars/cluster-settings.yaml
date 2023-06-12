@@ -5,6 +5,7 @@ metadata:
   name: cluster-settings
   namespace: flux-system
 data:
+  ORGANIZATION: DavisHaus
   CLUSTER_NAME: davishaus
   CLUSTER_APISERVER_ENDPOINT: 10.77.1.11
   METALLB_IP_POOL: 10.77.1.130-10.77.1.250
