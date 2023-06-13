@@ -19,4 +19,4 @@ spec:
   dependsOn:
     - name: cluster-apps-plex
     - name: cluster-apps-synology-csi
-    - name: cluster-apps-kube-prometheus-stack
+    - name: cluster-apps-kube-prometheus-stack-crds

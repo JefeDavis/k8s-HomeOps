@@ -17,6 +17,6 @@ spec:
     provider: sops
   wait: true
   dependsOn:
-    - name: cluster-apps-kube-prometheus-stack
+    - name: cluster-apps-kube-prometheus-stack-crds
   postBuild:
     substituteFrom: []

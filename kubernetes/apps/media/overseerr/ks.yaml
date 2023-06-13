@@ -18,4 +18,4 @@ spec:
     substituteFrom: []
   dependsOn:
     - name: cluster-apps-synology-csi
-    - name: cluster-apps-kube-prometheus-stack
+    - name: cluster-apps-kube-prometheus-stack-crds
