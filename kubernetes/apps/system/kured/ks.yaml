@@ -19,4 +19,4 @@ spec:
   decryption:
     provider: sops
   dependsOn:
-    - name: cluster-apps-kube-prometheus-stack
+    - name: cluster-apps-kube-prometheus-stack-crds

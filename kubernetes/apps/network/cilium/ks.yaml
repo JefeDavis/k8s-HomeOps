@@ -15,6 +15,6 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
+    - name: cluster-apps-kube-prometheus-stack-crds
     - name: cluster-apps-cert-manager-issuers
-    - name: cluster-apps-kube-stack-prometheus
 
