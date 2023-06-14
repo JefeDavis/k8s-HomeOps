@@ -37,7 +37,7 @@ spec:
       serviceAccount:
         create: true
         allowedNamespaces:
-          - downloads
+          - download
           - media
           - security
           - storage

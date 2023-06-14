@@ -3,7 +3,7 @@ apiVersion: infra.contrib.fluxcd.io/v1alpha1
 kind: Terraform
 metadata:
   name: prowlarr-provisioner
-  namespace: downloads
+  namespace: download
 spec:
   path: "./"
   interval: 10m

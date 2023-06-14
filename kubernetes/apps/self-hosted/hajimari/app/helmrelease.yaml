@@ -45,7 +45,7 @@ spec:
       defaultEnable: false
       namespaceSelector:
         matchNames:
-          - downloads
+          - download
           - flux-system
           - home
           - media

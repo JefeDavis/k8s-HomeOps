@@ -8,7 +8,7 @@ metadata:
     substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
-  path: "./kubernetes/apps/downloads/prowlarr/app"
+  path: "./kubernetes/apps/download/prowlarr/app"
   prune: true
   sourceRef:
     kind: GitRepository
@@ -32,7 +32,7 @@ metadata:
     substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
-  path: "./kubernetes/apps/downloads/prowlarr/provision"
+  path: "./kubernetes/apps/download/prowlarr/provision"
   prune: true
   sourceRef:
     kind: GitRepository

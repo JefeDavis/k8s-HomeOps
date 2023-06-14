@@ -106,7 +106,7 @@ spec:
             type: tcp
 
     routed_namespaces:
-      - downloads
+      - download
 
     settings:
       NOT_ROUTED_TO_GATEWAY_CIDRS: 172.22.0.0/15 10.0.0.0/8
