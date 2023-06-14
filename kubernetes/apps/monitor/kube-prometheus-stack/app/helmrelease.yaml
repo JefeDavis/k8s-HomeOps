@@ -1,5 +1,4 @@
 ---
-# 
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -16,102 +15,12 @@ spec:
         name: prometheus-community
         namespace: flux-system
   maxHistory: 2
-  install:
-    createNamespace: true
-    crds: CreateReplace
-    remediation:
-      retries: 3
-  upgrade:
-    cleanupOnFail: true
-    crds: CreateReplace
-    remediation:
-      retries: 3
   uninstall:
     keepHistory: false
   values:
-    cleanPrometheusOperatorObjectNames: true
     alertmanager:
-      config:
-        global:
-          resolve_timeout: 5m
-        receivers:
-          - name: "null" # quote
-          - name: pushover
-            pushover_configs:
-              - url_title: View in Alertmanager
-                token: "${SECRET_ALERTMANAGER_PUSHOVER_TOKEN}"
-                user_key: "${SECRET_ALERTMANAGER_PUSHOVER_USER_KEY}"
-                send_resolved: true
-                html: true
-                sound: gamelan
-                priority: |-
-                  {{ if eq .Status "firing" }}1{{ else }}0{{ end }}
-                title: |-
-                   {{ .CommonLabels.alertname }} [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]
-                message: |-
-                  {{- range .Alerts }}
-                    {{- if ne .Annotations.description "" }}
-                      {{ .Annotations.description }}
-                    {{- else if ne .Annotations.summary "" }}
-                      {{ .Annotations.summary }}
-                    {{- else if ne .Annotations.message "" }}
-                      {{ .Annotations.message }}
-                    {{- else }}
-                      Alert description not available
-                    {{- end }}
-                    {{- if gt (len .Labels.SortedPairs) 0 }}
-                      <small>
-                      {{- range .Labels.SortedPairs }}
-                        <b>{{ .Name }}:</b> {{ .Value }}
-                      {{- end }}
-                      </small>
-                    {{- end }}
-                  {{- end }}
-        route:
-          group_by: ["alertname", "job"]
-          group_wait: 1m
-          group_interval: 10m
-          repeat_interval: 12h
-          receiver: pushover
-          routes:
-            - receiver: "null" # quote
-              matchers:
-                - alertname =~ "InfoInhibitor"
-            - receiver: pushover
-              matchers:
-                - severity = "critical"
-              continue: true
-        inhibit_rules:
-          - source_matchers:
-              - severity = "critical"
-            target_matchers:
-              - severity = "warning"
-            equal: ["alertname", "namespace"]
-      ingress:
-        enabled: true
-        pathType: Prefix
-        ingressClassName: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          auth.home.arpa/enabled: "true"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "mdi:alert-decagram-outline"
-          hajimari.io/appName: "Alert Manager"
-        hosts:
-          - &host alert-manager.${EXTERNAL_DOMAIN}
-        tls:
-          - hosts:
-              - *host
-            secretName: alert-manager-tls-external
-      alertmanagerSpec:
-        replicas: 3
-        storage:
-          volumeClaimTemplate:
-            spec:
-              storageClassName: synology-csi-delete
-              resources:
-                requests:
-                  storage: 1Gi
+      enabled: false
+      
     grafana:
       enabled: false
       forceDeployDashboards: true
@@ -120,6 +29,10 @@ spec:
           multicluster:
             etcd:
               enabled: true
+
+    kubeStateMetrics:
+      enabled: true
+
     kube-state-metrics:
       metricLabelsAllowlist:
         - "pods=[*]"
@@ -134,6 +47,16 @@ spec:
               replacement: $1
               sourceLabels: ["__meta_kubernetes_pod_node_name"]
               targetLabel: kubernetes_node
+      resources:
+        requests:
+          cpu: 15m
+          memory: 127M
+        limits:
+          memory: 153M
+
+    nodeExporter:
+      enabled: false
+
     kubelet:
       enabled: true
       serviceMonitor:
@@ -145,6 +68,7 @@ spec:
           - sourceLabels: ["node"]
             targetLabel: instance
             action: replace
+
     kubeApiServer:
       enabled: true
       serviceMonitor:
@@ -160,6 +84,7 @@ spec:
           - sourceLabels: ["__name__"]
             regex: (apiserver_response_sizes_bucket|apiserver_watch_events_sizes_bucket)
             action: drop
+
     kubeControllerManager:
       enabled: true
       endpoints: &cp
@@ -170,12 +95,15 @@ spec:
           - sourceLabels: ["__name__"]
             regex: "(apiserver_audit|apiserver_client|apiserver_delegated|apiserver_envelope|apiserver_storage|apiserver_webhooks|attachdetach_controller|authenticated_user|authentication|cronjob_controller|disabled_metric|endpoint_slice|ephemeral_volume|garbagecollector_controller|get_token|go|hidden_metric|job_controller|kubernetes_build|kubernetes_feature|leader_election|node_collector|node_ipam|process_cpu|process_max|process_open|process_resident|process_start|process_virtual|pv_collector|registered_metric|replicaset_controller|rest_client|retroactive_storageclass|root_ca|running_managed|scrape_duration|scrape_samples|scrape_series|service_controller|storage_count|storage_operation|ttl_after|volume_operation|workqueue)_(.+)"
             action: keep
+
     kubeEtcd:
       enabled: true
       endpoints: *cp
+
     kubeProxy:
       enabled: false # Disabled because eBPF
       endpoints: *cp
+
     kubeScheduler:
       enabled: true
       endpoints: *cp
@@ -185,6 +113,7 @@ spec:
           - sourceLabels: ["__name__"]
             regex: "(apiserver_audit|apiserver_client|apiserver_delegated|apiserver_envelope|apiserver_storage|apiserver_webhooks|authenticated_user|authentication|disabled_metric|go|hidden_metric|kubernetes_build|kubernetes_feature|leader_election|process_cpu|process_max|process_open|process_resident|process_start|process_virtual|registered_metric|rest_client|scheduler|scrape_duration|scrape_samples|scrape_series|workqueue)_(.+)"
             action: keep
+
     prometheus:
       ingress:
         enabled: true
@@ -202,25 +131,75 @@ spec:
           - hosts:
               - *host
             secretName: prometheus-tls-external
-      thanosService:
-        enabled: false
-      thanosServiceMonitor:
-        enabled: false
+
       prometheusSpec:
+        alertingEnpoints:
+          - namespace: monitor
+            name: alertmanager
+            port: 9093
+            apiVersion: v2
+
+        additionalScrapeConfigs:
+          - job_name: node-exporter
+            scrape_interval: 1m
+            scrape_timeout: 10s
+            honor_timestamps: true
+            static_configs:
+              - targets:
+                  - jsdyb-nas-001.${INTERNAL_DOMAIN}:9100
+        enableAdminAPI: true
+        externalLabels:
+          cluster: ${CLUSTER_NAME}
         replicas: 3
-        replicaExternalLabelName: __replica__
+        replicaExternalLabelName: __replica__ # must match with thanos value `.query.replicaLabel[0]`
+
         ruleSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
         podMonitorSelectorNilUsesHelmValues: false
         probeSelectorNilUsesHelmValues: false
-        enableAdminAPI: true
-        walCompression: true
+
+        resources:
+          requests:
+            cpu: 257m
+            memory: 3760M
+          limits:
+            memory: 3760M
         retention: 2d
-        retentionSize: 15GB
+        retentionSize: "6GB"
+        scrapeInterval: 1m
+        walCompression: true
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: synology-csi-delete
+              storageClassName: ceph-block
               resources:
                 requests:
-                  storage: 20Gi
+                  storage: 10Gi
+        thanos:
+          image: quay.io/thanos/thanos:v0.31.0@sha256:e7d337d6ac2aea3f0f9314ec9830291789e16e2b480b9d353be02d05ce7f2a7e
+          objectStorageConfig:
+            name: thanos-objstore-secret
+            key: objstore.yml
+          # renovate: datasource=docker depName=quay.io/thanos/thanos
+          version: "v0.31.0"
+
+      thanosService:
+        enabled: true
+
+      thanosServiceMonitor:
+        enabled: true
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              version: v1
+              kind: ConfigMap
+              labelSelector: grafana_dashboard in (1)
+            patch: |-
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: not-used
+                namespace: not-used
+                annotations:
+                  grafana_folder: Kubernetes

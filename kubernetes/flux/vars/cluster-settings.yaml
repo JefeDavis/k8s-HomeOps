@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
 data:
   ORGANIZATION: DavisHaus
-  CLUSTER_NAME: davishaus
+  CLUSTER_NAME: jsdyb-k8s-001
   CLUSTER_APISERVER_ENDPOINT: 10.77.0.10
   SYNOLOGY_ADDR: 10.77.0.2
 
