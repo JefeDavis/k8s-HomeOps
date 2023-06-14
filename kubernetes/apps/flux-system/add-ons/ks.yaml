@@ -5,7 +5,7 @@ metadata:
   name: cluster-apps-flux-monitoring
   namespace: flux-system
 spec:
-  path: ./kubernetes/apps/flux-system/addons/monitoring
+  path: ./kubernetes/apps/flux-system/add-ons/monitoring
   prune: true
   sourceRef:
     kind: GitRepository
@@ -24,10 +24,28 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: cluster-apps-flux-notifications
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: ./kubernetes/apps/flux-system/add-ons/notifications
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-home-ops
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: cluster-apps-alert-manager
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: cluster-apps-flux-webhooks
   namespace: flux-system
 spec:
-  path: ./kubernetes/apps/flux-system/addons/webhooks
+  path: ./kubernetes/apps/flux-system/add-ons/webhooks
   prune: true
   sourceRef:
     kind: GitRepository
@@ -40,3 +58,5 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 5m
+  dependsOn:
+    - name: cluster-apps-cert-manager-issuers
