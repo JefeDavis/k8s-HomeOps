@@ -3,7 +3,7 @@ kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
   name: deny-non-vpn-traffic
-  namespace: downloads
+  namespace: download
 spec:
   podSelector: {}
   ingress:
@@ -27,7 +27,7 @@ metadata:
     kustomize.toolkit.fluxcd.io/name: cluster-apps
     kustomize.toolkit.fluxcd.io/namespace: flux-system
   name: allow-non-vpn-traffic
-  namespace: downloads
+  namespace: download
 spec:
   egress:
     - to:

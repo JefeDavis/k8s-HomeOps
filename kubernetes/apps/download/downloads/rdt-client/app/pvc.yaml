@@ -3,7 +3,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: nfs-downloads
-  namespace: downloads
+  namespace: download
 spec:
   accessModes:
     - ReadWriteMany

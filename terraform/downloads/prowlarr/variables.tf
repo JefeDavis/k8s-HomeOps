@@ -25,7 +25,7 @@ variable "SONARR_API_KEY" {
 
 variable "prowlarr_url" {
   type    = string
-  default = "http://prowlarr.downloads.svc.cluster.local:9696"
+  default = "http://prowlarr.download.svc.cluster.local:9696"
 }
 
 variable "lidarr_url" {

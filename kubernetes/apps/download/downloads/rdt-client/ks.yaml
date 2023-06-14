@@ -8,7 +8,7 @@ metadata:
     substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
-  path: "./kubernetes/apps/downloads/rdt-client/app"
+  path: "./kubernetes/apps/download/rdt-client/app"
   prune: true
   sourceRef:
     kind: GitRepository
