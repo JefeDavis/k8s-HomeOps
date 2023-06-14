@@ -27,7 +27,7 @@ spec:
     grafana:
       enabled: true
       annotations:
-        grafana_folder: Policy
+        grafana.io/folder: Policy
     backgroundController:
       serviceMonitor:
         enabled: true
@@ -77,3 +77,27 @@ spec:
             matchLabels:
               app.kubernetes.io/instance: kyverno
               app.kubernetes.io/component: kyverno
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              version: v1
+              kind: ConfigMap
+              labelSelector: grafana_dashboard in (1)
+            patch: |-
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: not-used
+                namespace: not-used
+                labels:
+                  grafana.io/dashboard: "true"
+                annotations:
+                  grafana.io/folder: Kyverno
+          - target:
+              version: v1
+              kind: ConfigMap
+              labelSelector: grafana_dashboard in (1)
+            patch: |-              
+              - op: remove
+                path: /metadata/labels/grafana_dashboard
