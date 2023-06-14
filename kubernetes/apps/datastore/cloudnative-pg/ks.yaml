@@ -8,7 +8,7 @@ metadata:
     substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
-  path: "./kubernetes/apps/data-services/cloudnative-pg/app"
+  path: "./kubernetes/apps/datastore/cloudnative-pg/app"
   prune: true
   sourceRef:
     kind: GitRepository
@@ -16,5 +16,3 @@ spec:
   wait: true
   postBuild:
     substituteFrom: []
-  dependsOn:
-    - name: cluster-apps-synology-csi

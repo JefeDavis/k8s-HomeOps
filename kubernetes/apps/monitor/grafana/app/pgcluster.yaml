@@ -11,7 +11,7 @@ spec:
   primaryUpdateMethod: restart # prefer downtime of image download from registry instead of switching primary instance (promote a standby instance to primary) when current primary pod is updated
   storage:
     size: 8Gi
-    storageClass: synology-csi-retain
+    storageClass: ceph-block
   postgresql:
     parameters:
       max_connections: "600"
