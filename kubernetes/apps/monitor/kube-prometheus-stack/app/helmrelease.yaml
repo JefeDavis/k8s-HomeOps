@@ -26,9 +26,14 @@ spec:
       forceDeployDashboards: true
       sidecar:
         dashboards:
+          label: grafana.io/dashboard
+          labelValue: "true"
           multicluster:
             etcd:
               enabled: true
+        datasources:
+          label: grafana.io/datasource
+          labelValue: "true"
 
     kubeStateMetrics:
       enabled: true
@@ -194,7 +199,7 @@ spec:
           - target:
               version: v1
               kind: ConfigMap
-              labelSelector: grafana_dashboard in (1)
+              labelSelector: grafana.io/dashboard in (true)
             patch: |-
               apiVersion: v1
               kind: ConfigMap
@@ -202,4 +207,4 @@ spec:
                 name: not-used
                 namespace: not-used
                 annotations:
-                  grafana_folder: Kubernetes
+                  grafana.io/folder: Kubernetes

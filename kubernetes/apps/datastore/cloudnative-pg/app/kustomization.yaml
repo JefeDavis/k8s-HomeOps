@@ -4,4 +4,5 @@ kind: Kustomization
 namespace: datastore
 resources:
   - ./helmrelease.yaml
+  - ./dashboard
 

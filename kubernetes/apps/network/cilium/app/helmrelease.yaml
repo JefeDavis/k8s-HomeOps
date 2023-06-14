@@ -62,9 +62,9 @@ spec:
 
       dashboards:
         enabled: true
-        label: grafana_dashboard
+        label: grafana.io/dashboard
         namespace: monitoring
-        labelValue: "1"
+        labelValue: "true"
         annotations: {}
 
     prometheus:
