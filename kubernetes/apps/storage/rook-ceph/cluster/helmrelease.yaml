@@ -124,9 +124,6 @@ spec:
               - *host
             secretName: rook-ceph-tls-secret
 
-    cephBlockPoolsVolumeSnapshotClass:
-      enabled: false
-
     cephBlockPools:
       - name: ceph-blockpool
         spec:
@@ -149,6 +146,9 @@ spec:
             csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
             csi.storage.k8s.io/node-stage-secret-namespace: storage
             csi.storage.k8s.io/fstype: ext4
+
+    cephBlockPoolsVolumeSnapshotClass:
+      enabled: true
 
     cephFileSystems:
       - name: ceph-filesystem
@@ -184,6 +184,10 @@ spec:
             csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
             csi.storage.k8s.io/node-stage-secret-namespace: storage
             csi.storage.k8s.io/fstype: ext4
+
+    cephFileSystemVolumeSnapshotClass:
+      enabled: true
+
 
     cephObjectStores:
       - name: ceph-objectstore

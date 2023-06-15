@@ -16,6 +16,7 @@ spec:
     substituteFrom: []
   dependsOn:
     - name: cluster-apps-kube-prometheus-stack-crds
+    - name: cluster-apps-snapshot-controller
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization

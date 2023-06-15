@@ -45,39 +45,38 @@ spec:
             RESTIC_PASSWORD: "{{ base64_decode(resticSecret.RESTIC_PASSWORD) }}"
             AWS_ACCESS_KEY_ID: "{{ base64_decode(resticSecret.B2_APPLICATION_KEY_ID) }}"
             AWS_SECRET_ACCESS_KEY: "{{ base64_decode(resticSecret.B2_APPLICATION_KEY) }}"
-    # - context:
-    #     - name: name
-    #       variable:
-    #         jmesPath: request.object.metadata.labels."app.kubernetes.io/name"
-    #   name: volsync-generate-replication-source
-    #   match:
-    #     any:
-    #     - resources:
-    #         kinds:
-    #           - PersistentVolumeClaim
-    #         annotations:
-    #           backup.home.arpa/enabled: "true"
-    #   generate:
-    #     apiVersion: volsync.backube/v1alpha1
-    #     kind: ReplicationSource
-    #     name: "{{ name }}-backup"
-    #     namespace: "{{request.namespace}}"
-    #     data:
-    #       metadata:
-    #         labels:
-    #           app.kubernetes.io/name: "{{ name }}"
-    #           app.kubernetes.io/instance: "{{request.object.metadata.labels.\"app.kubernetes.io/instance\"}}"
-    #       spec:
-    #         sourcePVC: "{{request.object.metadata.name}}"
-    #         trigger:
-    #           schedule: "@daily"
-    #         restic:
-    #           copyMethod: Snapshot
-    #           pruneIntervalDays: 7
-    #           repository: "{{ name }}-restic-secret"
-    #           cacheCapacity: 2Gi
-    #           volumeSnapshotClassName: synology-csi-delete
-    #           storageClassName: synology-csi-delete
-    #           retain:
-    #             daily: 7
-    #             within: 3d
+    - context:
+        - name: name
+          variable:
+            jmesPath: request.object.metadata.labels."app.kubernetes.io/name"
+      name: volsync-generate-replication-source
+      match:
+        any:
+        - resources:
+            kinds:
+              - PersistentVolumeClaim
+            annotations:
+              backup.home.arpa/enabled: "true"
+      generate:
+        apiVersion: volsync.backube/v1alpha1
+        kind: ReplicationSource
+        name: "{{ name }}-backup"
+        namespace: "{{request.namespace}}"
+        data:
+          metadata:
+            labels:
+              app.kubernetes.io/name: "{{ name }}"
+              app.kubernetes.io/instance: "{{request.object.metadata.labels.\"app.kubernetes.io/instance\"}}"
+          spec:
+            sourcePVC: "{{request.object.metadata.name}}"
+            trigger:
+              schedule: "@daily"
+            restic:
+              copyMethod: Snapshot
+              pruneIntervalDays: 7
+              repository: "{{ name }}-restic-secret"
+              cacheCapacity: 2Gi
+              volumeSnapshotClassName: ceph-block
+              retain:
+                daily: 7
+                within: 3d

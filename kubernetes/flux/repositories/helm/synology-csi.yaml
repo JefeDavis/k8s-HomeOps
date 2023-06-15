@@ -6,5 +6,5 @@ metadata:
   namespace: flux-system
 spec:
   interval: 30m
-  url: https://christian-schlichtherle.github.io/synology-csi-chart
+  url: https://zebernst.github.io/synology-csi-talos
   timeout: 3m
