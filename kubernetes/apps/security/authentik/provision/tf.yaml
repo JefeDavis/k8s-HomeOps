@@ -49,9 +49,15 @@ spec:
         Hajimari:
           url: https://portal.${EXTERNAL_DOMAIN}
           group: Home Page
+        Hubble:
+          url: https://hubble.${EXTERNAL_DOMAIN}
+          group: Network
         Lidarr:
           url: https://lidarr.${EXTERNAL_DOMAIN}
           group: Media
+        Loki:
+          url: https://loki.${EXTERNAL_DOMAIN}
+          group: Monitor
         OctoPrint:
           url: https://octoprint.${EXTERNAL_DOMAIN}
           group: Network
@@ -70,12 +76,18 @@ spec:
         Radarr:
           url: https://radarr.${EXTERNAL_DOMAIN}
           group: Media
+        Rook:
+          url: https://rook.${EXTERNAL_DOMAIN}
+          group: Storage
         Sonarr:
           url: https://sonarr.${EXTERNAL_DOMAIN}
           group: Media
         Tautulli:
           url: https://tautulli.${EXTERNAL_DOMAIN}
           group: Media
+        Thanos:
+          url: https://thanos.${EXTERNAL_DOMAIN}
+          group: Monitor
         Unifi:
           url: https://unifi.${EXTERNAL_DOMAIN}
           group: Network

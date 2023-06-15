@@ -4,3 +4,4 @@ kind: Kustomization
 namespace: security
 resources:
   - ./pgcluster.yaml
+  - ./scheduledbackup.yaml

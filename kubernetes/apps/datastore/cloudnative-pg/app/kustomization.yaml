@@ -5,4 +5,5 @@ namespace: datastore
 resources:
   - ./helmrelease.yaml
   - ./dashboard
+  - ./secret-cloudnative-pg.sops.yaml
 

@@ -70,4 +70,5 @@ spec:
         name: grafana-secret
   dependsOn:
     - name: cluster-apps-authentik
+    - name: cluster-apps-plex
  
