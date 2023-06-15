@@ -47,13 +47,13 @@ spec:
         pullPolicy: IfNotPresent
         tag: v6.2.1
     storageClasses:
-      delete: 
+      synology-iscsi-delete: 
         parameters:
           dsm: "${SYNOLOGY_ADDR}"
           fstype: ext4
           location: '/volume1'
           protocol: iscsi
-      retain:
+      synology-iscsi-retain:
         parameters:
           dsm: "${SYNOLOGY_ADDR}"
           fstype: ext4
@@ -61,7 +61,7 @@ spec:
           protocol: iscsi
         isDefault: true
     volumeSnapshotClasses:
-      delete:
+      synology-iscsi-delete:
         deletionPolicy: Delete
-      retain:
+      synology-iscsi-retain:
         deletionPolicy: Retain
