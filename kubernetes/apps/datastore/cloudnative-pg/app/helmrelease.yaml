@@ -30,3 +30,5 @@ spec:
     config:
       data:
         INHERITED_ANNOTATIONS: kyverno.io/ignore
+    monitoring:
+      podMonitorEnabled: true
