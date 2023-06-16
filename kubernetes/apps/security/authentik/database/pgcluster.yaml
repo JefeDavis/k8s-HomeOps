@@ -47,7 +47,7 @@ spec:
 #  # RECOVERY
 #  bootstrap:
 #    recovery:
-#      source: &previous-cluster postgres-v0
+          #      source: &previous-cluster pg-authentik-v0
 #  ## Note: externalClusters is needed when recovering from an existing cnpg cluster
 #  externalClusters:
 #    - name: *previous-cluster
