@@ -9,7 +9,7 @@ generatorOptions:
   disableNameSuffixHash: true
   annotations:
     kustomize.toolkit.fluxcd.io/substitute: disabled
-    grafana.io/folder: CloudNative-PG
+    grafana.io/folder: Datastore
   labels:
     grafana.io/dashboard: "true"
 

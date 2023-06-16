@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: cloudnative-pg
-      version: 0.18.0
+      version: 0.18.1
       sourceRef:
         kind: HelmRepository
         name: cloudnative-pg
@@ -30,3 +30,5 @@ spec:
     config:
       data:
         INHERITED_ANNOTATIONS: kyverno.io/ignore
+    monitoring:
+      podMonitorEnabled: true
