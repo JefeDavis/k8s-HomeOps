@@ -4,7 +4,6 @@ sonarr:
   sonarr-anime:  # A custom name used to identify this particular instance.
     base_url: http://sonarr.media.svc.cluster.local:8989
     api_key: !env_var SONARR_API_KEY
-    delete_old_custom_formats: true
     replace_existing_custom_formats: true
 
     quality_definition:
@@ -12,7 +11,6 @@ sonarr:
 
     quality_profiles:
       - name: HD-1080p-Anime
-        reset_unmatched_scores: true
 
     custom_formats:
       # Scores from TRaSH json
