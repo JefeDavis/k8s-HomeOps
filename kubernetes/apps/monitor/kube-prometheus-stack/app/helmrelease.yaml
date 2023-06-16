@@ -40,8 +40,6 @@ spec:
 
     kube-state-metrics:
       metricLabelsAllowlist:
-        - "pods=[*]"
-        - "deployments=[*]"
         - "persistentvolumeclaims=[*]"
       prometheus:
         monitor:
@@ -58,9 +56,6 @@ spec:
           memory: 127M
         limits:
           memory: 153M
-
-    nodeExporter:
-      enabled: false
 
     kubelet:
       enabled: true
@@ -91,33 +86,36 @@ spec:
             action: drop
 
     kubeControllerManager:
-      enabled: true
-      endpoints: &cp
-        - ${CLUSTER_APISERVER_ENDPOINT}
-      serviceMonitor:
-        metricRelabelings:
-          # Remove duplicate metrics
-          - sourceLabels: ["__name__"]
-            regex: "(apiserver_audit|apiserver_client|apiserver_delegated|apiserver_envelope|apiserver_storage|apiserver_webhooks|attachdetach_controller|authenticated_user|authentication|cronjob_controller|disabled_metric|endpoint_slice|ephemeral_volume|garbagecollector_controller|get_token|go|hidden_metric|job_controller|kubernetes_build|kubernetes_feature|leader_election|node_collector|node_ipam|process_cpu|process_max|process_open|process_resident|process_start|process_virtual|pv_collector|registered_metric|replicaset_controller|rest_client|retroactive_storageclass|root_ca|running_managed|scrape_duration|scrape_samples|scrape_series|service_controller|storage_count|storage_operation|ttl_after|volume_operation|workqueue)_(.+)"
-            action: keep
+      enabled: false
 
     kubeEtcd:
-      enabled: true
-      endpoints: *cp
+      enabled: false
 
     kubeProxy:
       enabled: false # Disabled because eBPF
-      endpoints: *cp
 
     kubeScheduler:
-      enabled: true
-      endpoints: *cp
-      serviceMonitor:
-        metricRelabelings:
-          # Remove duplicate metrics
-          - sourceLabels: ["__name__"]
-            regex: "(apiserver_audit|apiserver_client|apiserver_delegated|apiserver_envelope|apiserver_storage|apiserver_webhooks|authenticated_user|authentication|disabled_metric|go|hidden_metric|kubernetes_build|kubernetes_feature|leader_election|process_cpu|process_max|process_open|process_resident|process_start|process_virtual|registered_metric|rest_client|scheduler|scrape_duration|scrape_samples|scrape_series|workqueue)_(.+)"
-            action: keep
+      enabled: false
+
+    nodeExporter:
+      enabled: false
+
+    prometheusOperator:
+      resources:
+        requests:
+          cpu: 35m
+          memory: 273M
+        limits:
+          memory: 326M
+
+      prometheusConfigReloader:
+        # resource config for prometheusConfigReloader
+        resources:
+          requests:
+            cpu: 5m
+            memory: 32M
+          limits:
+            memory: 32M
 
     prometheus:
       ingress:
