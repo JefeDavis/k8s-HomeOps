@@ -60,7 +60,7 @@ spec:
         mountPath: /data/database
         accessMode: ReadWriteOnce
         size: 1Gi
-        storageClass: synology-csi-retain
+        storageClass: ceph-block
 
     podSecurityContext:
       runAsUser: 568
@@ -69,6 +69,7 @@ spec:
       fsGroupChangePolicy: OnRootMismatch
       supplementalGroups:
         - 65539
+        - 1030
 
     resources:
       requests:
@@ -80,7 +81,7 @@ spec:
     serviceMonitor:
       podmonitor:
         enabled: true
-        serviceName: bazarr-podmonitor
+        serviceName: wizarr-podmonitor
         endpoints:
           - port: http
             scheme: http

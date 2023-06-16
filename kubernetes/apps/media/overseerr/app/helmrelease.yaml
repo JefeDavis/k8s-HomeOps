@@ -58,7 +58,7 @@ spec:
         mountPath: /app/config
         accessMode: ReadWriteOnce
         size: 1Gi
-        storageClass: synology-csi-retain
+        storageClass: ceph-block
 
     podSecurityContext:
       runAsUser: 568

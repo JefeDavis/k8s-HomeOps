@@ -65,12 +65,22 @@ spec:
         enabled: true
         existingClaim: nfs-media
     
+      backups:
+        enabled: true
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/backups/readarr
+        mountPath: /config/Backups
+        readOnly: false
+
     volumeClaimTemplates:
       - name: config
         mountPath: /config
         accessMode: ReadWriteOnce
         size: 1Gi
-        storageClass: synology-csi-retain
+        storageClass: ceph-block
 
     podSecurityContext:
       runAsUser: 568
@@ -79,6 +89,7 @@ spec:
       fsGroupChangePolicy: OnRootMismatch
       supplementalGroups:
         - 65539
+        - 1030
 
     resources:
       requests:

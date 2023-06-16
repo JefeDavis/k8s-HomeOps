@@ -20,28 +20,54 @@ spec:
       type: statefulset
       annotations:
         reloader.stakater.com/auto: "true"
+
     image:
       repository: plexinc/pms-docker
       tag: 1.32.2.7100-248a2daf0
+
     env:
       TZ: "America/New_York"
-      ALLOWED_NETWORKS: "10.0.0.0/8"
+      ALLOWED_NETWORKS: "10.0.0.0/8 172"
+
     envFrom:
       - secretRef:
           name: plex-secret
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          theme.home.arpa/enabled: "true"
+          nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:plex"
+          hajimari.io/url: "https://plex.${EXTERNAL_DOMAIN}/web"
+        hosts:
+        - host: "plex.${EXTERNAL_DOMAIN}"
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+        - hosts:
+          - "plex.${EXTERNAL_DOMAIN}"
+          secretName: plex-tls-external
+
     podSecurityContext:
       supplementalGroups:
       - 39
       - 44
       - 109
       - 100
+      - 1030
+
     service:
       main:
         type: LoadBalancer
-        loadBalancerIP: ${SVC_PLEX_ADDR}
-        externalTrafficPolicy: Local
+        externalTrafficPolicy: Cluster
         annotations:
-          metallb.universe.tf/allow-shared-ip: plex
+          io.cilium/lb-ipam-ips: ${SVC_PLEX_ADDR}
         ports:
           http:
             port: 32400
@@ -89,26 +115,7 @@ spec:
             protocol: UDP
             targetPort: 32414
             nodePort: 32414
-    ingress:
-      main:
-        enabled: true
-        ingressClassName: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          theme.home.arpa/enabled: "true"
-          # nginx.ingress.kubernetes.io/backend-protocol: HTTPS
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "mdi:plex"
-          hajimari.io/url: "https://plex.${EXTERNAL_DOMAIN}/web"
-        hosts:
-        - host: "plex.${EXTERNAL_DOMAIN}"
-          paths:
-          - path: /
-            pathType: Prefix
-        tls:
-        - hosts:
-          - "plex.${EXTERNAL_DOMAIN}"
-          secretName: plex-tls-external
+
     persistence:
       preference-bootstrap:
         enabled: true
@@ -125,8 +132,19 @@ spec:
         defaultMode: 493
       transcode:
         enabled: true
-        type: emptyDir
-        sizeLimit: 400Gi
+        type: custom
+        volumeSpec:
+          ephemeral:
+            volumeClaimTemplate:
+              spec:
+                storageClassName: ceph-block
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 1Gi
+                  limits:
+                    storage: 500Gi
       tmp:
         enabled: true
         type: emptyDir
@@ -135,19 +153,34 @@ spec:
         enabled: true
         existingClaim: nfs-media
         readOnly: false
+      backup:
+        enabled: true
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/backups/plex
+        mountPath: /config/Backups
+        readOnly: false
+
     nodeSelector:
       intel.feature.node.kubernetes.io/gpu: "true"
+
     resources:
       requests:
         gpu.intel.com/i915: 1
         cpu: 500m
-        memory: 1500Mi
+        memory: 2Gi
       limits:
         gpu.intel.com/i915: 1
-        memory: 8Gi
+        memory: 10Gi
+
     volumeClaimTemplates:
       - name: config
+        metadata:
+          annotations:
+            backup.home.arpa/enabled: "true"
         mountPath: /config
         accessMode: ReadWriteOnce
         size: 35Gi
-        storageClass: synology-csi-retain
+        storageClass: ceph-block
