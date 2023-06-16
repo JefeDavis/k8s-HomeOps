@@ -10,6 +10,6 @@ generatorOptions:
   disableNameSuffixHash: true
   annotations:
     kustomize.toolkit.fluxcd.io/substitute: disabled
-    grafana.io/folder: Cert-Manager
+    grafana.io/folder: Security
   labels:
     grafana.io/dashboard: "true"
