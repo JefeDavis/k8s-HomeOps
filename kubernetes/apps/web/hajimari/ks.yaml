@@ -2,13 +2,10 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-theme-park
+  name: cluster-apps-hajimari
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
-  interval: 10m
-  path: "./kubernetes/apps/self-hosted/theme-park/app"
+  path: ./kubernetes/apps/web/hajimari/app
   prune: true
   sourceRef:
     kind: GitRepository
@@ -16,6 +13,8 @@ spec:
   wait: true
   postBuild:
     substituteFrom: []
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
   dependsOn:
-    - name: cluster-apps-kyverno
- 
+    - name: cluster-apps-authentik
