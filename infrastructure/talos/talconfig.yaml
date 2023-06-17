@@ -102,6 +102,10 @@ controlPlane:
                   enable_unprivileged_ports = true
                   enable_unprivileged_icmp = true
 
+        install:
+          extensions:
+            - image: ghcr.io/siderolabs/iscsi-tools:v0.1.4
+
         kubelet:
           extraArgs:
             feature-gates: CronJobTimeZone=true,GracefulNodeShutdown=true,NewVolumeManagerReconstruction=false
