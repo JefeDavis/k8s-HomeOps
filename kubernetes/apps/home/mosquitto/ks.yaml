@@ -5,8 +5,6 @@ metadata:
   name: cluster-apps-mosquitto
   namespace: flux-system
 spec:
-  dependsOn:
-    - name: cluster-apps-synology-csi
   interval: 30m
   path: ./kubernetes/apps/home/mosquitto/app
   postBuild:
@@ -18,3 +16,5 @@ spec:
     name: k8s-home-ops
   timeout: 5m
   wait: true
+  dependsOn:
+    - name: cluster-apps-rook-ceph-cluster

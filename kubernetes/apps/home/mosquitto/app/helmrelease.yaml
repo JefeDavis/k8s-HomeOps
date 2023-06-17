@@ -88,4 +88,4 @@ spec:
         mountPath: /data
         accessMode: ReadWriteOnce
         size: 1Gi
-        storageClass: synology-csi-delete
+        storageClass: ceph-block
