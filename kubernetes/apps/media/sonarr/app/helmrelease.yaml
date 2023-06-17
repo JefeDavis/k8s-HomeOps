@@ -102,9 +102,9 @@ spec:
         memory: 431Mi
 
     serviceMonitor:
-      podmonitor:
+      monitor:
         enabled: true
-        serviceName: sonarr-podmonitor
+        serviceName: sonarr-monitor
         endpoints:
           - port: http
             scheme: http

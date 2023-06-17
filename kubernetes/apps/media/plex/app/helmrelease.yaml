@@ -166,6 +166,17 @@ spec:
     nodeSelector:
       intel.feature.node.kubernetes.io/gpu: "true"
 
+    serviceMonitor:
+      monitor:
+        enabled: true
+        serviceName: plex-monitor
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 10m
+            scrapeTimeout: 2m
+
     resources:
       requests:
         gpu.intel.com/i915: 1

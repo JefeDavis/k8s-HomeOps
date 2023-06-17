@@ -101,9 +101,9 @@ spec:
         memory: 431Mi
 
     serviceMonitor:
-      podmonitor:
+      monitor:
         enabled: true
-        serviceName: radarr-podmonitor
+        serviceName: radarr-monitor
         endpoints:
           - port: http
             scheme: http

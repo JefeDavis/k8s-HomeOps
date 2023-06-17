@@ -76,9 +76,9 @@ spec:
         memory: 431Mi
 
     serviceMonitor:
-      podmonitor:
+      monitor:
         enabled: true
-        serviceName: overseerr-podmonitor
+        serviceName: overseerr-monitor
         endpoints:
           - port: http
             scheme: http

@@ -99,9 +99,9 @@ spec:
         memory: 431Mi
 
     serviceMonitor:
-      podmonitor:
+      monitor:
         enabled: true
-        serviceName: readarr-podmonitor
+        serviceName: readarr-monitor
         endpoints:
           - port: http
             scheme: http

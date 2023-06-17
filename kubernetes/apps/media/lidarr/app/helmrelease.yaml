@@ -103,9 +103,9 @@ spec:
         memory: 431Mi
 
     serviceMonitor:
-      podmonitor:
+      monitor:
         enabled: true
-        serviceName: lidarr-podmonitor
+        serviceName: lidarr-monitor
         endpoints:
           - port: http
             scheme: http

@@ -79,9 +79,9 @@ spec:
         memory: 431Mi
 
     serviceMonitor:
-      podmonitor:
+      monitor:
         enabled: true
-        serviceName: wizarr-podmonitor
+        serviceName: wizarr-monitor
         endpoints:
           - port: http
             scheme: http
