@@ -23,6 +23,7 @@ spec:
       dnsDiscovery:
         sidecarsService: kube-prometheus-stack-thanos-discovery
         sidecarsNamespace: monitor
+      replicaCount: 3
       replicaLabels:
         - "__replica__" # must match with kube-prometheus-stack value `.prometheus.prometheusSpec.replicaExternalLabelName`
       resources:
@@ -34,6 +35,7 @@ spec:
 
     queryFrontend:
       enabled: true
+      replicaCount: 3
       ingress:
         enabled: true
         annotations:
@@ -51,6 +53,7 @@ spec:
 
     bucketweb:
       enabled: true
+      replicaCount: 3
       resources:
         requests:
           cpu: 15m
@@ -59,8 +62,8 @@ spec:
     compactor:
       enabled: true
       extraFlags:
-        - "--compact.concurrency"
-        - "4"
+        - "--compact.concurrency=4"
+        - "--delete-delay=30m"
       retentionResolutionRaw: 14d
       retentionResolution5m: 14d
       retentionResolution1h: 30d
@@ -77,6 +80,7 @@ spec:
 
     storegateway:
       enabled: true
+      replicaCount: 3
       resources:
         requests:
           cpu: 23m
@@ -93,6 +97,8 @@ spec:
       alertmanagers:
         - http://alert-manager.monitor.svc.cluster.local:9093
       clusterName: ${CLUSTER_NAME} # must match with kube-prometheus-stack value `.prometheus.prometheusSpec.externalLabels.cluster`
+      replicaLabel: __replica__
+      replicaCount: 3
       config: |-
         groups:
           - name: "PrometheusWatcher"

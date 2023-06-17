@@ -40,7 +40,7 @@ spec:
           - name: unpoller
             disableDeletion: false
             editable: true
-            folder: "UniFi Poller"
+            folder: "UniFi"
             options:
               path: /var/lib/grafana/dashboards/unpoller
             orgId: 1
@@ -73,7 +73,7 @@ spec:
           - name: Loki
             access: proxy
             type: loki
-            url: http://loki-gateway.monitor.svc.cluster.local:80
+            url: http://loki-gateway.monitor.svc.cluster.local
           - name: Alertmanager
             type: alertmanager
             access: proxy
