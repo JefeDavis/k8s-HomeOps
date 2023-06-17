@@ -19,5 +19,5 @@ spec:
   decryption:
     provider: sops
   dependsOn:
-    - name: cluster-apps-synology-csi
+    - name: cluster-apps-rook-ceph-cluster
     - name: cluster-apps-media-common-mounts

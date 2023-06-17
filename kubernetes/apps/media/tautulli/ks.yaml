@@ -18,5 +18,5 @@ spec:
     substituteFrom: []
   dependsOn:
     - name: cluster-apps-plex
-    - name: cluster-apps-synology-csi
+    - name: cluster-apps-rook-ceph-cluster
     - name: cluster-apps-kube-prometheus-stack-crds
