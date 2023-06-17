@@ -96,7 +96,8 @@ spec:
       enabled: true
       alertmanagers:
         - http://alert-manager.monitor.svc.cluster.local:9093
-      clusterName: ${CLUSTER_NAME} # must match with kube-prometheus-stack value `.prometheus.prometheusSpec.externalLabels.cluster`
+      # Breaks metrics that have cluster label due to conflict with cnpg
+      # clusterName: ${CLUSTER_NAME} # must match with kube-prometheus-stack value `.prometheus.prometheusSpec.externalLabels.cluster`
       replicaLabel: __replica__
       replicaCount: 3
       config: |-

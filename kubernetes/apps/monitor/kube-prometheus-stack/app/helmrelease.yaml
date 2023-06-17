@@ -158,8 +158,9 @@ spec:
             static_configs:
               - targets: ["minio.${INTERNAL_DOMAIN}:9000"]
         enableAdminAPI: true
-        externalLabels:
-          cluster: ${CLUSTER_NAME}
+        # Breaks metrics that have cluster label due to conflict with cnpg
+        # externalLabels:
+        #   cluster: ${CLUSTER_NAME}
         replicas: 1
         replicaExternalLabelName: "__replica__" # must match with thanos value `.query.replicaLabel[0]`
 
