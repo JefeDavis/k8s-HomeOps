@@ -57,22 +57,22 @@ nodes:
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
-  # - hostname: jsdyb-nuc-003.${INTERNAL_DOMAIN}
-  #   disableSearchDomain: true
-  #   ipAddress: 10.77.0.13
-  #   controlPlane: true
-  #   installDisk: /dev/sda
-  #   networkInterfaces:
-  #     - interface: eth0
-  #       dhcp: true
-  #       vip:
-  #         ip: 10.77.0.10
-  #       vlans:
-  #         - vlanId: 90
-  #           mtu: 1500
-  #           dhcp: true
-  #           dhcpOptions:
-  #             routeMetric: 4096
+  - hostname: jsdyb-nuc-003.${INTERNAL_DOMAIN}
+    disableSearchDomain: true
+    ipAddress: 10.77.0.13
+    controlPlane: true
+    installDisk: /dev/sda
+    networkInterfaces:
+      - interface: eth0
+        dhcp: true
+        vip:
+          ip: 10.77.0.10
+        vlans:
+          - vlanId: 90
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 4096
 
 controlPlane:
   patches:
@@ -86,6 +86,7 @@ controlPlane:
         extraManifests:
           - https://raw.githubusercontent.com/JefeDavis/k8s-HomeOps/main/infrastructure/talos/integrations/cni/cilium.yaml
           - https://raw.githubusercontent.com/JefeDavis/k8s-HomeOps/main/infrastructure/talos/integrations/kubelet-csr-approver/kubelet-csr-approver.yaml
+
     - |-
       - op: remove
         path: /cluster/apiServer/admissionControl
@@ -100,6 +101,7 @@ controlPlane:
                 [plugins."io.containerd.grpc.v1.cri"]
                   enable_unprivileged_ports = true
                   enable_unprivileged_icmp = true
+
         kubelet:
           extraArgs:
             feature-gates: CronJobTimeZone=true,GracefulNodeShutdown=true,NewVolumeManagerReconstruction=false
@@ -109,14 +111,17 @@ controlPlane:
           nodeIP:
             validSubnets:
               - 10.77.0.0/24
+
         network:
           extraHostEntries:
             - ip: ${CLUSTER_ENDPOINT_IP}
               aliases:
                 - ${CLUSTER_NAME}.${INTERNAL_DOMAIN}
+
         sysctls:
           fs.inotify.max_user_watches: "1048576"
           fs.inotify.max_user_instances: "8192"
+
         time:
           disabled: false
           servers:
