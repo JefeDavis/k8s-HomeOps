@@ -161,7 +161,7 @@ spec:
         # Breaks metrics that have cluster label due to conflict with cnpg
         # externalLabels:
         #   cluster: ${CLUSTER_NAME}
-        replicas: 1
+        replicas: 3
         replicaExternalLabelName: "__replica__" # must match with thanos value `.query.replicaLabel[0]`
 
         ruleSelectorNilUsesHelmValues: false

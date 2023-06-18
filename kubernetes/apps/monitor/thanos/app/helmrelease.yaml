@@ -24,7 +24,7 @@ spec:
         sidecarsService: kube-prometheus-stack-thanos-discovery
         sidecarsNamespace: monitor
       replicaCount: 3
-      replicaLabels:
+      replicaLabel:
         - "__replica__" # must match with kube-prometheus-stack value `.prometheus.prometheusSpec.replicaExternalLabelName`
       resources:
         requests:
