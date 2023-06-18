@@ -127,11 +127,11 @@ spec:
         memory: 431Mi
 
     serviceMonitor:
-      monitor:
+      metrics:
         enabled: true
-        serviceName: readarr-monitor
+        serviceName: readarr-metrics
         endpoints:
-          - port: http
+          - port: metrics
             scheme: http
             path: /metrics
             interval: 10m
