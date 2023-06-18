@@ -37,12 +37,12 @@ spec:
               path: /var/lib/grafana/dashboards/node-exporter
             orgId: 1
             type: file
-          - name: unpoller
+          - name: network
             disableDeletion: false
             editable: true
-            folder: "UniFi"
+            folder: "Network"
             options:
-              path: /var/lib/grafana/dashboards/unpoller
+              path: /var/lib/grafana/dashboards/network
             orgId: 1
             type: file
 
@@ -53,6 +53,34 @@ spec:
           gnetId: 1860
           revision: 30
           datasource: Prometheus
+      network:
+        cilium-hubble:
+          gnetId: 15515
+          revision: 1
+          datasource: Prometheus
+        # Ref: https://grafana.com/grafana/dashboards/11315
+        clients:
+          gnetId: 11315
+          revision: 9
+          datasource:
+            - name: "DS_PROMETHEUS"
+              value: Prometheus
+        # Ref: https://grafana.com/grafana/dashboards/11312
+        usw:
+          gnetId: 11312
+          revision: 9
+          datasource:
+            - name: "DS_PROMETHEUS"
+              value: Prometheus
+        # Ref: https://grafana.com/grafana/dashboards/11314
+        uap:
+          gnetId: 11314
+          revision: 10
+          datasource:
+            - name: "DS_PROMETHEUS"
+              value: Prometheus
+
+
 
     datasources:
       datasources.yaml:
