@@ -23,9 +23,6 @@ spec:
   values:
     hubble:
       enabled: true
-      serviceMonitor:
-        enabled: true
-
       metrics:
         enabled:
           - dns:query;ignoreAAAA
@@ -35,11 +32,22 @@ spec:
           - port-distribution
           - icmp
           - http
+        serviceMonitor:
+          enabled: true
+
+        dashboards:
+          enabled: true
+          label: grafana.io/dashboard
+          labelValue: "true"
+          annotations:
+            grafana.io/folder: Network
+
 
       relay:
         enabled: true
         rollOutPods: true
         prometheus:
+          enabled: true
           serviceMonitor:
             enabled: true
 
@@ -60,18 +68,27 @@ spec:
                 - *host
               secretName: hubble-tls-external
 
-      dashboards:
-        enabled: true
-        label: grafana.io/dashboard
-        namespace: monitoring
-        labelValue: "true"
-        annotations: {}
+    dashboards:
+      enabled: true
+      label: grafana.io/dashboard
+      labelValue: "true"
+      annotations:
+        grafana.io/folder: Network
 
     prometheus:
+      enabled: true
       serviceMonitor:
         enabled: true
 
     operator:
       prometheus:
+        enabled: true
         serviceMonitor:
           enabled: true
+
+      dashboards:
+        enabled: true
+        label: grafana.io/dashboard
+        labelValue: "true"
+        annotations:
+          grafana.io/folder: Network

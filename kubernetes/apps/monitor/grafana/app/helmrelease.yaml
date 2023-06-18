@@ -54,10 +54,6 @@ spec:
           revision: 30
           datasource: Prometheus
       network:
-        cilium-hubble:
-          gnetId: 15515
-          revision: 1
-          datasource: Prometheus
         # Ref: https://grafana.com/grafana/dashboards/11315
         clients:
           gnetId: 11315
