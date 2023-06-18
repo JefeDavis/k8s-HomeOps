@@ -59,7 +59,7 @@ spec:
       accountId: "878850"
       licenseKey: ${SECRET_MAXMIND_LICENSE_KEY}
       editionIds: "GeoLite2-City"
-      image: maxmindinc/geoipupdate:v4.11
+      image: maxmindinc/geoipupdate:v5.1
       updateInterval: 8
 
     image:
