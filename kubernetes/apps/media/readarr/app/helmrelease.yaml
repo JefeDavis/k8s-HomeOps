@@ -35,11 +35,39 @@ spec:
             name: starr-apps-secret
             key: READARR_API_KEY
 
+    sidecars:
+      exporter:
+        name: exporter
+        image: ghcr.io/onedr0p/exportarr:v1.5.3
+        args: ["readarr"]
+        env:
+          - name: URL
+            value: "http://localhost"
+          - name: CONFIG
+            value: "/config/config.xml"
+          - name: PORT
+            value: &metricsPort 9711
+          - name: ENABLE_ADDITIONAL_METRICS
+            value: false
+          - name: ENABLE_UNKNOWN_QUEUE_ITEMS
+            value: false
+        ports:
+          - name: metrics
+            containerPort: *metricsPort 
+        volumeMounts:
+          - name: config
+            mountPath: /config
+            readOnly: true
+
     service:
       main:
         ports:
           http:
             port: *port
+      metrics:
+        ports:
+          metrics:
+            port: *metricsPort
 
     ingress:
       main:
