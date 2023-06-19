@@ -85,6 +85,9 @@ spec:
         Tautulli:
           url: https://tautulli.${EXTERNAL_DOMAIN}
           group: Media
+        Tdarr:
+          url: https://tdarr.${EXTERNAL_DOMAIN}
+          group: Media
         Thanos:
           url: https://thanos.${EXTERNAL_DOMAIN}
           group: Monitor
@@ -96,7 +99,7 @@ spec:
           group: Media
           skip_path_regex: |
             ^/j/
-            ^/join/
+            ^/join
             ^/setup/*
             ^/static/
         Zigbee2Mqtt:
