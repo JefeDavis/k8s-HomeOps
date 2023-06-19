@@ -92,6 +92,13 @@ spec:
       master:
         securityContext:
           enabled: true
+
+    prometheus:
+      serviceMonitor:
+        create: true
+      rules:
+        create: true
+
     blueprints: []
     volumes:
       - configMap:

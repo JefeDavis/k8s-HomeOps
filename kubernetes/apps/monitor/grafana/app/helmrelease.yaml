@@ -45,6 +45,14 @@ spec:
               path: /var/lib/grafana/dashboards/network
             orgId: 1
             type: file
+          - name: security
+            disableDeletion: false
+            editable: true
+            folder: "Security"
+            options:
+              path: /var/lib/grafana/dashboards/security
+            orgId: 1
+            type: file
 
     dashboards:
       node-exporter:
@@ -72,6 +80,14 @@ spec:
         uap:
           gnetId: 11314
           revision: 10
+          datasource:
+            - name: "DS_PROMETHEUS"
+              value: Prometheus
+      security:
+        # Ref: https://grafana.com/grafana/dashboards/14837
+        authentik:
+          gnetId: 14837
+          revision: 2
           datasource:
             - name: "DS_PROMETHEUS"
               value: Prometheus
