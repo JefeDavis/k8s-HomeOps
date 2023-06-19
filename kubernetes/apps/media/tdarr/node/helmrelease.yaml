@@ -34,8 +34,8 @@ spec:
 
     env:
       TZ: "America/New_York"
-      PUID: "568"
-      PGID: "568"
+      PUID: "1000"
+      PGID: "1000"
       serverIP: tdarr.media.svc.cluster.local
       serverPort: 8266
       ffmpegPath: "/usr/local/bin/ffmpeg"
