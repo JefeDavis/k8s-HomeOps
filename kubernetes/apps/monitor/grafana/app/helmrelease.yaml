@@ -190,6 +190,7 @@ spec:
       - natel-discrete-panel
       - pr0ps-trackmap-panel
       - vonage-status-panel
+      - isovalent-hubble-datasource
 
     podAnnotations:
       configmap.reloader.stakater.com/reload: grafana
