@@ -5230,7 +5230,7 @@
         "multi": false,
         "name": "cluster",
         "options": [],
-        "query": "label_values(cluster)",
+        "query": "label_values(k8s_cluster)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
