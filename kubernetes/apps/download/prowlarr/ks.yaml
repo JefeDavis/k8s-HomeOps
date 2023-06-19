@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-prowlarr
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
   path: "./kubernetes/apps/download/prowlarr/app"
@@ -28,8 +26,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-prowlarr-provision
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
   path: "./kubernetes/apps/download/prowlarr/provision"

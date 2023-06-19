@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-node-feature-discovery
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
   path: "./kubernetes/apps/system/node-feature-discovery/app"
@@ -22,8 +20,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-node-feature-discovery-rules
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
   path: "./kubernetes/apps/system/node-feature-discovery/rules"

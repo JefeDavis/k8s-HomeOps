@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-authentik-database
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
   path: "./kubernetes/apps/security/authentik/database"
@@ -31,8 +29,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-authentik
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
   path: "./kubernetes/apps/security/authentik/app"
@@ -56,8 +52,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-authentik-provision
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
   path: "./kubernetes/apps/security/authentik/provision"

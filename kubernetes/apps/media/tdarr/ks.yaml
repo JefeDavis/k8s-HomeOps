@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-tdarr
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
   path: "./kubernetes/apps/media/tdarr/app"
@@ -27,8 +25,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-tdarr-node
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
   path: "./kubernetes/apps/media/tdarr/node"

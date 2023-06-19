@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-resume-operator
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   path: "./kubernetes/apps/resume/resume/operator"
   sourceRef:
@@ -24,8 +22,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-resume-cv
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   path: "./kubernetes/apps/resume/resume/cv"
   sourceRef:

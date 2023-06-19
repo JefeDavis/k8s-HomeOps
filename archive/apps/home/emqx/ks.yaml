@@ -5,7 +5,7 @@ metadata:
   name: cluster-apps-emqx-secrets
   namespace: flux-system
   labels: 
-    substitution.flux.home.arpa/enabled: "false"
+    substitution.flux.home.arpa/disabled: "true"
 spec:
   interval: 10m
   path: "./kubernetes/apps/home/emqx/secret"
@@ -24,8 +24,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-emqx
   namespace: flux-system
-  labels: 
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   interval: 10m
   path: "./kubernetes/apps/home/emqx/app"

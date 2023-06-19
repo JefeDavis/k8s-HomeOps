@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-intel-device-plugins-operator
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   path: "./kubernetes/apps/system/intel-device-plugins/operator"
   sourceRef:
@@ -25,8 +23,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-intel-device-plugins-gpu
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   path: "./kubernetes/apps/system/intel-device-plugins/gpu"
   sourceRef:

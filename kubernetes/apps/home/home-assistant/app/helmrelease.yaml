@@ -4,8 +4,6 @@ kind: HelmRelease
 metadata:
   name: home-assistant
   namespace: home
-  annotations:
-    substitution.flux.home.arpa/enabled: "false"
 spec:
   interval: 15m
   chart:

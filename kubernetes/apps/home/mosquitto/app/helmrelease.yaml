@@ -4,8 +4,6 @@ kind: HelmRelease
 metadata:
   name: mosquitto
   namespace: home
-  labels:
-    substitution.flux.home.arpa/enabled: "false"
 spec:
   chart:
     spec:
