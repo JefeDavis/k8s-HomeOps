@@ -50,7 +50,7 @@ spec:
           - name: PORT
             value: &metricsPort 9707
           - name: ENABLE_ADDITIONAL_METRICS
-            value: false
+            value: true
           - name: ENABLE_UNKNOWN_QUEUE_ITEMS
             value: false
         ports:
