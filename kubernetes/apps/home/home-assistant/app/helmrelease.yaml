@@ -57,6 +57,28 @@ spec:
             key: password
       HASS_RECORDER_DB_URL: "postgresql://$(HASS_POSTGRES_USER):$(HASS_POSTGRES_PASS)@pg-home-assistant-rw/home-assistant"
 
+    initContainers:
+      clone-repo:
+        image: alpine/git:latest
+        command:
+          - "/bin/sh"
+          - -c
+          - |
+            cd /config
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            git fetch origin
+            git pull
+
+        volumeMounts:
+          - name: deploy-key
+            mountPath: /root/.ssh/id_rsa
+            subPath: GH_DEPLOY_KEY
+          - name: config
+            mountPath: /config
+          - name: configuration
+            mountPath: /config/configuration.yaml
+            subPath: configuration.yaml
+
     envFrom:
       - secretRef:
           name: home-assistant-secret
