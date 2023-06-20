@@ -49,6 +49,9 @@ spec:
         Hajimari:
           url: https://portal.${EXTERNAL_DOMAIN}
           group: Home Page
+        Hass-Code:
+          url: https://hass-code.${EXTERNAL_DOMAIN}
+          group: Home
         Hubble:
           url: https://hubble.${EXTERNAL_DOMAIN}
           group: Network

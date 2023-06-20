@@ -11,11 +11,11 @@ spec:
   primaryUpdateMethod: restart # prefer downtime of image download from registry instead of switching primary instance (promote a standby instance to primary) when current primary pod is updated
   storage:
     size: 8Gi
-    storageClass: synology-csi-retain
+    storageClass: ceph-block
   postgresql:
     parameters:
       max_connections: "600"
-      shared_buffers: 256Mi # amount of RAM to use for data caching, https://postgresqlco.nf/doc/en/param/shared_buffers/
+      shared_buffers: 256MB # amount of RAM to use for data caching, https://postgresqlco.nf/doc/en/param/shared_buffers/
   monitoring:
     enablePodMonitor: true
   # configured according to below link to allow customizing of initdb via Flux
@@ -29,10 +29,26 @@ spec:
       localeCollate: en_US.utf8
       localeCType: en_US.utf8
 
+  backup:
+    retentionPolicy: 30d
+    barmanObjectStore:
+      wal:
+        compression: bzip2
+        maxParallel: 8
+      destinationPath: s3://cnpg/
+      endpointURL: http://minio.${INTERNAL_DOMAIN}:9000
+      s3Credentials:
+        accessKeyId:
+          name: cloudnative-pg-secret
+          key: AWS_SECRET_ACCESS_KEY_ID
+        secretAccessKey:
+          name: cloudnative-pg-secret
+          key: AWS_SECRET_ACCESS_KEY
+
 #  # RECOVERY
 #  bootstrap:
 #    recovery:
-#      source: &previous-cluster postgres-v0
+          #      source: &previous-cluster pg-homeassistant-v0
 #  ## Note: externalClusters is needed when recovering from an existing cnpg cluster
 #  externalClusters:
 #    - name: *previous-cluster
@@ -40,14 +56,14 @@ spec:
 #        wal:
 #          compression: bzip2
 #          maxParallel: 8
-#        destinationPath: s3://pg-default-v1/
-#        endpointURL: http://rook-ceph-rgw-${CLUSTER_NAME_LOWER}.rook-ceph.svc:6953
-#        serverName: pg-default-v1
+#        destinationPath: s3://cnpg/
+          #        endpointURL: http://minio.${INTERNAL_DOMAIN}:9000
 #        s3Credentials:
 #          accessKeyId:
-#            name: s3-ceph-pg-default
-#            key: AccessKey
+#            name: cloudnative-pg-secret
+#            key: AWS_ACCESS_KEY_ID
 #          secretAccessKey:
-#            name: s3-ceph-pg-default
-#            key: SecretKey
+#            name: cloudnative-pg-secret
+#            key: AWS_SECRET_ACCESS_KEY
+
 
