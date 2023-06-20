@@ -39,6 +39,21 @@ tts:
 recorder:
   db_url: !env_var HASS_RECORDER_DB_URL
 
+automation:
+  - id: update_config_github_push_event
+    alias: Update Configuration on Github Push Event
+
+    trigger:
+    - platform: webhook
+      webhook_id: deply_config
+      local_only: false
+
+    action:
+    - service: shell_command.deploy_config
+    - service: homeassistant.restart
+
+shell_command:
+  deploy_config: cd /config && git pull
 # automation: !include_dir_merge_list automations
 # script: !include_dir_merge_named scripts
 # sensor: !include_dir_merge_list sensors
