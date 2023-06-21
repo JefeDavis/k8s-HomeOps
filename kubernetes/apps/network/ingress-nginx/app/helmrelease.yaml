@@ -24,9 +24,9 @@ spec:
         type: RollingUpdate
 
       config:
-        client-header-timeout: 120
         client-body-buffer-size: "100M"
         client-body-timeout: 120
+        client-header-timeout: 120
         enable-brotli: "true"
         enable-real-ip: "true"
         hsts-max-age: "31449600"
@@ -46,8 +46,6 @@ spec:
         ssl-protocols: "TLSv1.3 TLSv1.2"
         custom-http-errors: 404,401,403,500,503
         use-geoip2: true
-
-      use-forwarded-headers: "true"
 
       service:
         enabled: true

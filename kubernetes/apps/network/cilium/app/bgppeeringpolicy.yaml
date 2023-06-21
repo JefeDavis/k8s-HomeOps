@@ -23,7 +23,7 @@ spec:
               values: ["will-match-and-announce-all-services"],
             }
       neighbors:
-        - peerAddress: "10.0.1.1/32" # unlike bgp-config ConfigMap, peerAddress needs to be in CIDR notation
+        - peerAddress: "10.77.0.1/32" # unlike bgp-config ConfigMap, peerAddress needs to be in CIDR notation
           peerASN: 65510
 
 ---
