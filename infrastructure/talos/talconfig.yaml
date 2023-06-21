@@ -1,6 +1,7 @@
 ---
 clusterName: ${CLUSTER_NAME}
 
+# renovate: datasource=github-releases depName=sidero/talos
 talosVersion: v1.4.5
 kubernetesVersion: 1.27.2
 endpoint: "https://${CLUSTER_NAME}.${INTERNAL_DOMAIN}:6443"
@@ -93,11 +94,13 @@ controlPlane:
 
     - |-
       machine:
+        nodeLabels:
+          plan.upgrade.cattle.io/talos: ""
         features:
           kubernetesTalosAPIAccess:
             enabled: true
             allowedRoles:
-              - os:operator
+              - os:admin
             allowedKubernetesNamespaces:
               - system
 
