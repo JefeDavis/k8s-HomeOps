@@ -93,6 +93,14 @@ controlPlane:
 
     - |-
       machine:
+        features:
+          kubernetesTalosAPIAccess:
+            enabled: true
+            allowedRoles:
+              - os:operator
+            allowedKubernetesNamespaces:
+              - system
+
         files:
           - op: create
             path: /etc/cri/conf.d/20-customization.part
