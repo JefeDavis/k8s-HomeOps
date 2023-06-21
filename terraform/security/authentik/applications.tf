@@ -1,11 +1,12 @@
 resource "authentik_provider_proxy" "proxy_providers" {
-  for_each            = var.proxy_applications
-  name                = each.key
-  mode                = "forward_single"
-  external_host       = each.value.url
-  skip_path_regex     = each.value.skip_path_regex
-  authorization_flow  = data.authentik_flow.default-authorization-flow.id
-  authentication_flow = authentik_flow.davishaus-authentication.uuid
+  for_each              = var.proxy_applications
+  name                  = each.key
+  mode                  = "forward_single"
+  access_token_validity = "hours=1"
+  external_host         = each.value.url
+  skip_path_regex       = each.value.skip_path_regex
+  authorization_flow    = data.authentik_flow.default-authorization-flow.id
+  authentication_flow   = authentik_flow.davishaus-authentication.uuid
 }
 
 resource "authentik_application" "proxy_apps" {
@@ -47,15 +48,16 @@ resource "authentik_outpost" "outpost" {
 }
 
 resource "authentik_provider_oauth2" "oauth2_providers" {
-  for_each            = var.oauth2_applications
-  name                = each.key
-  client_id           = each.value.client_id
-  client_secret       = sensitive(each.value.client_secret)
-  authorization_flow  = data.authentik_flow.default-authorization-flow.id
-  authentication_flow = authentik_flow.davishaus-authentication.uuid
-  redirect_uris       = each.value.redirect_uris
-  signing_key         = data.authentik_certificate_key_pair.default-certificate.id
-  property_mappings   = data.authentik_scope_mapping.oauth2-scopes.ids
+  for_each              = var.oauth2_applications
+  name                  = each.key
+  access_token_validity = "hours=1"
+  client_id             = each.value.client_id
+  client_secret         = sensitive(each.value.client_secret)
+  authorization_flow    = data.authentik_flow.default-authorization-flow.id
+  authentication_flow   = authentik_flow.davishaus-authentication.uuid
+  redirect_uris         = each.value.redirect_uris
+  signing_key           = data.authentik_certificate_key_pair.default-certificate.id
+  property_mappings     = data.authentik_scope_mapping.oauth2-scopes.ids
 }
 
 resource "authentik_application" "oauth2_apps" {
