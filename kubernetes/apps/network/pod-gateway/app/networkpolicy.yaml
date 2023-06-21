@@ -3,7 +3,7 @@ apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
   name: vpn-gateway-pod-gateway
-  namespace: vpn
+  namespace: network
   labels:
     app.kubernetes.io/instance: vpn-gateway
     app.kubernetes.io/name: pod-gateway
