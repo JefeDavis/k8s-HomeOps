@@ -10,7 +10,7 @@ spec:
   primaryUpdateStrategy: unsupervised # let k8s handle upgrades
   primaryUpdateMethod: restart # prefer downtime of image download from registry instead of switching primary instance (promote a standby instance to primary) when current primary pod is updated
   storage:
-    size: 8Gi
+    size: 25Gi
     storageClass: ceph-block
   postgresql:
     parameters:
