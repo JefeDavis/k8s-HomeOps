@@ -4,7 +4,17 @@ kind: Kustomization
 namespace: media
 resources:
   - ./helmrelease.yaml
+  - ./secret-overseerr.sops.yaml
   - ./dashboard
+configMapGenerator:
+  - name: overseerr-config-template
+    files:
+      - ./config/settings.json
+    options:
+      labels:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
+generatorOptions:
+  disableNameSuffixHash: true
 commonLabels:
   app.kubernetes.io/name: overseerr
   app.kubernetes.io/instance: overseerr

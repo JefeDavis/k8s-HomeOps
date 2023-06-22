@@ -28,6 +28,39 @@ spec:
       LOG_LEVEL: "info"
       PORT: &port 5055
 
+    initContainers:
+      config-setup:
+        image: ghcr.io/onedr0p/alpine:3.18.2@sha256:4b666f73ee079b4feac9527fae3b0e60b0e9883213758bdb28af852c9acb4efe
+        command:
+          - "/bin/bash"
+          - -c
+          - |
+            envsubst < /tmp/config-template/settings.json > /tmp/settings-resolved.json
+            if [ -s /config/settings.json ]
+            then
+              jq -s '.[0] * .[1]' /config/settings.json /tmp/settings-resolved.json | jq > /config/settings.json
+            else
+              cp /tmp/settings-resolved.json /config/settings.json
+            fi
+            exit 0
+        envFrom:
+          - secretRef:
+              name: overseerr-secret
+          - secretRef:
+              name: starr-apps-secret
+          - secretRef:
+              name: plex-secret
+        env:
+          - name: ORGANIZATION
+            value: ${ORGANIZATION}
+          - name: EXTERNAL_DOMAIN
+            value: ${EXTERNAL_DOMAIN}
+        volumeMounts:
+          - name: config-template
+            mountPath: /tmp/config-template
+          - name: config
+            mountPath: /config
+
     sidecars:
       exporter:
         name: exporter
@@ -39,7 +72,7 @@ spec:
           - "$(OVERSEERR_API_KEY)"
         envFrom:
           - secretRef:
-              name: starr-apps-secret
+              name: overseerr-secret
 
         ports:
           - name: metrics
@@ -77,6 +110,14 @@ spec:
           - hosts:
               - *host
             secretName: overseerr-tls-external
+
+    persistence:
+      config-template:
+        enabled: true
+        type: configMap
+        name: overseerr-config-template
+        readOnly: true
+        mountPath: "-"
 
     volumeClaimTemplates:
       - name: config
