@@ -36,22 +36,4 @@ spec:
   timeout: 3m
   dependsOn:
     - name: cluster-apps-volsync
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: cluster-apps-volsync-provision
-  namespace: flux-system
-spec:
-  interval: 10m
-  path: "./kubernetes/apps/storage/volsync/provision"
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: k8s-home-ops
-  wait: true
-  postBuild:
-    substituteFrom: []
-  dependsOn:
-    - name: cluster-apps-tf-controller
-    - name: cluster-apps-volsync
+    - name: cluster-apps-kyverno
