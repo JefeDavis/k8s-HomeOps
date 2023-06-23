@@ -128,8 +128,8 @@ spec:
             interval: 30s
             scrapeTimeout: 10s
             bearerTokenSecret:
-              name: homeassistant-secret
-              key: HASS_PROMETHEUS_TOKEN
+              name: home-assistant-secret
+              key: PROMETHEUS_TOKEN
 
 
     persistence:
