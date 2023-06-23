@@ -29,12 +29,12 @@ spec:
               path: /var/lib/grafana/dashboards/default
             orgId: 1
             type: file
-          - name: node-exporter
+          - name: device
             disableDeletion: false
             editable: true
-            folder: "node-exporter"
+            folder: "Device"
             options:
-              path: /var/lib/grafana/dashboards/node-exporter
+              path: /var/lib/grafana/dashboards/device
             orgId: 1
             type: file
           - name: network
@@ -53,14 +53,22 @@ spec:
               path: /var/lib/grafana/dashboards/security
             orgId: 1
             type: file
+          - name: storage
+            disableDeletion: false
+            editable: true
+            folder: "Storage"
+            options:
+              path: /var/lib/grafana/dashboards/storage
+            orgId: 1
+            type: file
 
     dashboards:
-      node-exporter:
+      device:
         # Ref: https://grafana.com/grafana/dashboards/1860-node-exporter-full/
         node-exporter:
           gnetId: 1860
           revision: 30
-          datasource: Prometheus
+          datasource: prometheus
       network:
         # Ref: https://grafana.com/grafana/dashboards/11315
         clients:
@@ -68,21 +76,21 @@ spec:
           revision: 9
           datasource:
             - name: "DS_PROMETHEUS"
-              value: Prometheus
+              value: prometheus
         # Ref: https://grafana.com/grafana/dashboards/11312
         usw:
           gnetId: 11312
           revision: 9
           datasource:
             - name: "DS_PROMETHEUS"
-              value: Prometheus
+              value: prometheus
         # Ref: https://grafana.com/grafana/dashboards/11314
         uap:
           gnetId: 11314
           revision: 10
           datasource:
             - name: "DS_PROMETHEUS"
-              value: Prometheus
+              value: prometheus
       security:
         # Ref: https://grafana.com/grafana/dashboards/14837
         authentik:
@@ -90,9 +98,20 @@ spec:
           revision: 2
           datasource:
             - name: "DS_PROMETHEUS"
-              value: Prometheus
-
-
+              value: prometheus
+      storage:
+        # Ref: https://grafana.com/grafana/dashboards/2842/
+        ceph-cluster:
+          gnetId: 2842
+          revision: 16
+        # Ref: https://grafana.com/grafana/dashboards/5336/
+        ceph-osds:
+          gnetId: 5336
+          revision: 9
+        # Ref: https://grafana.com/grafana/dashboards/5342/
+        ceph-pools:
+          gnetId: 5342
+          revision: 9
 
     datasources:
       datasources.yaml:
@@ -103,13 +122,11 @@ spec:
           - name: Alertmanager
             orgId: 1
         datasources:
-          - name: Prometheus
+          - name: prometheus
             type: prometheus
             access: proxy
             url: http://thanos-query.monitor.svc.cluster.local:9090
             isDefault: true
-          - name: DS_PROMETHEUS
-            value: prometheus
           - name: Loki
             access: proxy
             type: loki
