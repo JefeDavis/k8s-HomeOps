@@ -6,4 +6,5 @@ resources:
   - ./secret-zigbee2mqtt.sops.yaml
   - ./configmap.yaml
   - ./helmrelease.yaml
+  - ./volsync.yaml
 
