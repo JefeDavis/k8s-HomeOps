@@ -65,14 +65,16 @@ spec:
           - -c
           - |
             cd /config
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
             git fetch origin
             git reset origin/main
 
         volumeMounts:
           - name: deploy-key
             mountPath: /root/.ssh/id_rsa
-            subPath: GH_DEPLOY_KEY
+            subPath: ssh-privatekey
+          - name: deploy-key
+            mountPath: /root/.ssh/known_hosts
+            subPath: known_hosts
           - name: config
             mountPath: /config
           - name: configuration
@@ -136,11 +138,13 @@ spec:
       deploy-key:
         enabled: true
         type: secret
-        name: home-assistant-secret
+        name: home-assistant-deploy-key
         defaultMode: 256
         subPath:
-          - path: GH_DEPLOY_KEY
+          - path: ssh-privatekey
             mountPath: /root/.ssh/id_rsa
+          - path: known_hosts
+            mountPath: /root/.ssh/known_hosts
       configuration:
         enabled: true
         type: configMap

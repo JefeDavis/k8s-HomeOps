@@ -8,6 +8,7 @@ commonLabels:
 resources:
   - ./pgcluster.yaml
   - ./secret-home-assistant.sops.yaml
+  - ./secret-deploy-key.sops.yaml
   - ./helmrelease.yaml
 configMapGenerator:
   - name: hass-config
