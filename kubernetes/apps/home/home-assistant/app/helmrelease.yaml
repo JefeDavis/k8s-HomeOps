@@ -67,7 +67,7 @@ spec:
             cd /config
             ssh-keyscan github.com >> ~/.ssh/known_hosts
             git fetch origin
-            git pull
+            git reset origin/main
 
         volumeMounts:
           - name: deploy-key
@@ -147,6 +147,15 @@ spec:
         name: hass-config
         mountPath: /config/configuration.yaml
         subPath: configuration.yaml
+      backups:
+        enabled: true
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/backups/home-assistant
+        mountPath: /config/backups
+        readOnly: false
 
     probes:
       liveness:
