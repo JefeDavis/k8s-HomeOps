@@ -27,6 +27,7 @@ homeassistant:
   country: US
   # packages: !include_dir_named packages
   external_url: https://home.${EXTERNAL_DOMAIN}
+  internal_url: http://${SVC_HASS_ADDR}:8123
 
 # Text to speech
 tts:
@@ -55,7 +56,7 @@ automation:
 shell_command:
   deploy_config: cd /config && git pull
 # automation: !include_dir_merge_list automations
-# script: !include_dir_merge_named scripts
+script: !include_dir_merge_named scripts
 # sensor: !include_dir_merge_list sensors
 # binary_sensor: !include_dir_merge_list binary_sensors
 # input_boolean: !include_dir_merge_named input_booleans
