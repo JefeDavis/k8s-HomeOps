@@ -2,6 +2,7 @@
 default_config:
 
 prometheus:
+  namespace: home-assistant
 
 http:
   server_host: 0.0.0.0
@@ -32,14 +33,6 @@ homeassistant:
   external_url: https://home.${EXTERNAL_DOMAIN}
   internal_url: http://${SVC_HASS_ADDR}:8123
 
-# Text to speech
-tts:
-  - platform: google_translate
-    cache: true
-    cache_dir: /tmp/tts
-    time_memory: 300
-    service_name: google_say
-
 recorder:
   db_url: !env_var HASS_RECORDER_DB_URL
 
@@ -54,10 +47,10 @@ automation:
 
     action:
     - service: shell_command.deploy_config
-    - service: homeassistant.restart
+    - service: homeassistant.reload_all
 
 shell_command:
-  deploy_config: cd /config && git pull
+  deploy_config: cd /config && git pull || git reset origin/main && git reset origin/main --hard
 # automation: !include_dir_merge_list automations
 script: !include_dir_merge_named scripts
 sensor: !include_dir_merge_list sensors
