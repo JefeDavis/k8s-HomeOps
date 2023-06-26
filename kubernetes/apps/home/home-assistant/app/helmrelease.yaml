@@ -98,9 +98,6 @@ spec:
           sonos:
             enabled: true
             port: 1400
-          mass:
-            enabled: true
-            port: 8095
 
     ingress:
       main:

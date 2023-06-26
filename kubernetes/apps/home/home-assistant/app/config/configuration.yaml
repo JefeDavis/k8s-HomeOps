@@ -62,3 +62,7 @@ group: !include_dir_merge_named groups
 frontend:
   themes: !include_dir_merge_named themes
 
+panel_iframe:
+  mass:
+    title: "Music Assistant"
+    url: "http://${SVC_MASS_ADDR}:8095"

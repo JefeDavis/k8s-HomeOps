@@ -8,6 +8,7 @@ resources:
   - ./common/ks.yaml
   - ./bazarr/ks.yaml
   - ./lidarr/ks.yaml
+  - ./music-assistant/ks.yaml
   - ./overseerr/ks.yaml
   - ./plex/ks.yaml
   - ./plex-meta-manager/ks.yaml
