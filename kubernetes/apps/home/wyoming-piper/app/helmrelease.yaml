@@ -27,7 +27,7 @@ spec:
       tag: latest@sha256:e62fa006b6fccda2f1be2f1fd8229bc6c1139b8adeb2e6d479f411e628bb1c90
 
     args:
-      - --voice=en-us-libritts-high
+      - --voice=en-gb-southern_english_female-low
     env:
       TZ: "America/Chicago"
 
