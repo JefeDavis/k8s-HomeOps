@@ -39,13 +39,29 @@ spec:
 
     service:
       main:
-        type: LoadBalancer
-        annotations:
-          io.cilium/lb-ipam-ips: ${SVC_MASS_ADDR}
         ports:
           http:
             port: 8095
             protocol: TCP
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:headphones"
+          nginx.ingress.kubernetes.io/whitelist-source-range: ${WHITELIST_IP_RANGE}
+        hosts:
+        - host: &host "music.${EXTERNAL_DOMAIN}"
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+        - hosts:
+          - *host
+          secretName: music-assistant-tls-external
 
     resources:
       requests:

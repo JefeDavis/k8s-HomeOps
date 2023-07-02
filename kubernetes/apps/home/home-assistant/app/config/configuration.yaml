@@ -65,4 +65,4 @@ frontend:
 panel_iframe:
   mass:
     title: "Music Assistant"
-    url: "http://${SVC_MASS_ADDR}:8095"
+    url: "https://music.${EXTERNAL_DOMAIN}"
