@@ -2,8 +2,8 @@
 clusterName: ${CLUSTER_NAME}
 
 # renovate: datasource=github-releases depName=siderolabs/talos
-talosVersion: v1.4.5
-kubernetesVersion: 1.27.2
+talosVersion: v1.4.6
+kubernetesVersion: 1.27.3
 endpoint: "https://${CLUSTER_NAME}.${INTERNAL_DOMAIN}:6443"
 
 allowSchedulingOnMasters: true
