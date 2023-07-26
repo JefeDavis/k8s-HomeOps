@@ -29,7 +29,7 @@ spec:
     image:
       repository: vaultwarden/server
       pullPolicy: IfNotPresent
-      tag: 1.29.0
+      tag: 1.29.1
     upgradeStrategy: recreate
     envFrom:
       - secretRef:
