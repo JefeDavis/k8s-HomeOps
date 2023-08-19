@@ -24,7 +24,7 @@ spec:
 
     image:
       repository: rhasspy/wyoming-piper
-      tag: latest@sha256:436733d00821fa9a4ecfb831c22b08e08cc60d5d16a8e5f80068de24d1169c6e
+      tag: latest@sha256:e967263bcc556a646df376a5217d6c9786e22cdadc76ec799e9780f50d33290f
 
     args:
       - --voice=en-gb-southern_english_female-low
