@@ -6,7 +6,7 @@ terraform {
     }
     curl = {
       source  = "marcofranssen/curl"
-      version = "0.3.0"
+      version = "0.4.0"
     }
   }
   cloud {
