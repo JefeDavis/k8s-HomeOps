@@ -24,15 +24,15 @@ spec:
       resources:
         requests:
           cpu: 11m
-          memory: 19M
+          memory: 51Mi
         limits:
-          memory: 19M
+          memory: 51Mi
 
     worker:
       resources:
         requests:
           cpu: 15m
-          memory: 19M
+          memory: 48Mi
         limits:
-          memory: 19M
+          memory: 48Mi
 
