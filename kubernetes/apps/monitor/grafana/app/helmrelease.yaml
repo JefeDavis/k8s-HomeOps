@@ -228,11 +228,11 @@ spec:
       alerts:
         enabled: true
         label: grafana.io/alert
-        labelValue: "true"
+        labelValue: 'true'
       dashboards:
         enabled: true
         label: grafana.io/dashboard
-        labelValue: "true"
+        labelValue: 'true'
         folderAnnotation: "grafana.io/folder"
         searchNamespace: ALL
         provider:
@@ -241,17 +241,17 @@ spec:
       datasources:
         enabled: true
         label: grafana.io/datasource
-        labelValue: "true"
+        labelValue: 'true'
         searchNamespace: ALL
       notifiers:
         enabled: true
         label: grafana.io/notifier
-        labelValue: "true"
+        labelValue: 'true'
         searchNamespace: ALL
       plugins:
         enabled: true
         label: grafana.io/plugin
-        labelValue: "true"
+        labelValue: 'true'
         searchNamespace: ALL
 
     topologySpreadConstraints:
