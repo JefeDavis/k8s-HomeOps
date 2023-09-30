@@ -38,7 +38,8 @@ spec:
             envsubst < /tmp/config-template/settings.json > /tmp/settings-resolved.json
             if [ -s /config/settings.json ]
             then
-              jq -s '.[0] * .[1]' /config/settings.json /tmp/settings-resolved.json | jq > /config/settings.json
+              cp /tmp/settings-resolved.json /config/settings.json
+              # jq -s '.[0] * .[1]' /config/settings.json /tmp/settings-resolved.json | jq > /config/settings.json
             else
               cp /tmp/settings-resolved.json /config/settings.json
             fi
