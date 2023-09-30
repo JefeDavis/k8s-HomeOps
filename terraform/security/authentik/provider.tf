@@ -4,6 +4,3 @@ provider "authentik" {
   insecure = true
 }
 
-provider "curl" {
-  token = var.AUTHENTIK_BOOTSTRAP_TOKEN
-}
