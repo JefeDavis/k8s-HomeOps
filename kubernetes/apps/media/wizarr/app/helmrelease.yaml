@@ -22,19 +22,16 @@ spec:
         reloader.stakater.com/auto: "true"
     image:
       repository: ghcr.io/wizarrrr/wizarr
-      tag: 2.2.0@sha256:c7f4b05a3bd3b2232ea93aa41018e637954b3f4bcba44be90aa9622e1ed062f7
+      tag: 3.4.1@sha256:cd2b27241002592e94223b61d7ec26871667e59efe60a242a4ea25757b9ff2d3
 
     env:
       TZ: America/New_York
-      APP_URL: https://join.${EXTERNAL_DOMAIN}
-      APP_PORT: &port 5690
-      DISABLE_BUILTIN_AUTH: "true"
 
     service:
       main:
         ports:
           http:
-            port: *port
+            port: &port 5690
 
     ingress:
       main:
@@ -62,21 +59,12 @@ spec:
         size: 1Gi
         storageClass: ceph-block
 
-    podSecurityContext:
-      runAsUser: 568
-      runAsGroup: 568
-      fsGroup: 568
-      fsGroupChangePolicy: OnRootMismatch
-      supplementalGroups:
-        - 65539
-        - 1030
-
     resources:
       requests:
         memory: 350Mi
-        cpu: 5m
+        cpu: 10m
       limits:
-        memory: 431Mi
+        memory: 512Mi
 
     serviceMonitor:
       monitor:
