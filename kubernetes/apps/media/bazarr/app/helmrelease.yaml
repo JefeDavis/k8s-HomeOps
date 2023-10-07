@@ -23,7 +23,7 @@ spec:
 
     image:
       repository: ghcr.io/onedr0p/bazarr
-      tag: 1.3.0@sha256:f78c0d954401facfaafc37fea786630eb47276e2e6f8df508a0b60d5e81a3c41
+      tag: 1.3.0@sha256:af9fa163143b1fd71bb3ebe77566488496caad0a919b6983169f00c51721df33
 
     env:
       TZ: America/New_York
