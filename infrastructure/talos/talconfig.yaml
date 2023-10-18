@@ -1,9 +1,11 @@
 ---
 clusterName: ${CLUSTER_NAME}
 
-# renovate: datasource=github-releases depName=siderolabs/talos
-talosVersion: "v1.4.6"
-kubernetesVersion: 1.27.3
+# renovate: datasource=docker depName=siderolabs/talos/installer
+talosVersion: v1.5.4
+# renovate: datasource=github-releases extractVersion=^v(?<version>.*)$ depName=kubernetes/kubernetes
+kubernetesVersion: 1.28.3
+
 endpoint: "https://${CLUSTER_NAME}.${INTERNAL_DOMAIN}:6443"
 
 allowSchedulingOnMasters: true
@@ -13,6 +15,7 @@ clusterPodNets:
   - 172.22.0.0/16
 clusterSvcNets:
   - 172.23.0.0/16
+
 cniConfig:
   name: none
 
@@ -26,11 +29,12 @@ additionalMachineCertSans:
   - ${EXTERNAL_CLUSTER_NAME}.${EXTERNAL_DOMAIN}
 
 nodes:
+  # intel nuc panther canyon / i7 / 256GB / 1TB SSD / 2TB Nvme
   - hostname: jsdyb-nuc-001.${INTERNAL_DOMAIN}
-    disableSearchDomain: true
+    controlPlane: true
     ipAddress: 10.77.0.11
-    controlPlane: true
     installDisk: /dev/sda
+    disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
         dhcp: true
@@ -42,27 +46,17 @@ nodes:
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
+    nodeLabels: &controlPlaneLabels
+      plan.upgrade.cattle.io/talos: ""
+      topology.kubernetes.io/region: jsdyb
+      topology.kubernetes.io/zone: jsdyb-u
+
+  # intel nuc panther canyon / i7 / 256GB / 1TB SSD / 2TB Nvme
   - hostname: jsdyb-nuc-002.${INTERNAL_DOMAIN}
-    disableSearchDomain: true
+    controlPlane: true
     ipAddress: 10.77.0.12
-    controlPlane: true
     installDisk: /dev/sda
-    networkInterfaces:
-      - interface: eth0
-        dhcp: true
-        vip:
-          ip: 10.77.0.10
-        vlans:
-          - vlanId: 90
-            mtu: 1500
-            dhcp: true
-            dhcpOptions:
-              routeMetric: 4096
-  - hostname: jsdyb-nuc-003.${INTERNAL_DOMAIN}
     disableSearchDomain: true
-    ipAddress: 10.77.0.13
-    controlPlane: true
-    installDisk: /dev/sda
     networkInterfaces:
       - interface: eth0
         dhcp: true
@@ -74,6 +68,26 @@ nodes:
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
+    nodeLabels: *controlPlaneLabels
+
+  # intel nuc panther canyon / i7 / 256GB / 1TB SSD / 2TB Nvme
+  - hostname: jsdyb-nuc-003.${INTERNAL_DOMAIN}
+    controlPlane: true
+    ipAddress: 10.77.0.13
+    installDisk: /dev/sda
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        dhcp: true
+        vip:
+          ip: 10.77.0.10
+        vlans:
+          - vlanId: 90
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 4096
+    nodeLabels: *controlPlaneLabels
 
 controlPlane:
   patches:
@@ -94,8 +108,6 @@ controlPlane:
 
     - |-
       machine:
-        nodeLabels:
-          plan.upgrade.cattle.io/talos: ""
         features:
           kubernetesTalosAPIAccess:
             enabled: true
@@ -115,7 +127,9 @@ controlPlane:
 
         install:
           extensions:
-            - image: ghcr.io/siderolabs/iscsi-tools:v0.1.4
+            - image: ghcr.io/siderolabs/iscsi-tools:v0.1.4@sha256:58cbadb0a315d83e04b240de72c5ac584e9c63b690b2c4fcd629dd1566c3a7a1
+            - image: ghcr.io/siderolabs/i915-ucode:20230310
+            - image: ghcr.io/siderolabs/intel-ucode:20230512
 
         kubelet:
           extraArgs:

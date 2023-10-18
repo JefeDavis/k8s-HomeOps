@@ -6,6 +6,7 @@
       "groupName": "Flux",
       "matchPackagePatterns": ["flux"],
       "matchDatasources": ["docker", "github-tags"],
+      "versioning": "semver",
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       },
@@ -66,6 +67,16 @@
         "commitMessageTopic": "{{{groupName}}} group"
       },
       "separateMinorPatch": false
+    },
+    {
+      "description": "Talos Group"
+      "groupName": "Talos",
+      "matchPackagePatterns": [ "siderolabs/talos", "siderolabs/talosctl", "siderolabs/installer"],
+      "matchDatasources": [ "docker", "github-releases" ],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "separateMinorPatch": true
     }
   ]
 }
