@@ -15,7 +15,7 @@ spec:
       path: /var/run/secrets/talos.dev
   concurrency: 1
   drain:
-    gracePeriod: 30
+    skipWaitForDeleteTimeout: 60
     deleteLocalData: true
     force: true
   nodeSelector:

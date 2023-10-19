@@ -37,10 +37,15 @@ nodes:
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
-        dhcp: true
-        vip:
-          ip: 10.77.0.10
+        dhcp: false
         vlans:
+          - vlanId: 770
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 1024
+            vip:
+              ip: 10.77.0.10
           - vlanId: 90
             mtu: 1500
             dhcp: true
@@ -59,10 +64,15 @@ nodes:
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
-        dhcp: true
-        vip:
-          ip: 10.77.0.10
+        dhcp: false
         vlans:
+          - vlanId: 770
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 1024
+            vip:
+              ip: 10.77.0.10
           - vlanId: 90
             mtu: 1500
             dhcp: true
@@ -78,10 +88,15 @@ nodes:
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
-        dhcp: true
-        vip:
-          ip: 10.77.0.10
+        dhcp: false
         vlans:
+          - vlanId: 770
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 1024
+            vip:
+              ip: 10.77.0.10
           - vlanId: 90
             mtu: 1500
             dhcp: true
@@ -115,6 +130,9 @@ controlPlane:
               - os:admin
             allowedKubernetesNamespaces:
               - system
+          kubePrism:
+            enabled: true
+            port: 7445
 
         files:
           - op: create
