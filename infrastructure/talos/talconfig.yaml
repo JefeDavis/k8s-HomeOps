@@ -1,7 +1,7 @@
 ---
 clusterName: ${CLUSTER_NAME}
 
-# renovate: datasource=docker depName=siderolabs/talos/installer
+# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
 talosVersion: v1.5.4
 # renovate: datasource=github-releases extractVersion=^v(?<version>.*)$ depName=kubernetes/kubernetes
 kubernetesVersion: 1.28.3
