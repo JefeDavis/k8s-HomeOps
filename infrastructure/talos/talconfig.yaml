@@ -45,7 +45,7 @@ nodes:
             dhcpOptions:
               routeMetric: 1024
             vip:
-              ip: 10.77.0.10
+              ip: ${CLUSTER_ENDPOINT_IP}
           - vlanId: 90
             mtu: 1500
             dhcp: true
@@ -72,7 +72,7 @@ nodes:
             dhcpOptions:
               routeMetric: 1024
             vip:
-              ip: 10.77.0.10
+              ip: ${CLUSTER_ENDPOINT_IP}
           - vlanId: 90
             mtu: 1500
             dhcp: true
@@ -96,7 +96,7 @@ nodes:
             dhcpOptions:
               routeMetric: 1024
             vip:
-              ip: 10.77.0.10
+              ip: ${CLUSTER_ENDPOINT_IP}
           - vlanId: 90
             mtu: 1500
             dhcp: true
