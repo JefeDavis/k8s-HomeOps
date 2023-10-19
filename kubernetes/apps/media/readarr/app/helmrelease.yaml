@@ -22,7 +22,7 @@ spec:
         reloader.stakater.com/auto: "true"
     image:
       repository: ghcr.io/onedr0p/readarr-nightly
-      tag: 0.3.6.2232@sha256:df2370dabfce2e13323364bb12cbfa9227508d2470d5347f8ae1a031a0b15c82
+      tag: 0.3.9.2272@sha256:0553d091cf2afb635eddadbdf42eef1ad7bed6c7122787c20ef8dc7d1053d2b6
     env:
       TZ: America/New_York
       READARR__INSTANCE_NAME: Readarr
@@ -38,7 +38,7 @@ spec:
     sidecars:
       exporter:
         name: exporter
-        image: ghcr.io/onedr0p/exportarr:v1.5.3
+        image: ghcr.io/onedr0p/exportarr:v1.6.0
         args: ["readarr"]
         env:
           - name: URL
