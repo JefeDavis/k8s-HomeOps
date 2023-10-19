@@ -73,8 +73,8 @@ fi
 
 Make it executable and run it to install FRR. Running it a second time should do absolutely nothing.
 ```
-chmod +x /data/on_boot.d/10-setup-frr.sh
-/data/on_boot.d/10-setup-frr.sh
+chmod +x /data/on_boot.d/10-bgp-frr.sh
+/data/on_boot.d/10-bgp-frr.sh
 ```
 
 ## Configure FRR
@@ -82,7 +82,7 @@ chmod +x /data/on_boot.d/10-setup-frr.sh
 Edit the /etc/frr/daemons configuration file, enabling BGP by setting bgpd=yes.
 
 ```
-sed -i 's/bgpd=no/bgpd=yes' /etc/frr/daemons
+sed -i 's/bgpd=no/bgpd=yes/' /etc/frr/daemons
 ```
 
 Make a /etc/frr/bgpd.conf detailing your peer groups and neighbors:
