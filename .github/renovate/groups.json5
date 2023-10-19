@@ -69,7 +69,7 @@
       "separateMinorPatch": false
     },
     {
-      "description": "Talos Group"
+      "description": "Talos Group",
       "groupName": "Talos",
       "matchPackagePatterns": [ "siderolabs/talos", "siderolabs/talosctl", "siderolabs/installer"],
       "matchDatasources": [ "docker", "github-releases" ],
