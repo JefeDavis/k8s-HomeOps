@@ -34,7 +34,7 @@ spec:
         operator: Exists
   prepare:
     # renovate: datasource=docker depName=ghcr.io/siderolabs/talosctl
-    image: ghcr.io/siderolabs/talosctl:v1.5.5
+    image: ghcr.io/siderolabs/talosctl:v1.6.1
     envs:
       - name: NODE_IP
         valueFrom:
@@ -46,7 +46,7 @@ spec:
       - '--server=false'
   upgrade:
     # renovate: datasource=docker depName=ghcr.io/siderolabs/talosctl
-    image: ghcr.io/siderolabs/talosctl:v1.5.5
+    image: ghcr.io/siderolabs/talosctl:v1.6.1
     envs:
       - name: NODE_IP
         valueFrom:
