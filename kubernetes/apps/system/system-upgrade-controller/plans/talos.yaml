@@ -8,11 +8,12 @@ metadata:
     kustomize.toolkit.fluxcd.io/substitute: disabled
 spec:
   # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-  version: "v1.5.4"
+  version: "v1.5.5"
   serviceAccountName: system-upgrade
   secrets:
     - name: talos-upgrade-api-access
       path: /var/run/secrets/talos.dev
+      ignoreUpdates: true
   concurrency: 1
   drain:
     skipWaitForDeleteTimeout: 60
@@ -35,6 +36,7 @@ spec:
     args:
       - '--nodes=$(NODE_IP)'
       - 'health'
+      - '--server=false'
   upgrade:
     image: ghcr.io/siderolabs/talosctl
     envs:
@@ -46,6 +48,6 @@ spec:
       - '--nodes=$(NODE_IP)'
       - 'upgrade'
       - '--image=ghcr.io/siderolabs/installer:$(SYSTEM_UPGRADE_PLAN_LATEST_VERSION)'
-      - '--perserve=true'
+      - '--preserve=true'
       - '--wait=false'
       - '--stage=true'
