@@ -16,9 +16,16 @@ spec:
       ignoreUpdates: true
   concurrency: 1
   drain:
-    skipWaitForDeleteTimeout: 60
+    gracePeriod: 30
+    skipWaitForDeleteTimeout: 45
     deleteLocalData: true
     force: true
+    podSelector:
+      matchExpressions:
+        - key: cnpg.io/cluster
+          operator: NotIn
+          values:
+            - pg-home-assistant
   nodeSelector:
     matchExpressions:
       - key: plan.upgrade.cattle.io/talos
