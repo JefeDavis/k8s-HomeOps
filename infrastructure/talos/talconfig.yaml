@@ -113,10 +113,6 @@ controlPlane:
         etcd:
           advertisedSubnets:
             - 10.77.0.0/24
-        extraManifests:
-          - https://raw.githubusercontent.com/JefeDavis/k8s-HomeOps/main/infrastructure/talos/integrations/cni/cilium.yaml
-          - https://raw.githubusercontent.com/JefeDavis/k8s-HomeOps/main/infrastructure/talos/integrations/kubelet-csr-approver/kubelet-csr-approver.yaml
-
     - |-
       - op: remove
         path: /cluster/apiServer/admissionControl

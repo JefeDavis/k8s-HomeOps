@@ -21,3 +21,5 @@ export KUBECONFIG=$(pwd)/kubeconfig
 
 echo kubectl get nodes
 kubectl get nodes
+
+./deploy-integrations.sh
