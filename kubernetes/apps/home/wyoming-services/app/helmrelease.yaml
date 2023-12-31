@@ -1,0 +1,137 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: wyoming-services
+  namespace: home
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.4.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+
+  values:
+    controllers:
+      main:
+        enabled: false
+
+      piper:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          main:
+            image:
+              repository: rhasspy/wyoming-piper
+              tag: 1.4.0
+            args:
+              - --voice=en-gb-southern_english_female-low
+            env:
+              TZ: "America/Chicago"
+        resources:
+          requests:
+            cpu: 500m
+            memory: 250Mi
+          limits:
+            memory: 500Mi
+        statefulset:
+          volumeClaimTemplates:
+            - name: data
+              mountPath: /data
+              accessMode: ReadWriteOnce
+              size: 5Gi
+              storageClass: ceph-block
+
+      whisper:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          main:
+            image:
+              repository: rhasspy/wyoming-whisper
+              tag: 1.0.0
+            args:
+              - --model=small
+              - --language=en
+            env:
+              TZ: "America/Chicago"
+        resources:
+          requests:
+            cpu: 500m
+            memory: 250Mi
+          limits:
+            memory: 2500Mi
+        statefulset:
+          volumeClaimTemplates:
+            - name: data
+              mountPath: /data
+              accessMode: ReadWriteOnce
+              size: 5Gi
+              storageClass: ceph-block
+
+      openwakeword:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: 'true'
+        containers:
+          main:
+            image:
+              repository: rhasspy/wyoming-openwakeword
+              tag: 1.8.1
+            args:
+              - --preload-model
+              - 'ok_nabu'
+              # - --custom-model-dir
+              # - /custom
+            env:
+              TZ: "America/Chicago"
+
+    service:
+      main:
+        enabled: false
+
+      piper:
+        type: LoadBalancer
+        controller: piper
+        annotations:
+          io.cilium/lb-ipam-ips: 192.168.77.102
+        ports:
+          http:
+            port: 10200
+
+      whisper:
+        type: LoadBalancer
+        controller: whisper
+        annotations:
+          io.cilium/lb-ipam-ips: 192.168.77.103
+        ports:
+          http:
+            port: 10300
+            protocol: TCP
+
+      openwakeword:
+        type: LoadBalancer
+        controller: openwakeword
+        annotations:
+          io.cilium/lb-ipam-ips: 192.168.77.104
+        ports:
+          http:
+            port: 10400
+
+    # persistence:
+    #   openwakeword-config:
+    #     enabled: true
+    #     type: configMap
+    #     name: openwakeword
+    #     advancedMounts:
+    #       openwakeword:
+    #         main:
+    #           - path: /custom
+    #             readOnly: true
