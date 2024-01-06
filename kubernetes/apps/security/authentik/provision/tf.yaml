@@ -46,6 +46,9 @@ spec:
         Bazarr:
           url: https://bazarr.${EXTERNAL_DOMAIN}
           group: Media
+        EspHome:
+          url: https://esphome.${EXTERNAL_DOMAIN}
+          group: Home
         Hajimari:
           url: https://portal.${EXTERNAL_DOMAIN}
           group: Home Page
