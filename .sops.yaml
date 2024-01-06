@@ -1,57 +1,43 @@
 ---
 creation_rules:
-  - path_regex: flux/.*/cluster-secrets\.sops\.ya?ml
-    encrypted_regex: "^(data|stringData)$"
-    key_groups:
-      - age:
-          - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
-        gcp_kms:
-          - resource_id: projects/moonlit-watch-362206/locations/global/keyRings/davishaus-keyring/cryptoKeys/sops
-  - path_regex: bootstrap/.*/secret-.*\.sops\.ya?ml
-    encrypted_regex: "^(data|stringData)$"
-    key_groups:
-      - age:
-          - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
-        gcp_kms:
-          - resource_id: projects/moonlit-watch-362206/locations/global/keyRings/davishaus-keyring/cryptoKeys/sops
-  - path_regex: apps/.*/secret-.*\.sops\.ya?ml
-    encrypted_regex: "^(data|stringData)$"
-    key_groups:
-      - age:
-          - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
-        gcp_kms:
-        - resource_id: projects/moonlit-watch-362206/locations/global/keyRings/davishaus-keyring/cryptoKeys/sops
-  - path_regex: apps/.*\.sops\.yaml
-    key_groups:
-      - age:
-          - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
-        gcp_kms:
-          - resource_id: projects/moonlit-watch-362206/locations/global/keyRings/davishaus-keyring/cryptoKeys/sops
   - path_regex: infrastructure/.*\.sops\.yaml
     key_groups:
       - age:
           - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
         gcp_kms:
           - resource_id: projects/moonlit-watch-362206/locations/global/keyRings/davishaus-keyring/cryptoKeys/sops
-  - path_regex: apps/.*\.sops\.ini
+  - path_regex: kubernetes/.*/secret-.*\.sops\.ya?ml
+    encrypted_regex: "^(data|stringData)$"
+    key_groups:
+      - age:
+          - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
+        gcp_kms:
+        - resource_id: projects/moonlit-watch-362206/locations/global/keyRings/davishaus-keyring/cryptoKeys/sops
+  - path_regex: kubernetes/.*\.sops\.yaml
     key_groups:
       - age:
           - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
         gcp_kms:
           - resource_id: projects/moonlit-watch-362206/locations/global/keyRings/davishaus-keyring/cryptoKeys/sops
-  - path_regex: apps/.*\.sops\.toml
+  - path_regex: kubernetes/.*\.sops\.ini
     key_groups:
       - age:
           - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
         gcp_kms:
           - resource_id: projects/moonlit-watch-362206/locations/global/keyRings/davishaus-keyring/cryptoKeys/sops
-  - path_regex: apps/.*\.sops\.json
+  - path_regex: kubernetes/.*\.sops\.toml
     key_groups:
       - age:
           - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
         gcp_kms:
           - resource_id: projects/moonlit-watch-362206/locations/global/keyRings/davishaus-keyring/cryptoKeys/sops
-  - path_regex: apps/.*\.sops\.env
+  - path_regex: kubernetes/.*\.sops\.json
+    key_groups:
+      - age:
+          - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
+        gcp_kms:
+          - resource_id: projects/moonlit-watch-362206/locations/global/keyRings/davishaus-keyring/cryptoKeys/sops
+  - path_regex: kubernetes/.*\.sops\.env
     key_groups:
       - age:
           - age1jhlwc2kz4rm95t7hfvrj0mhdg7fwmepj90ap5y26ypxf808xmv8qmhnla5
