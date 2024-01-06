@@ -43,3 +43,11 @@ spec:
         volumeMounts:
           - name: config
             mountPath: /config
+          - name: deploy-key
+            mountPath: /root/.ssh/id_rsa
+            subPath: ssh-privatekey
+          - name: deploy-key
+            path: known_hosts
+            mountPath: /root/.ssh/known_hosts
+            subPath: known_hosts
+ 
