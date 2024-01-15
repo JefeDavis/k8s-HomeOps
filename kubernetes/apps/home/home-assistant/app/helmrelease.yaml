@@ -175,9 +175,9 @@ spec:
     resources:
       requests:
         cpu: 47m
-        memory: 1254Mi
+        memory: 1Gi
       limits:
-        memory: 1254Mi
+        memory: 2Gi
 
     volumeClaimTemplates:
       - name: config
