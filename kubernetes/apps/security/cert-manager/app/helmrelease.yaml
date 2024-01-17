@@ -29,6 +29,9 @@ spec:
     # - --dns01-recursive-nameservers-only
       # - --enable-certificate-owner-ref
     replicaCount: 1
+    dns01RecursiveNameservers: "1.1.1.1:53,9.9.9.9:53"
+    dns01RecursiveNameserversOnly: true
+
 
     # podDnsPolicy: "None"
     # podDnsConfig:
