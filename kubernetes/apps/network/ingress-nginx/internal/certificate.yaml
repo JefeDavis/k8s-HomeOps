@@ -6,9 +6,7 @@ metadata:
 spec:
   secretName: "${SANITIZED_ORGANIZATION}-tls-internal"
   issuerRef:
-    name: letsencrypt-prod
+    name: letsencrypt-staging
     kind: ClusterIssuer
-  commonName: "${INTERNAL_DOMAIN}"
   dnsNames:
-    - "${INTERNAL_DOMAIN}"
     - "*.${INTERNAL_DOMAIN}"
