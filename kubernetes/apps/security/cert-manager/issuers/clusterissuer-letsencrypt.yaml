@@ -12,11 +12,24 @@ spec:
     solvers:
     - http01:
         ingress:
-          class: nginx
+          class: nginx-external
       selector:
         dnsZones:
           - '${EXTERNAL_DOMAIN}'
           - '${PROFESSIONAL_DOMAIN}'
+    - dns01:
+        webhook:
+          groupName: acmedns.${EXTERNAL_DOMAIN}
+          solverName: google-domains
+          config:
+            apiUrl: https://acmedns.googleapis.com/v1
+            domainName: ${EXTERNAL_DOMAIN}
+            secretName: cert-domain-tls-key-${SANITIZED_ORGANIZATION}
+            secretKeyName: api-key
+      selector:
+        dnsZones:
+          - '${EXTERNAL_DOMAIN}'
+          - '${INTERNAL_DOMAIN}'
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -31,8 +44,22 @@ spec:
     solvers:
     - http01:
         ingress:
-          class: nginx
+          class: nginx-external
       selector:
         dnsZones:
           - '${EXTERNAL_DOMAIN}'
           - '${PROFESSIONAL_DOMAIN}'
+    - dns01:
+        webhook:
+          groupName: acmedns.${EXTERNAL_DOMAIN}
+          solverName: google-domains
+          config:
+            apiUrl: https://acmedns.googleapis.com/v1
+            domainName: ${EXTERNAL_DOMAIN}
+            secretName: cert-domain-tls-key-${SANITIZED_ORGANIZATION}
+            secretKeyName: api-key
+      selector:
+        dnsZones:
+          - '${EXTERNAL_DOMAIN}'
+          - '${INTERNAL_DOMAIN}'
+

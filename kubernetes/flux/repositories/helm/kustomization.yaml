@@ -10,6 +10,7 @@ resources:
   - bjw-s.yaml
   - cilium.yaml
   - cloudnative-pg.yaml
+  - dmahmalat.yaml
   - emqx.yaml
   - external-secrets.yaml
   - emberstack.yaml
