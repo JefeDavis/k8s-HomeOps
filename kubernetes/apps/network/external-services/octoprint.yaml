@@ -36,7 +36,7 @@ metadata:
   name: octoprint
   namespace: network
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-external
   rules:
   - host: octoprint.${EXTERNAL_DOMAIN}
     http:

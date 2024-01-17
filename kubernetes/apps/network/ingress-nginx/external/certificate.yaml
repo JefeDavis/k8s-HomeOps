@@ -1,0 +1,14 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "${SANITIZED_ORGANIZATION}-external"
+spec:
+  secretName: "${SANITIZED_ORGANIZATION}-tls-external"
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: "${EXTERNAL_DOMAIN}"
+  dnsNames:
+    - "${EXTERNAL_DOMAIN}"
+    - "*.${EXTERNAL_DOMAIN}"
