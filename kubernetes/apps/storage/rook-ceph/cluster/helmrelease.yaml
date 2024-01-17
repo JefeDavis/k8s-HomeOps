@@ -107,8 +107,8 @@ spec:
               - name: "/dev/nvme0n1"
 
     ingress:
-      ingressClassName: "nginx"
       dashboard:
+        ingressClassName: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           auth.home.arpa/enabled: "true"

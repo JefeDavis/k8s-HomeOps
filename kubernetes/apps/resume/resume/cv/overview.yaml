@@ -82,6 +82,7 @@ spec:
           - Splunk
   baseURL: "resume.${PROFESSIONAL_DOMAIN}"
   certIssuer: letsencrypt-prod
+  ingressClass: nginx-external
   pageTitle: "Jeff Davis - CV"
   pageCount: "2"
   web:

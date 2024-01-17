@@ -37,7 +37,7 @@ metadata:
   name: unifi
   namespace: network
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-external
   rules:
   - host: unifi.${EXTERNAL_DOMAIN}
     http:
