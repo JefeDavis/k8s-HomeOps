@@ -10,22 +10,11 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-staging-account-key
     solvers:
-    - http01:
-        ingress:
-          class: nginx-external
-      selector:
-        dnsZones:
-          - '${EXTERNAL_DOMAIN}'
-          - '${PROFESSIONAL_DOMAIN}'
     - dns01:
-        webhook:
-          groupName: acmedns.${EXTERNAL_DOMAIN}
-          solverName: google-domains
-          config:
-            apiUrl: https://acmedns.googleapis.com/v1
-            domainName: ${EXTERNAL_DOMAIN}
-            secretName: cert-domain-tls-key-${SANITIZED_ORGANIZATION}
-            secretKeyName: api-key
+        cloudflare:
+          apiTokenSecretRef:
+            name: cloudflare-api-token-secret
+            key: CF_API_TOKEN
       selector:
         dnsZones:
           - '${EXTERNAL_DOMAIN}'
@@ -42,22 +31,11 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-account-key
     solvers:
-    - http01:
-        ingress:
-          class: nginx-external
-      selector:
-        dnsZones:
-          - '${EXTERNAL_DOMAIN}'
-          - '${PROFESSIONAL_DOMAIN}'
     - dns01:
-        webhook:
-          groupName: acmedns.${EXTERNAL_DOMAIN}
-          solverName: google-domains
-          config:
-            apiUrl: https://acmedns.googleapis.com/v1
-            domainName: ${EXTERNAL_DOMAIN}
-            secretName: cert-domain-tls-key-${SANITIZED_ORGANIZATION}
-            secretKeyName: api-key
+        cloudflare:
+          apiTokenSecretRef:
+            name: cloudflare-api-token-secret
+            key: CF_API_TOKEN
       selector:
         dnsZones:
           - '${EXTERNAL_DOMAIN}'
