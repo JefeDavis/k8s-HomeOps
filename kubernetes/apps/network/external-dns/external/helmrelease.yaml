@@ -30,6 +30,7 @@ spec:
 
     podAnnotations:
       secret.reloader.stakater.com/reload: external-dns-external-secret
+      configmap.reloader.stakater.com/reload: dynamic-dns
 
     interval: 10s
     policy: sync
@@ -69,3 +70,5 @@ spec:
                 value:
                   - secretRef:
                       name: external-dns-external-secret
+                  - configMapRef:
+                      name: dynamic-dns
