@@ -59,3 +59,5 @@ spec:
     - name: cluster-apps-kube-prometheus-stack-crds
     - name: cluster-apps-external-dns-crds
     - name: cluster-apps-dynamic-dns
+    - name: cluster-apps-reflector
+    - name: cluster-apps-cert-manager
