@@ -2,8 +2,8 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: external-dns
-  namespace: external-dns
+  name: external-dns-internal
+  namespace: network
 spec:
   interval: 30m
   chart:
@@ -17,29 +17,40 @@ spec:
         namespace: flux-system
       interval: 30m
   values:
-    interval: 10s
-    sources:
-      - service
-      - ingress
-    policy: sync
-    registry: txt
-    txtPrefix: "jsdyb-kube-001-"
+    fullnameOverride: &name external-dns-internal
+
     domainFilters:
       - ${INTERNAL_DOMAIN}
+
+    sources:
+      - crd
+      - ingress
+      - service
+
+    podAnnotations:
+      secret.reloader.stakater.com/reload: external-dns-internal-secret
+
+    interval: 10s
+    policy: sync
+    registry: txt
+    txtPrefix: "${CLUSTER_NAME}-"
     provider: rfc2136
 
     extraArgs:
+      - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+      - --crd-source-kind=DNSEndpoint
       - --rfc2136-host=${SYNOLOGY_ADDR}
       - --rfc2136-port=53
       - --rfc2136-zone=${INTERNAL_DOMAIN}
       - --rfc2136-tsig-axfr
+      - --ingress-class=nginx-internal
 
     resources:
       requests:
-        cpu: 5m
-        memory: 49M
+        cpu: 13m
+        memory: 42M
       limits:
-        memory: 49M
+        memory: 42M
 
     serviceMonitor:
       enabled: true
@@ -49,10 +60,10 @@ spec:
           - target:
               version: v1
               kind: Deployment
-              name: external-dns
+              name: external-dns-internal
             patch: |
               - op: add
                 path: /spec/template/spec/containers/0/envFrom
                 value:
                   - secretRef:
-                      name: external-dns-secret
+                      name: external-dns-internal-secret

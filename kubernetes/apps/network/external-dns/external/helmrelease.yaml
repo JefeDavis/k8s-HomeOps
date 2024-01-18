@@ -1,0 +1,71 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: external-dns-external
+  namespace: network
+spec:
+  interval: 30m
+  chart:
+    spec:
+      # renovate: registryUrl=https://kubernetes-sigs.github.io/external-dns/
+      chart: external-dns
+      version: 1.14.1
+      sourceRef:
+        kind: HelmRepository
+        name: kubernetes-sigs-external-dns
+        namespace: flux-system
+      interval: 30m
+  values:
+    fullnameOverride: &name external-dns-external
+
+    domainFilters:
+      - ${EXTERNAL_DOMAIN}
+      - ${PROFESSIONAL_DOMAIN}
+
+    sources:
+      - crd
+      - ingress
+      - service
+
+    podAnnotations:
+      secret.reloader.stakater.com/reload: external-dns-external-secret
+
+    interval: 10s
+    policy: sync
+    registry: txt
+    txtPrefix: "${CLUSTER_NAME}-"
+    provider: cloudflare
+
+    extraArgs:
+      - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+      - --crd-source-kind=DNSEndpoint
+      - --cloudflare-proxied
+      - --ingress-class=nginx-external
+      - --exclude-target-net=10.0.0.0/8
+      - --exclude-target-net=172.16.0.0/12
+      - --exclude-target-net=192.168.0.0/16
+      - --exclude-domains=${INTERNAL_DOMAIN}
+
+    resources:
+      requests:
+        cpu: 13m
+        memory: 84M
+      limits:
+        memory: 84M
+
+    serviceMonitor:
+      enabled: true
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              version: v1
+              kind: Deployment
+              name: external-dns-external
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/envFrom
+                value:
+                  - secretRef:
+                      name: external-dns-external-secret
