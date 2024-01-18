@@ -58,3 +58,4 @@ spec:
   dependsOn:
     - name: cluster-apps-kube-prometheus-stack-crds
     - name: cluster-apps-external-dns-crds
+    - name: cluster-apps-dynamic-dns
