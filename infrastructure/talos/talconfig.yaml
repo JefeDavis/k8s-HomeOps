@@ -51,6 +51,11 @@ nodes:
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
+          - vlanId: 70
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 8192
     nodeLabels: &controlPlaneLabels
       plan.upgrade.cattle.io/talos: ""
       topology.kubernetes.io/region: jsdyb
