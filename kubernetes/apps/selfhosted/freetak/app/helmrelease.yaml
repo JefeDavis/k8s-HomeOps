@@ -1,0 +1,117 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: freetak
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.4.0
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            enabled: false
+          backend:
+            image:
+              repository: ghcr.io/freetakteam/freetakserver
+              tag: latest
+            env:
+              - name: FTS_FIRST_START
+                value: "false"
+          frontend:
+            image:
+              repository: ghcr.io/freetakteam/ui
+              tag: latest
+
+        pod:
+          securityContext:
+            fsGroup: 568
+
+    service:
+      main:
+        type: LoadBalancer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: freetak-server.${INTERNAL_DOMAIN}
+          io.cilium/lb-ipam-ips: 192.168.77.82
+        ports:
+          http:
+            port: 8080
+          cot:
+            port: 8087
+          sslcot:
+            port: 8089
+          ssldata:
+            port: 8443
+          api:
+            port: 19023
+          ui:
+            port: 5000
+          map:
+            port: 1880
+
+    ingress:
+      main:
+        enabled: true
+        className: nginx-internal
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+        hosts:
+          - host: &hostname freetak.${INTERNAL_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: ui
+        tls:
+          - hosts:
+              - *hostname
+            secretName: freetak-tls-internal
+
+    persistence:
+      backend-data:
+        enabled: true
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: ceph-block
+        advancedMounts:
+          main:
+            backend:
+              - path: /opt/fts
+      backend-config:
+        enabled: true
+        type: configMap
+        name: freetak-backend-config
+        defaultMode: 0644
+        advancedMounts:
+          main:
+            backend:
+              - path: /opt/fts/FTSConfig.yaml
+                subPath: FTSConfig.yaml
+      frontend-data:
+        enabled: true
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: ceph-block
+        advancedMounts:
+          main:
+            frontend:
+              - path: /home/freetak/data
+      frontend-config:
+        enabled: true
+        type: configMap
+        name: freetak-frontend-config
+        advancedMounts:
+          main:
+            frontend:
+              - path: /home/freetak/data/config.py
+                subPath: config.py
