@@ -4,3 +4,12 @@ kind: Kustomization
 namespace: home
 resources:
 - ./helmrelease.yaml
+
+configMapGenerator:
+- name: openwakeword-config
+  namespace: home
+  files:
+  - hey_piper.tflite
+
+generatorOptions:
+  disableNameSuffixHash: true
