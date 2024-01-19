@@ -88,8 +88,8 @@ spec:
             args:
               - --preload-model
               - 'ok_nabu'
-              # - --custom-model-dir
-              # - /custom
+              - --custom-model-dir
+              - /custom
             env:
               TZ: "America/Chicago"
 
@@ -125,13 +125,13 @@ spec:
           http:
             port: 10400
 
-    # persistence:
-    #   openwakeword-config:
-    #     enabled: true
-    #     type: configMap
-    #     name: openwakeword
-    #     advancedMounts:
-    #       openwakeword:
-    #         main:
-    #           - path: /custom
-    #             readOnly: true
+    persistence:
+      openwakeword-config:
+        enabled: true
+        type: configMap
+        name: openwakeword-config
+        advancedMounts:
+          openwakeword:
+            main:
+              - path: /custom
+                readOnly: true
