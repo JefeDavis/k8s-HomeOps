@@ -40,9 +40,10 @@ spec:
         [{
           "name":"iot-vlan",
           "namespace": "network",
-          "ips": ["10.0.90.4/24"]
+          "ips": ["10.0.90.42/24"],
+          "mac": "de:41:11:c5:8b:eb",
+          "gateway": "10.0.90.1"
         }]
-
     env:
       TZ: "America/New York"
       HASS_POSTGRES_USER:
