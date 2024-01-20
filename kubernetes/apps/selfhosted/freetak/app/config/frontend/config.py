@@ -28,25 +28,25 @@ class Config(object):
     # keyfilepath = f"{certpath}pubserver.key.unencrypted"
 
     # this IP will be used to connect with the FTS API
-    IP = '192.168.77.82'
+    IP = 'freetak-api.internal.davishaus.dev'
 
     # Port the UI uses to communicate with the API
-    PORT = '19023'
+    PORT = '443'
 
     # Protocol the UI uses to communicate with the API
-    PROTOCOL = 'http'
+    PROTOCOL = 'https'
 
     # the public IP your server is exposing
     APPIP = '0.0.0.0'
 
     # webmap IP
-    WEBMAPIP = '192.168.77.82'
+    WEBMAPIP = 'node-red.internal.davishaus.dev'
 
     # webmap port
-    WEBMAPPORT = 1880
+    WEBMAPPORT = 443
 
     # webmap protocol
-    WEBMAPPROTOCOL = 'http'
+    WEBMAPPROTOCOL = 'https'
 
     # this port will be used to listen
     APPPort = 5000

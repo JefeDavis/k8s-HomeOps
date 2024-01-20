@@ -72,10 +72,33 @@ spec:
                 service:
                   name: main
                   port: ui
+          - host: &hostname-api freetak-api.${INTERNAL_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: api
         tls:
           - hosts:
               - *hostname
+              - *hostname-api
             secretName: freetak-tls-internal
+      external:
+        enabled: true
+        className: nginx-external
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+        hosts:
+          - host: &hostname-pub freetak-pub.${EXTERNAL_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: cot
+        tls:
+          - hosts:
+              - *hostname-pub
+            secretName: freetak-tls-external
 
     persistence:
       backend-data:
