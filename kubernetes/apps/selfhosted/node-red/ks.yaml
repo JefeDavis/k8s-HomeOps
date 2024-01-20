@@ -1,0 +1,31 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-node-red
+  namespace: flux-system
+spec:
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: &appname node-red
+  interval: 10m
+  path: "./kubernetes/apps/selfhosted/node-red/app"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-home-ops
+  wait: true
+  postBuild:
+    substitute:
+      APP: *appname
+      HOSTNAME: node-red.${INTERNAL_DOMAIN}
+      APP_UID: "1000"
+      APP_GID: "1000"
+      VOLSYNC_CLAIM: node-red-data
+    substituteFrom:
+      - kind: Secret
+        name: flux-volsync-secret
+  dependsOn:
+    - name: cluster-apps-rook-ceph-cluster
+    - name: cluster-apps-volsync
+ 
