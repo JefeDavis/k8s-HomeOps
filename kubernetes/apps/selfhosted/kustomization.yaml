@@ -5,7 +5,8 @@ resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
   # Flux-Kustomizations
-  - ./hajimari/ks.yaml
-  - ./theme-park/ks.yaml
   - ./freetak/ks.yaml
+  - ./hajimari/ks.yaml
+  - ./node-red/ks.yaml
+  - ./theme-park/ks.yaml
 
