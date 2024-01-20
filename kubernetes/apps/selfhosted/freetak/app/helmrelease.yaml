@@ -76,9 +76,16 @@ spec:
                 service:
                   name: main
                   port: ui
+          - host: &hostname-api freetak-api.${INTERNAL_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: api
         tls:
           - hosts:
               - *hostname
+              - *hostname-api
             secretName: freetak-tls-internal
 
     persistence:
