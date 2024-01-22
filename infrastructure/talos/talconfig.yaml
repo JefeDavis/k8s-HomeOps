@@ -154,6 +154,13 @@ controlPlane:
                   enable_unprivileged_ports = true
                   enable_unprivileged_icmp = true
 
+          - op: create
+            path: /var/etc/nut/upsmon.conf
+            permissions: 0o600
+            content: |-
+              MONITOR ${NUT_SERVER} 1 monuser ${NUT_PASSWORD} slave
+              SHUTDOWNCMD "/sbin/poweroff"
+
         kubelet:
           extraArgs:
             feature-gates: GracefulNodeShutdown=true,NewVolumeManagerReconstruction=false

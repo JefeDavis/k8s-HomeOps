@@ -5,6 +5,8 @@ INTERNAL_DOMAIN: ENC[AES256_GCM,data:Sx8GV6EJ4ZMtUnKBH+oEVwM+E+a2Iw==,iv:D1RUgGB
 EXTERNAL_DOMAIN: ENC[AES256_GCM,data:KS0HS1FUch9e9UDqBA==,iv:qdd4FITUQhzQ8d4bXje2Q7gPk28QzEfGH08lm5vxoyw=,tag:gfnIBli7avR/pnDjpInhLQ==,type:str]
 DNS_SERVER: ENC[AES256_GCM,data:nDbA2mUW2h4j,iv:eln/4xgJXMOelovuPwVabpIdQdrnS9ufJN/LwEN0Ars=,tag:ce+x4tLcSpxowgwmXQvsRQ==,type:str]
 NTP_SERVER: ENC[AES256_GCM,data:nkaxL5fC/bR7,iv:irfkXvGCWnq20c+8826T6dipktHcupZ7OgRhL8WGZyU=,tag:W6bGBIFebGOEL84bjydzUQ==,type:str]
+NUT_SERVER: ENC[AES256_GCM,data:2slXMika5zHg,iv:29ZeZilewfz9DQXokYBcd1OVxT7Z9pmmtL+ZuNyLZlE=,tag:X1E1xOQ6vnVOjqdd25SnOw==,type:str]
+NUT_PASSWORD: ENC[AES256_GCM,data:7Ia3YVAn,iv:IGGWtamvNfamF589RQFtDxDX6BP0JRbyHUT5TEOq4Xk=,tag:/mIEDgpUME9pYpOjJ7HeDQ==,type:str]
 sops:
     kms: []
     gcp_kms:
@@ -23,8 +25,8 @@ sops:
             ZzJNNDhYS1R4UkVoRDVQcUk3d216Q3cKS4FyO3sOuVW9LHf2XAjSYATUthzdxUfp
             +q9K5MCdNrqcLYQ55kjnaHJWkmhoIHRwAZ0ehsFm9HN0MJ/X/D+60g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2023-06-12T20:18:12Z"
-    mac: ENC[AES256_GCM,data:yG2Jc9PQkRLi/I+XUjsQYlyIjcujAc+Dh3LXeZGfdAFTBACpxiZmU9JghHnLHl9E30vp5vpfS8mO9byWa92ItMXIYIY/BbEkaX4T3ubITD6EaFkTTPcTHHcp+ocMOxB3RFmphC/eGEgMFKNaWT3vKrJAeRJNSwkt9FpJ2Xo5NPs=,iv:8VqeWDEdFgWdu+TxtaPh5gMEkdpk73JGrbjF2yM/KFY=,tag:6CsGlX5n4Scm8Fc+W/RxKA==,type:str]
+    lastmodified: "2024-01-21T08:05:22Z"
+    mac: ENC[AES256_GCM,data:XQ2AgEzzmda5H7lb92EsIGBo4uznWQgV5bESEyRdx7ieomrAHurPfkO8DPM6uR6EwNyG7dfuSwrZ/+jpchy7APp3NoUogX6SE4YuvFxmWhWGB7Yjaj8MjMBLOPqEeEGPeZKNi9Csv7DC5g2VOdW+n+XQNM/OPtPJ4Lmwd0Grrd4=,iv:AjIiTt2sK/IE5xTRNxVRf9eOkPTGPQLo6S44fLa8Ztc=,tag:KeK8OhQOsHVt3UUU2gB7Ng==,type:str]
     pgp: []
     unencrypted_suffix: _unencrypted
-    version: 3.7.3
+    version: 3.8.1
