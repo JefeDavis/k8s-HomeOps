@@ -4,7 +4,7 @@ clusterName: ${CLUSTER_NAME}
 # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
 talosVersion: v1.6.2
 # renovate: datasource=github-releases extractVersion=^v(?<version>.*)$ depName=kubernetes/kubernetes
-kubernetesVersion: 1.29.0
+kubernetesVersion: 1.29.1
 
 endpoint: "https://${CLUSTER_NAME}.${INTERNAL_DOMAIN}:6443"
 
