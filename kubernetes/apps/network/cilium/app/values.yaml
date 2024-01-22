@@ -3,6 +3,8 @@ autoDirectNodeRoutes: true
 
 bgpControlPlane:
   enabled: true
+  secretsNamespace:
+    name: network
 
 bandwidthManager:
   enabled: true
