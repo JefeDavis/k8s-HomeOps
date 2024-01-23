@@ -1,0 +1,184 @@
+---
+clusterName: ${CLUSTER_NAME}
+
+# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+talosVersion: v1.6.2
+# renovate: datasource=github-releases extractVersion=^v(?<version>.*)$ depName=kubernetes/kubernetes
+kubernetesVersion: 1.29.1
+
+endpoint: "https://${CLUSTER_NAME}.${INTERNAL_DOMAIN}:6443"
+
+allowSchedulingOnMasters: true
+allowSchedulingOnControlPlane: true
+
+clusterPodNets:
+  - 172.22.0.0/16
+clusterSvcNets:
+  - 172.23.0.0/16
+
+cniConfig:
+  name: none
+
+additionalApiServerCertSans: &san
+  - ${CLUSTER_ENDPOINT_IP}
+  - ${CLUSTER_NAME}.${INTERNAL_DOMAIN}
+  - ${EXTERNAL_CLUSTER_NAME}.${EXTERNAL_DOMAIN}
+  - "127.0.0.1" # KubePrism
+additionalMachineCertSans: *san
+
+nodes:
+  # intel nuc panther canyon / i7 / 256GB / 1TB SSD / 2TB Nvme
+  - hostname: jsdyb-nuc-001.${INTERNAL_DOMAIN}
+    controlPlane: true
+    ipAddress: 10.77.0.11
+    installDisk: /dev/sda
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        dhcp: false
+        vlans:
+          - vlanId: 770
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 1024
+            vip:
+              ip: ${CLUSTER_ENDPOINT_IP}
+          - vlanId: 90
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 4096
+          - vlanId: 70
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 8192
+    nodeLabels: &controlPlaneLabels
+      topology.kubernetes.io/region: jsdyb
+      topology.kubernetes.io/zone: jsdyb-u
+
+  # intel nuc panther canyon / i7 / 256GB / 1TB SSD / 2TB Nvme
+  - hostname: jsdyb-nuc-002.${INTERNAL_DOMAIN}
+    controlPlane: true
+    ipAddress: 10.77.0.12
+    installDisk: /dev/sda
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        dhcp: false
+        vlans:
+          - vlanId: 770
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 1024
+            vip:
+              ip: ${CLUSTER_ENDPOINT_IP}
+          - vlanId: 90
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 4096
+    nodeLabels: *controlPlaneLabels
+
+  # intel nuc panther canyon / i7 / 256GB / 1TB SSD / 2TB Nvme
+  - hostname: jsdyb-nuc-003.${INTERNAL_DOMAIN}
+    controlPlane: true
+    ipAddress: 10.77.0.13
+    installDisk: /dev/sda
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        dhcp: false
+        vlans:
+          - vlanId: 770
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 1024
+            vip:
+              ip: ${CLUSTER_ENDPOINT_IP}
+          - vlanId: 90
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 4096
+    nodeLabels: *controlPlaneLabels
+
+controlPlane:
+  schematic:
+    customization:
+      extraKernelArgs:
+        - net.ifnames=0
+      systemExtensions:
+        officialExtensions:
+          - siderolabs/i915-ucode
+          - siderolabs/intel-ucode
+          - siderolabs/iscsi-tools
+          - siderolabs/nut-client
+  patches:
+    - |-
+      cluster:
+        proxy:
+          disabled: true
+        etcd:
+          advertisedSubnets:
+            - 10.77.0.0/24
+    - |-
+      - op: remove
+        path: /cluster/apiServer/admissionControl
+
+    - |-
+      machine:
+        features:
+          kubernetesTalosAPIAccess:
+            enabled: true
+            allowedRoles:
+              - os:admin
+            allowedKubernetesNamespaces:
+              - system
+          kubePrism:
+            enabled: true
+            port: 7445
+
+        files:
+          - op: create
+            path: /etc/cri/conf.d/20-customization.part
+            content: |
+              [plugins]
+                [plugins."io.containerd.grpc.v1.cri"]
+                  enable_unprivileged_ports = true
+                  enable_unprivileged_icmp = true
+
+          - op: create
+            path: /var/etc/nut/upsmon.conf
+            permissions: 0o600
+            content: |-
+              MONITOR ${NUT_SERVER} 1 monuser ${NUT_PASSWORD} slave
+              SHUTDOWNCMD "/sbin/poweroff"
+
+        kubelet:
+          extraArgs:
+            feature-gates: GracefulNodeShutdown=true,NewVolumeManagerReconstruction=false
+            rotate-server-certificates: "true"
+          extraConfig:
+            maxPods: 250
+          nodeIP:
+            validSubnets:
+              - 10.77.0.0/24
+
+        network:
+          extraHostEntries:
+            - ip: ${CLUSTER_ENDPOINT_IP}
+              aliases:
+                - ${CLUSTER_NAME}.${INTERNAL_DOMAIN}
+
+        sysctls:
+          fs.inotify.max_user_watches: "1048576"
+          fs.inotify.max_user_instances: "8192"
+
+        time:
+          disabled: false
+          servers:
+            - ${NTP_SERVER}
