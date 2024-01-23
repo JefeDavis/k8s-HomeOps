@@ -27,25 +27,37 @@ The way Flux works for me here is it will recursively search the [kubernetes/app
 This Git repository contains the following directories under [kubernetes](./kubernetes/).
 
 ```sh
-📁 kubernetes      # Kubernetes cluster defined as code
-├─📁 bootstrap     # Flux installation
-├─📁 flux          # Main Flux configuration of repository
-└─📁 apps          # Apps deployed into my cluster grouped by namespace (see below)
+📁 k8s-home-ops
+├── 📁 kubernetes                 # kubernetes configurations
+│   ├── 📁 apps                   # applications
+│   │   └─ 📁 network             # namespace folder
+│   │      └─ 📁 cert-manager     # application folder
+│   ├── 📁 bootstrap              # bootstrap procedures
+│   ├── 📁 flux                   # core flux configuration
+│   └── 📁 templates              # re-useable components
+└── 📁 infrastructure             # infrastructure configuration
 ```
 
 ### Cluster layout
 
-Below is a a high level look at the layout of how my directory structure with Flux works. In this brief example you are able to see that `authentik` will not be able to run until `cloudnative-pg` is running. 
+Below is a a high level look at the layout of how my directory structure with Flux works. In this brief example you are able to see that `authentik` will not be able to run until `cloudnative-pg` is ready, which itself requires `rook-ceph-cluster` to be ready
 
-```python
-# Key: <kind> :: <metadata.name>
-GitRepository :: k8s-home-ops
-    Kustomization :: cluster
-        Kustomization :: cluster-apps
-            Kustomization :: cluster-apps-authentik
-                DependsOn:
-                    Kustomization :: cluster-apps-cloudnative-pg
-                HelmRelease :: authentik
-            Kustomization :: cluster-apps-cloudnative-pg
-                HelmRelease :: cloudnative-pg
+```mermaid
+flowchart TD
+  id01>Kustomization: cluster] ==>|Creates| id02>Kustomization: cluster-apps]
+  id02 ==>|Creates| id06>Kustomization: cluster-apps-rook-ceph]
+  id02 ==>|Creates| id07>Kustomization: cluster-apps-rook-ceph-cluster]
+  id02 ==>|Creates| id08>Kustomization: cluster-apps-cloudnative-pg]
+  id02 ==>|Creates| id09>Kustomization: cluster-apps-authentik-database]
+  id02 ==>|Creates| id10>Kustomization: cluster-apps-authentik]
+  id06 ==>|Creates| id11(HelmRelease: rook-ceph-operator)
+  id07 -.->|Depends on| id06
+  id07 ==>|Creates| id12(HelmRelease: rook-ceph-cluster)
+  id08 -.->|Depends on| id07
+  id08 ==>|Creates| id13(HelmRelease: cloudnative-pg)
+  id09 -.->|Depends on| id08
+  id09 ==>|Creates| id14[PGCluster: pg-authentik]
+  id10 -.->|Depends on| id09
+  id10 ==>|Creates| id15(HelmRelease: authentik)
 ```
+
