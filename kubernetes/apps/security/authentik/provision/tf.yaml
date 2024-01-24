@@ -72,9 +72,6 @@ spec:
         Radarr:
           url: https://radarr.${EXTERNAL_DOMAIN}
           group: Media
-        Rook:
-          url: https://rook.${EXTERNAL_DOMAIN}
-          group: Storage
         Sonarr:
           url: https://sonarr.${EXTERNAL_DOMAIN}
           group: Media
