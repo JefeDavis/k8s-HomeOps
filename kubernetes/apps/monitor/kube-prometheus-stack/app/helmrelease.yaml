@@ -243,7 +243,7 @@ spec:
           # - job_name: minio
           #   metrics_path: /minio/v2/metrics/cluster
           #   static_configs:
-          #     - targets: ["minio.${INTERNAL_DOMAIN}:9000"]
+          #     - targets: ["minio.network.svc.cluster.local:9000"]
         enableAdminAPI: true
         # Breaks metrics that have cluster label due to conflict with cnpg
         # externalLabels:
