@@ -108,7 +108,7 @@ spec:
           redirect_uris: 
             - https://grafana.${EXTERNAL_DOMAIN}/login/generic_oauth
         Node-Red:
-          url: https://grafana.${EXTERNAL_DOMAIN}
+          url: https://node-red.${EXTERNAL_DOMAIN}
           group: SelfHosted
           client_id: nodered
           client_secret: ${NODE_RED_OAUTH_CLIENT_SECRET}
