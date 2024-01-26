@@ -1,10 +1,12 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+
 resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
   # Flux-Kustomizations
   - ./actions-runner/ks.yaml
   - ./kubernetes-schemas/ks.yaml
+  - ./pulumi-kubernetes-operator/ks.yaml
 

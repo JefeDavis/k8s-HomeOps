@@ -32,6 +32,7 @@ resources:
   - piraeus.yaml
   - postfinance.yaml
   - prometheus-community.yaml
+  - pulumi.yaml
   - rook-ceph.yaml
   - stakater.yaml
   - synology-csi.yaml
