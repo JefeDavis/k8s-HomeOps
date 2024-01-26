@@ -4,7 +4,7 @@ kind: Plan
 metadata:
   name: talos
 spec:
-  # renovate: datasource=docker depName=ghcr.io/buroa/installer
+  # renovate: depName=ghcr.io/siderolabs/installer datasource=docker extractVersion=^(?<version>.*)$
   version: v1.6.2
   serviceAccountName: system-upgrade
   secrets:
@@ -26,6 +26,14 @@ spec:
         valueFrom:
           fieldRef:
             fieldPath: status.hostIP
+      - name: SCHEMATIC_PREFIX
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.labels['factory.talos.dev/schematic-prefix']
+      - name: SCHEMATIC_SUFFIX
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.labels['factory.talos.dev/schematic-suffix']
     args:
       - --nodes=$(NODE_IP)
       - health
@@ -35,6 +43,6 @@ spec:
     args:
       - --nodes=$(NODE_IP)
       - upgrade
-      - --image=factory.talos.dev/installer/373392515ac3890a73d3b1f6cf23d4b96e20aef2dd5b42cb00bd73de1b0e07ff:$(SYSTEM_UPGRADE_PLAN_LATEST_VERSION)
+      - --image=factory.talos.dev/installer/$(SCHEMATIC_PREFIX)$(SCHEMATIC_SUFFIX):$(SYSTEM_UPGRADE_PLAN_LATEST_VERSION)
       - --preserve=true
       - --wait=false

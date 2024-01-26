@@ -16,6 +16,8 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 5m
+  dependsOn:
+    - name: cluster-apps-kyverno
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
