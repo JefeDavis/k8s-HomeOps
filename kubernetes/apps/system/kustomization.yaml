@@ -7,7 +7,6 @@ resources:
   # Flux-Kustomizations
   - ./descheduler/ks.yaml
   - ./intel-device-plugins/ks.yaml
-  - ./kured/ks.yaml
   - ./kubelet-csr-approver/ks.yaml
   - ./node-feature-discovery/ks.yaml
   - ./reloader/ks.yaml
