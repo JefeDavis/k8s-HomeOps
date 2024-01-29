@@ -18,12 +18,16 @@
       "labels": ["type/digest"]
     },
     {
+      "matchDatasources": ["helm"],
+      "addLabels": ["renovate/helm"]
+    },
+    {
       "matchDatasources": ["docker"],
       "addLabels": ["renovate/container"]
     },
     {
-      "matchDatasources": ["helm"],
-      "addLabels": ["renovate/helm"]
+      "matchDatasources": ["galaxy", "galaxy-collection"],
+      "addLabels": ["renovate/ansible"]
     },
     {
       "matchDatasources": ["terraform-provider"],
@@ -36,10 +40,6 @@
     {
       "matchManagers": ["github-actions"],
       "addLabels": ["renovate/github-action"]
-    },
-    {
-      "matchDatasources": ["grafana-dashboards", "custom.grafana-dashboards"],
-      "addLabels": ["renovate/grafana-dashboard"]
     }
   ]
 }

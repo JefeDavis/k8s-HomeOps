@@ -1,97 +1,49 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [":semanticCommits"],
   "packageRules": [
     {
-      "matchDatasources": ["docker"],
       "matchUpdateTypes": ["major"],
-      "commitMessagePrefix": "feat(container)!: "
+      "semanticCommitType": "feat",
+      "commitMessagePrefix": "{{semanticCommitType}}({{semanticCommitScope}})!:",
+      "commitMessageExtra": "( {{currentVersion}} → {{newVersion}} )"
     },
     {
-      "matchDatasources": ["docker"],
       "matchUpdateTypes": ["minor"],
       "semanticCommitType": "feat",
-      "semanticCommitScope": "container"
+      "commitMessageExtra": "( {{currentVersion}} → {{newVersion}} )"
     },
     {
-      "matchDatasources": ["docker"],
       "matchUpdateTypes": ["patch"],
       "semanticCommitType": "fix",
-      "semanticCommitScope": "container"
+      "commitMessageExtra": "( {{currentVersion}} → {{newVersion}} )"
     },
     {
-      "matchDatasources": ["docker"],
       "matchUpdateTypes": ["digest"],
       "semanticCommitType": "chore",
+      "commitMessageExtra": "( {{currentDigestShort}} → {{newDigestShort}} )"
+    },
+    {
+      "matchDatasources": ["docker"],
       "semanticCommitScope": "container"
     },
     {
       "matchDatasources": ["helm"],
-      "matchUpdateTypes": ["major"],
-      "commitMessagePrefix": "feat(helm)!: "
-    },
-    {
-      "matchDatasources": ["helm"],
-      "matchUpdateTypes": ["minor"],
-      "semanticCommitType": "feat",
-      "semanticCommitScope": "helm"
-    },
-
-    {
-      "matchDatasources": ["helm"],
-      "matchUpdateTypes": ["patch"],
-      "semanticCommitType": "fix",
       "semanticCommitScope": "helm"
     },
     {
       "matchDatasources": ["terraform-provider"],
-      "matchUpdateTypes": ["major"],
-      "commitMessagePrefix": "feat(terraform)!: "
-    },
-    {
-      "matchDatasources": ["terraform-provider"],
-      "matchUpdateTypes": ["minor"],
-      "semanticCommitType": "feat",
       "semanticCommitScope": "terraform"
     },
     {
-      "matchDatasources": ["terraform-provider"],
-      "matchUpdateTypes": ["patch"],
-      "semanticCommitType": "fix",
-      "semanticCommitScope": "terraform"
-    },
-    {
-      "matchDatasources": ["github-releases", "github-tags"],
-      "matchUpdateTypes": ["major"],
-      "commitMessagePrefix": "feat(github-release)!: "
-    },
-    {
-      "matchDatasources": ["github-releases", "github-tags"],
-      "matchUpdateTypes": ["minor"],
-      "semanticCommitType": "feat",
-      "semanticCommitScope": "github-release"
-    },
-    {
-      "matchDatasources": ["github-releases", "github-tags"],
-      "matchUpdateTypes": ["patch"],
-      "semanticCommitType": "fix",
-      "semanticCommitScope": "github-release"
+      "matchDatasources": ["galaxy", "galaxy-collection"],
+      "semanticCommitScope": "ansible"
     },
     {
       "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["major"],
-      "commitMessagePrefix": "feat(github-action)!: "
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor"],
-      "semanticCommitType": "feat",
-      "semanticCommitScope": "github-action"
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["patch"],
-      "semanticCommitType": "fix",
+      "semanticCommitType": "ci",
       "semanticCommitScope": "github-action"
     }
   ]
 }
+
