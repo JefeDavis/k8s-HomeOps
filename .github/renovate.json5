@@ -15,7 +15,6 @@
     "github>jefedavis/k8s-homeops//.github/renovate/grafanaDashboards.json5",
   ],
   "timezone": "America/New_York",
-  "platform": "github",
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
   "suppressNotifications": ["prIgnoreNotification"],
   "commitBodyTable": true,
