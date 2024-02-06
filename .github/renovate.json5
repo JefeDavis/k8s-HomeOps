@@ -5,7 +5,7 @@
     ":dependencyDashboard",
     ":disableRateLimiting",
     "docker:enableMajor",
-    ":gitSignOff"
+    ":gitSignOff",
     "github>jefedavis/k8s-homeops//.github/renovate/autoMerge.json5",
     "github>jefedavis/k8s-homeops//.github/renovate/allowedVersions.json5",
     "github>jefedavis/k8s-homeops//.github/renovate/commitMessage.json5",
