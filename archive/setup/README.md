@@ -48,8 +48,3 @@ To apply new additions or updates to vault, run [bootstrap-vault.sh](bootstrap-v
 ```shell
 ./bootstrap-vault.sh
 ```
-
-### backup & restore
-
-`velero` is used as the backup mechanism.  However, as an alternative for situations where it is, unfortunately, necessary to backup & restore a persistent volume (e.g. completely removing a chart that leverages a persistent volume), the [`backup.sh`](backup.sh) and [`restore.sh`](restore.sh) scripts may be used.  Examine to scripts to learn more.
-
