@@ -32,3 +32,7 @@ spec:
         INHERITED_ANNOTATIONS: kyverno.io/ignore
     monitoring:
       podMonitorEnabled: true
+      grafanaDashboard:
+        create: true
+        sidecarName: grafana.io/dashboard
+        sidecarLabelValue: "true"
