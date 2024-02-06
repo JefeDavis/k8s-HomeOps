@@ -18,7 +18,7 @@
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
   "suppressNotifications": ["prIgnoreNotification"],
   "commitBodyTable": true,
-  "commitBody": "Signed-off-by: klabautermann-bot <339814+klabautermann-bot[bot]@users.noreply.github.com>",
+  "commitBody": "Signed-off-by: klabautermann-bot <339814+klabautermann-bot@users.noreply.github.com>",
   "rebaseWhen": "conflicted",
   "platformCommit": true,
   ignorePaths: ["^.archive/**"],
