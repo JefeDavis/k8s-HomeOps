@@ -9,7 +9,7 @@ kubernetesVersion: 1.29.1
 endpoint: "https://${CLUSTER_NAME}.${INTERNAL_DOMAIN}:6443"
 
 allowSchedulingOnMasters: true
-allowSchedulingOnControlPlane: true
+allowSchedulingOnControlPlanes: true
 
 clusterPodNets:
   - 172.22.0.0/16
