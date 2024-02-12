@@ -82,5 +82,5 @@ securityContext:
       - SYS_ADMIN
       - SYS_RESOURCE
 
-tunnel: "disabled"
+routingMode: native
 
