@@ -93,7 +93,7 @@ spec:
           skip_path_regex: |
             ^/j/
             ^/join
-            ^/setup/*
+            ^/help
             ^/static/
         Zigbee2Mqtt:
           url: https://zigbee2mqtt.${EXTERNAL_DOMAIN}
