@@ -26,11 +26,12 @@ resource "prowlarr_application_radarr" "radarr" {
 }
 
 resource "prowlarr_application_sonarr" "sonarr" {
-  name            = "Sonarr"
-  sync_level      = "fullSync"
-  base_url        = var.sonarr_url
-  prowlarr_url    = var.prowlarr_url
-  api_key         = var.SONARR_API_KEY
-  sync_categories = [5000, 5010, 5020, 5030, 5040, 5045, 5050]
+  name                  = "Sonarr"
+  sync_level            = "fullSync"
+  base_url              = var.sonarr_url
+  prowlarr_url          = var.prowlarr_url
+  api_key               = var.SONARR_API_KEY
+  sync_categories       = [5000, 5010, 5020, 5030, 5040, 5045, 5050]
+  anime_sync_categories = [5070]
 }
 
