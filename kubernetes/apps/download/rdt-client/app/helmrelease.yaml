@@ -23,7 +23,7 @@ spec:
 
     image:
       repository: rogerfar/rdtclient 
-      tag: 2.0.61
+      tag: 2.0.62
 
     podAnnotations:
       vpn.home.arpa/enabled: "true"
