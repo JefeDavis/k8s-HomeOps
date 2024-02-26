@@ -18,7 +18,7 @@ spec:
   postBuild:
     substitute:
       APP: *appname
-      HOSTNAME: node-red.${INTERNAL_DOMAIN}
+      HOSTNAME: node-red.${EXTERNAL_DOMAIN}
       APP_UID: "1000"
       APP_GID: "1000"
       VOLSYNC_CLAIM: node-red-data

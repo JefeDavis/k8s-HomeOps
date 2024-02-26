@@ -46,6 +46,8 @@ spec:
                 value: 443
               - name: FTS_MAP_PROTO
                 value: https
+              - name: FTS_MAP_EXPOSED_IP
+                value: node-red.davishaus.dev
               - name: FTS_UI_EXPOSED_IP
                 value: 0.0.0.0
               - name: FTS_UI_SQLALCHEMY_DATABASE_URI

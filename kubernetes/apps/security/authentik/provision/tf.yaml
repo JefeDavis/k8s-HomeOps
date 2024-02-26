@@ -113,7 +113,7 @@ spec:
           client_id: nodered
           client_secret: ${NODE_RED_OAUTH_CLIENT_SECRET}
           redirect_uris: 
-            - https://node-red.${INTERNAL_DOMAIN}/auth/strategy/callback
+            - https://node-red.${EXTERNAL_DOMAIN}/auth/strategy/callback
     - name: groups
       value:
         ${ORGANIZATION}-Admins:
