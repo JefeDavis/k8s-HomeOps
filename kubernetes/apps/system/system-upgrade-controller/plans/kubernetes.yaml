@@ -18,7 +18,7 @@ spec:
       - key: node-role.kubernetes.io/control-plane
         operator: Exists
   prepare: &prepare
-    image: ghcr.io/siderolabs/talosctl:v1.6.6
+    image: ghcr.io/siderolabs/talosctl:v1.6.7
     envs:
       - name: NODE_IP
         valueFrom:
