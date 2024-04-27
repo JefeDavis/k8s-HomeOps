@@ -4,7 +4,7 @@ data "authentik_tenant" "authentik-default" {
 
 resource "authentik_tenant" "davishaus" {
   domain              = var.external_domain
-  default             = false
+  default             = true
   branding_title      = "Davishaus"
   flow_authentication = authentik_flow.davishaus-authentication.uuid
   flow_invalidation   = data.authentik_flow.default-invalidation-flow.id
