@@ -24,6 +24,8 @@ spec:
       varsKeys:
         - PLEX_SERVER_ID
   vars:
+    - name: authentik_url
+      value: http://authentik-server.security.svc.cluster.local:80
     - name: authentik_host
       value: https://auth.${EXTERNAL_DOMAIN}
     - name: external_domain
