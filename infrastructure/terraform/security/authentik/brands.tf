@@ -1,8 +1,8 @@
-data "authentik_tenant" "authentik-default" {
+data "authentik_brand" "authentik-default" {
   domain = "authentik-default"
 }
 
-resource "authentik_tenant" "davishaus" {
+resource "authentik_brand" "davishaus" {
   domain              = var.external_domain
   default             = true
   branding_title      = "Davishaus"
