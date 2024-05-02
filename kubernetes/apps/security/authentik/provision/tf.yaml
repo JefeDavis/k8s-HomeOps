@@ -35,6 +35,9 @@ spec:
         Alert-Manager:
           url: https://alert-manager.${EXTERNAL_DOMAIN}
           group: Monitor
+        Baby-Buddy:
+          url: https://baby-buddy.${EXTERNAL_DOMAIN}
+          group: Home
         Bazarr:
           url: https://bazarr.${EXTERNAL_DOMAIN}
           group: Media
