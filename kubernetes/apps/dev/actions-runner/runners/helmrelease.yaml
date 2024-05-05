@@ -37,7 +37,8 @@ spec:
       spec:
         containers:
           - name: runner
-            image: ghcr.io/actions/actions-runner:2.316.1@sha256:6db7a9e04f4b568b843c5ab40952319294807a2165a9a268fe36c71630415265
+            image: ghcr.io/onedr0p/actions-runner:2.316.1
+            command: ["/home/runner/run.sh"]
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -77,4 +78,5 @@ spec:
       spec:
         containers:
           - name: runner
-            image: ghcr.io/actions/actions-runner:2.316.1@sha256:6db7a9e04f4b568b843c5ab40952319294807a2165a9a268fe36c71630415265
+            image: ghcr.io/onedr0p/actions-runner:2.316.1
+            command: ["/home/runner/run.sh"]
