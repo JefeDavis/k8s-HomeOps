@@ -55,6 +55,13 @@ nodes:
       # Needed because Labels are limited to 63 Characters
       factory.talos.dev/schematic-prefix: 373392515ac3890a73d3b1f6cf23d4b9
       factory.talos.dev/schematic-suffix: 6e20aef2dd5b42cb00bd73de1b0e07ff 
+    extensionServices:
+      - name: nut-client
+        configFiles:
+          - content: |
+              MONITOR ${NUT_SERVER} 1 monuser ${NUT_PASSWORD} slave
+              SHUTDOWNCMD "/sbin/poweroff"
+            mountPath: /usr/local/etc/nut/upsmon.conf
 
   # intel nuc panther canyon / i7 / 256GB / 1TB SSD / 2TB Nvme
   - hostname: jsdyb-nuc-002.${INTERNAL_DOMAIN}
@@ -84,6 +91,13 @@ nodes:
       # Needed because Labels are limited to 63 Characters
       factory.talos.dev/schematic-prefix: 373392515ac3890a73d3b1f6cf23d4b9
       factory.talos.dev/schematic-suffix: 6e20aef2dd5b42cb00bd73de1b0e07ff 
+    extensionServices:
+      - name: nut-client
+        configFiles:
+          - content: |
+              MONITOR ${NUT_SERVER} 1 monuser ${NUT_PASSWORD} slave
+              SHUTDOWNCMD "/sbin/poweroff"
+            mountPath: /usr/local/etc/nut/upsmon.conf
 
   # intel nuc panther canyon / i7 / 256GB / 1TB SSD / 2TB Nvme
   - hostname: jsdyb-nuc-003.${INTERNAL_DOMAIN}
@@ -113,7 +127,13 @@ nodes:
       # Needed because Labels are limited to 63 Characters
       factory.talos.dev/schematic-prefix: 373392515ac3890a73d3b1f6cf23d4b9
       factory.talos.dev/schematic-suffix: 6e20aef2dd5b42cb00bd73de1b0e07ff 
-
+    extensionServices:
+      - name: nut-client
+        configFiles:
+          - content: |
+              MONITOR ${NUT_SERVER} 1 monuser ${NUT_PASSWORD} slave
+              SHUTDOWNCMD "/sbin/poweroff"
+            mountPath: /usr/local/etc/nut/upsmon.conf
 controlPlane:
   schematic:
     customization:
@@ -158,13 +178,6 @@ controlPlane:
                 [plugins."io.containerd.grpc.v1.cri"]
                   enable_unprivileged_ports = true
                   enable_unprivileged_icmp = true
-
-          - op: create
-            path: /var/etc/nut/upsmon.conf
-            permissions: 0o600
-            content: |-
-              MONITOR ${NUT_SERVER} 1 monuser ${NUT_PASSWORD} slave
-              SHUTDOWNCMD "/sbin/poweroff"
 
         kubelet:
           extraArgs:
