@@ -1,0 +1,19 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-ollama
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: "./kubernetes/apps/ai/ollama/app"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-home-ops
+  postBuild:
+    substituteFrom: []
+  decryption: 
+    provider: sops
+  dependsOn:
+    - name: cluster-apps-intel-device-plugins-gpu
