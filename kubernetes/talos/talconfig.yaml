@@ -49,11 +49,6 @@ nodes:
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
-          - vlanId: 70
-            mtu: 1500
-            dhcp: true
-            dhcpOptions:
-              routeMetric: 8192
     nodeLabels: 
       topology.kubernetes.io/region: jsdyb
       topology.kubernetes.io/zone: jsdyb-u
@@ -182,6 +177,8 @@ controlPlane:
               - 10.77.0.0/24
 
         network:
+          nameservers:
+            - 10.77.0.2
           extraHostEntries:
             - ip: ${CLUSTER_ENDPOINT_IP}
               aliases:
