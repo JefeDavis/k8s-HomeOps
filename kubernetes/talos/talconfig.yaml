@@ -181,7 +181,7 @@ controlPlane:
 
         kubelet:
           extraArgs:
-            feature-gates: GracefulNodeShutdown=true,NewVolumeManagerReconstruction=false
+            feature-gates: GracefulNodeShutdown=true
             rotate-server-certificates: "true"
           extraConfig:
             maxPods: 250
