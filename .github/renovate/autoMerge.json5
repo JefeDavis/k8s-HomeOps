@@ -6,7 +6,7 @@
       matchDatasources: ["docker"],
       automerge: true,
       automergeType: "branch",
-      matchUpdateTypes: ["digest"],
+      matchUpdateTypes: ["digest", "patch"],
       matchPackagePrefixes: ["ghcr.io/onedr0p", "ghcr.io/bjw-s", "ghcr.io/jefedavis"],
       ignoreTests: true,
     },
