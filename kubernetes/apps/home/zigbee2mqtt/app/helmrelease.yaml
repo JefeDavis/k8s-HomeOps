@@ -116,7 +116,7 @@ spec:
             port: *port
 
     ingress:
-      *app :
+      external:
         enabled: true
         className: nginx-external
         annotations:
@@ -135,6 +135,24 @@ spec:
           - hosts:
               - *fqdn
             secretName: zigbee2mqtt-tls-external
+      internal:
+        enabled: true
+        className: nginx-internal
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "simple-icons:zigbee"
+        hosts:
+          - host: &fqdn zigbee.${INTERNAL_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: *app
+                  port: *port
+        tls:
+          - hosts:
+              - *fqdn
+            secretName: zigbee2mqtt-tls-internal
 
     persistence:
       config:
