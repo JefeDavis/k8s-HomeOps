@@ -24,6 +24,6 @@ spec:
       - kind: Secret
         name: flux-volsync-secret
   dependsOn:
-    - name: cluster-apps-mosquitto
+    - name: cluster-apps-emqx-cluster
     - name: cluster-apps-node-feature-discovery-rules
     - name: cluster-apps-volsync

@@ -37,13 +37,13 @@ spec:
               VOLVO_MQTT_USER:
                 valueFrom:
                   secretKeyRef:
-                    name: mosquitto-secret
-                    key: VOLVO2MQTT_MQTT_USER
+                    name: emqx-secret
+                    key: X_EMQX_USERNAME_VOLVO2MQTT
               VOLVO_MQTT_PASSWORD:
                 valueFrom:
                   secretKeyRef:
-                    name: mosquitto-secret
-                    key: VOLVO2MQTT_MQTT_PASS
+                    name: emqx-secret
+                    key: X_EMQX_PASSWORD_VOLVO2MQTT
             envFrom:
               - secretRef:
                   name: volvo2mqtt-secret

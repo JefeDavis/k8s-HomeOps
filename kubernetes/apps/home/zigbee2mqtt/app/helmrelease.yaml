@@ -56,7 +56,7 @@ spec:
               ZIGBEE2MQTT_CONFIG_MQTT_INCLUDE_DEVICE_INFORMATION: true
               ZIGBEE2MQTT_CONFIG_MQTT_KEEPALIVE: 60
               ZIGBEE2MQTT_CONFIG_MQTT_REJECT_UNAUTHORIZED: true
-              ZIGBEE2MQTT_CONFIG_MQTT_SERVER: mqtt://mosquitto.home.svc.cluster.local:1883
+              ZIGBEE2MQTT_CONFIG_MQTT_SERVER: mqtt://emqx-listeners.datastore.svc.cluster.local
               ZIGBEE2MQTT_CONFIG_MQTT_VERSION: 5
               ZIGBEE2MQTT_CONFIG_PERMIT_JOIN: false
               ZIGBEE2MQTT_CONFIG_SERIAL_PORT: /dev/ttyUSB1
@@ -65,13 +65,13 @@ spec:
               ZIGBEE2MQTT_CONFIG_MQTT_USER:
                 valueFrom:
                   secretKeyRef:
-                    name: mosquitto-secret
-                    key: ZIGBEE2MQTT_MQTT_USER
+                    name: emqx-secret
+                    key: X_EMQX_USERNAME_ZIGBEE2MQTT
               ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD:
                 valueFrom:
                   secretKeyRef:
-                    name: mosquitto-secret
-                    key: ZIGBEE2MQTT_MQTT_PASS
+                    name: emqx-secret
+                    key: X_EMQX_PASSWORD_ZIGBEE2MQTT
             envFrom:
               - secretRef:
                   name: zigbee2mqtt-secret
