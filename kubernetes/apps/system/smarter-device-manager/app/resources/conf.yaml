@@ -1,0 +1,3 @@
+---
+- devicematch: ^ttyUSB[0-1]$
+  nummaxdevices: 1

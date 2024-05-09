@@ -11,5 +11,6 @@ resources:
   - ./node-feature-discovery/ks.yaml
   - ./reloader/ks.yaml
   - ./reflector/ks.yaml
+  - ./smarter-device-manager/ks.yaml
   - ./system-upgrade-controller/ks.yaml
 
