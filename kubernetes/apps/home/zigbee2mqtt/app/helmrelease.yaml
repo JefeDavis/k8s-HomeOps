@@ -35,7 +35,7 @@ spec:
               tag: 1.37.0@sha256:7032615b5ac807c805854fb3390e9e84e1efc732893918c3686cbb5d2c75c2bc
             env:
               TZ: ${TIMEZONE}
-              ZIGBEE2MQTT_DATA: /data
+              ZIGBEE2MQTT_DATA: /config
               ZIGBEE2MQTT_CONFIG_ADVANCED_HOMEASSISTANT_DISCOVERY_TOPIC: homeassistant
               ZIGBEE2MQTT_CONFIG_ADVANCED_HOMEASSISTANT_LEGACY_ENTITY_ATTRIBUTES: false
               ZIGBEE2MQTT_CONFIG_ADVANCED_HOMEASSISTANT_LEGACY_TRIGGERS: false
@@ -114,6 +114,7 @@ spec:
         ports:
           http:
             port: *port
+
     ingress:
       *app :
         enabled: true
@@ -134,3 +135,7 @@ spec:
           - hosts:
               - *fqdn
             secretName: zigbee2mqtt-tls-external
+
+    persistence:
+      config:
+        existingClaim: "${VOLSYNC_CLAIM}"
