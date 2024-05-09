@@ -27,7 +27,7 @@ spec:
               repository: ghcr.io/koenkk/zigbee2mqtt
               tag: 1.37.0@sha256:7032615b5ac807c805854fb3390e9e84e1efc732893918c3686cbb5d2c75c2bc
             env:
-              TZ: "American/New York"
+              TZ: ${TIMEZONE}
               ZIGBEE2MQTT_DATA: /data
               ZIGBEE2MQTT_CONFIG_MQTT_USER:
                 valueFrom:
@@ -51,13 +51,13 @@ spec:
                 enabled: true
             resources:
               requests:
-                cpu: 8m
+                cpu: 10m
                 memory: 178Mi
               limits:
                 memory: 256Mi
+                smarter-devices/ttyUSB1: 1
             securityContext:
               privileged: true
-              
           
         statefulset:
           volumeClaimTemplates:
@@ -71,6 +71,11 @@ spec:
     defaultPodOptions:
       nodeSelector:
         feature.node.kubernetes.io/zigbee: "true"
+      securityContext:
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+          - 20
       
     service:
       *app :
@@ -98,9 +103,3 @@ spec:
           - hosts:
               - zigbee2mqtt.${EXTERNAL_DOMAIN}
             secretName: zigbee2mqtt-tls-external
-
-    persistence:
-      usb:
-        enabled: true
-        type: hostPath
-        hostPath: /dev/serial/by-id/usb-Silicon_Labs_HubZ_Smart_Home_Controller_516009EA-if01-port0
