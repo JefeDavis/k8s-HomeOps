@@ -101,7 +101,7 @@ spec:
             ^/help
             ^/static/
         Zigbee2Mqtt:
-          url: https://zigbee2mqtt.${EXTERNAL_DOMAIN}
+          url: https://zigbee.${EXTERNAL_DOMAIN}
           group: Media
     - name: oauth2_applications
       value:
