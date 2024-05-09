@@ -2,53 +2,86 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: zigbee2mqtt
+  name: &app zigbee2mqtt
   namespace: home
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
       interval: 30m
   values:
-    controller:
-      type: statefulset
-      annotations:
-        reloader.stakater.com/auto: "true"
-    image:
-      repository: ghcr.io/koenkk/zigbee2mqtt
-      tag: 1.37.0
-    env:
-      TZ: "American/New York"
-      ZIGBEE2MQTT_DATA: /data
-      ZIGBEE2MQTT_CONFIG_MQTT_USER:
-        valueFrom:
-          secretKeyRef:
-            name: mosquitto-secret
-            key: ZIGBEE2MQTT_MQTT_USER
-      ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD:
-        valueFrom:
-          secretKeyRef:
-            name: mosquitto-secret
-            key: ZIGBEE2MQTT_MQTT_PASS
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/koenkk/zigbee2mqtt
+              tag: 1.37.0@sha256:7032615b5ac807c805854fb3390e9e84e1efc732893918c3686cbb5d2c75c2bc
+            env:
+              TZ: "American/New York"
+              ZIGBEE2MQTT_DATA: /data
+              ZIGBEE2MQTT_CONFIG_MQTT_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: mosquitto-secret
+                    key: ZIGBEE2MQTT_MQTT_USER
+              ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: mosquitto-secret
+                    key: ZIGBEE2MQTT_MQTT_PASS
+            envFrom:
+              - configMapRef:
+                  name: zigbee2mqtt-config
+              - secretRef:
+                  name: zigbee2mqtt-secret
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+            resources:
+              requests:
+                cpu: 8m
+                memory: 178Mi
+              limits:
+                memory: 256Mi
+            securityContext:
+              privileged: true
+              
+          
+        statefulset:
+          volumeClaimTemplates:
+            - name: data
+              globalMounts:
+                - path: /data
+              accessMode: ReadWriteOnce
+              size: 1Gi
+              storageClass: ceph-block
+
+    defaultPodOptions:
+      nodeSelector:
+        feature.node.kubernetes.io/zigbee: "true"
+      
     service:
-      main:
+      *app :
+        controller: *app
         ports:
           http:
-            port: 8080
-          metrics:
-            enabled: true
-            port: 9000
-
+            port: &port 8080
     ingress:
-      main:
+      *app :
         enabled: true
-        ingressClassName: nginx-external
+        className: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           auth.home.arpa/enabled: "true"
@@ -58,40 +91,16 @@ spec:
           - host: zigbee2mqtt.${EXTERNAL_DOMAIN}
             paths:
               - path: /
-                pathType: Prefix
+                service:
+                  identifier: *app
+                  port: *port
         tls:
           - hosts:
               - zigbee2mqtt.${EXTERNAL_DOMAIN}
             secretName: zigbee2mqtt-tls-external
-
-    securityContext:
-      privileged: true
-
-    resources:
-      requests:
-        cpu: 8m
-        memory: 178Mi
-      limits:
-        memory: 256Mi
-
-    volumeClaimTemplates:
-      - name: data
-        mountPath: /data
-        accessMode: ReadWriteOnce
-        size: 1Gi
-        storageClass: ceph-block
 
     persistence:
       usb:
         enabled: true
         type: hostPath
         hostPath: /dev/serial/by-id/usb-Silicon_Labs_HubZ_Smart_Home_Controller_516009EA-if01-port0
-
-    nodeSelector:
-      feature.node.kubernetes.io/zigbee: "true"
-
-    envFrom:
-      - configMapRef:
-          name: zigbee2mqtt-config
-      - secretRef:
-          name: zigbee2mqtt-secret
