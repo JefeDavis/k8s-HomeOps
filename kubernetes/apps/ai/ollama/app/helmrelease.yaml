@@ -27,7 +27,7 @@ spec:
   values:
     controllers:
       backend:
-        type: deployment
+        type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -40,9 +40,10 @@ spec:
               LIBVA_DRIVER_NAME: i965
               OLLAMA_HOST: 0.0.0.0
               OLLAMA_ORIGINS: "*"
+              OLLAMA_MODELS: &pvc /models
             resources:
               requests:
-                cpu: 200m
+                cpu: 2000m
                 memory: 16Gi
                 gpu.intel.com/i915: "1"
               limits:
@@ -67,10 +68,10 @@ spec:
         containers:
           main:
             image:
-              repository: ghcr.io/ollama-webui/ollama-webui
+              repository: ghcr.io/open-webui/open-webui
               tag: main
             env:
-              OLLAMA_API_BASE_URL: http://ollama-backend.ai.svc.cluster.local:11434/api
+              OLLAMA_BASE_URL: http://ollama-backend.ai.svc.cluster.local:11434
             resources:
               requests:
                 cpu: 200m
@@ -110,3 +111,32 @@ spec:
           - hosts:
               - *host
             secretName: ollama-tls-internal
+
+    persistence:
+      backend-config:
+        enabled: true
+        existingClaim: ${BACKEND_CLAIM}
+        advancedMounts:
+          backend: 
+            main: 
+              - path: /.ollama
+      ui-config:
+        enabled: true
+        existingClaim: ${UI_CLAIM}
+        advancedMounts:
+          ui: 
+            main: 
+              - path: /app/backend/data
+      models:
+        enabled: true
+        existingClaim: ollama-models
+        advancedMounts:
+          backend: 
+            main: 
+              - path: *pvc
+      tmp:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        globalMounts:
+          - path: /tmp
