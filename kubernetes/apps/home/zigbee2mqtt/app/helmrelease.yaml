@@ -88,7 +88,11 @@ spec:
                 memory: 256Mi
                 smarter-devices/ttyUSB1: 1
             securityContext:
-              privileged: true
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
           
         statefulset:
           volumeClaimTemplates:
@@ -103,6 +107,9 @@ spec:
       nodeSelector:
         feature.node.kubernetes.io/zigbee: "true"
       securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
         supplementalGroups:
