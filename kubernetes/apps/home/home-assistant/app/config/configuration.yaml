@@ -32,6 +32,8 @@ homeassistant:
   packages: !include_dir_named packages
   external_url: https://home.${EXTERNAL_DOMAIN}
   internal_url: http://${SVC_HASS_ADDR}:8123
+  media_dirs:
+    media: /media
 
 recorder:
   db_url: !env_var HASS_RECORDER_DB_URL

@@ -159,6 +159,15 @@ spec:
             path: /volume1/backups/home-assistant
         mountPath: /config/backups
         readOnly: false
+      media:
+        enabled: true
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/media/home-assistant
+        mountPath: /media
+        readOnly: false
 
     probes:
       liveness:
