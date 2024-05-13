@@ -14,4 +14,13 @@ spec:
           matchExpressions:
             vendor: { op: In, value: ["10c4"] }
             device: { op: In, value: ["8a2a"] }
+    - # Nabu Casa SkyConnect Zigbee Stick
+      name: zigbee
+      labels:
+        feature.node.kubernetes.io/zigbee: "true"
+      matchFeatures:
+        - feature: usb.device
+          matchExpressions:
+            vendor: { op: In, value: ["10c4"] }
+            device: { op: In, value: ["ea60"] }
 
