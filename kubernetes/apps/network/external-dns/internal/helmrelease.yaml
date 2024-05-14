@@ -19,9 +19,6 @@ spec:
   values:
     fullnameOverride: &name external-dns-internal
 
-    domainFilters:
-      - ${INTERNAL_DOMAIN}
-
     sources:
       - crd
       - ingress
@@ -42,6 +39,7 @@ spec:
       - --rfc2136-host=${SYNOLOGY_ADDR}
       - --rfc2136-port=53
       - --rfc2136-zone=${INTERNAL_DOMAIN}
+      - --rfc2136-zone=${EXTERNAL_DOMAIN}
       - --rfc2136-tsig-axfr
       - --ingress-class=nginx-internal
 

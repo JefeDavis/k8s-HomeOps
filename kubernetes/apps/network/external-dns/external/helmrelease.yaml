@@ -19,10 +19,6 @@ spec:
   values:
     fullnameOverride: &name external-dns-external
 
-    domainFilters:
-      - ${EXTERNAL_DOMAIN}
-      - ${PROFESSIONAL_DOMAIN}
-
     sources:
       - crd
       - ingress
