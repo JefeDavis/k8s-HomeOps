@@ -29,11 +29,11 @@ spec:
               - name: TZ
                 value: ${TIMEZONE}
               - name: ALLOWED_HOSTS
-                value: ${EXTERNAL_URL},${INTERNAL_URL},${LOCAL_URL}
+                value: ${EXTERNAL_URL},${LOCAL_URL}
               - name: CSRF_COOKIE_SECURE
                 value: "true"
               - name: CSRF_TRUSTED_ORIGINS
-                value: https://${EXTERNAL_URL},https://${INTERNAL_URL},http://${LOCAL_URL}
+                value: https://${EXTERNAL_URL},http://${LOCAL_URL}
               - name: EMAIL_HOST
                 value: smtp-relay.network.svc.cluster.local.
               - name: EMAIL_PORT
@@ -105,11 +105,10 @@ spec:
         enabled: true
         className: nginx-internal
         annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
           hajimari.io/enable: "true"
           hajimari.io/icon: mdi:baby-face-outline
         hosts:
-          - host: &host "${INTERNAL_URL}"
+          - host: *host
             paths:
               - path: /
                 pathType: Prefix
@@ -119,7 +118,7 @@ spec:
         tls:
           - hosts:
               - *host
-            secretName: baby-buddy-tls-internal
+            secretName: baby-buddy-tls-external
     persistence:
       config:
         enabled: true
