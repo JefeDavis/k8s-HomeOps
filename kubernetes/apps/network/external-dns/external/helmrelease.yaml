@@ -48,13 +48,6 @@ spec:
       - --exclude-target-net=192.168.0.0/16
       - --exclude-domains=${INTERNAL_DOMAIN}
 
-    resources:
-      requests:
-        cpu: 13m
-        memory: 84M
-      limits:
-        memory: 84M
-
     serviceMonitor:
       enabled: true
   postRenderers:

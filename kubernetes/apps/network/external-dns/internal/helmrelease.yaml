@@ -45,13 +45,6 @@ spec:
       - --rfc2136-tsig-axfr
       - --ingress-class=nginx-internal
 
-    resources:
-      requests:
-        cpu: 13m
-        memory: 42M
-      limits:
-        memory: 42M
-
     serviceMonitor:
       enabled: true
   postRenderers:
