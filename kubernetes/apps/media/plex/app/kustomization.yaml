@@ -12,12 +12,18 @@ commonLabels:
 configMapGenerator:
   - name: plex-preferences-bootstrap
     files:
-      - ./config/41-Plex-Preferences
+      - ./resources/41-Plex-Preferences
     options:
       labels:
         kustomize.toolkit.fluxcd.io/substitute: disabled
   - name: plex-preferences
     files:
-      - ./config/preferences.cfg
+      - ./resources/preferences.cfg
+  - name: plex-loki-rules
+    files:
+      - plex.yaml=./resources/lokirule.yaml
+    options:
+      labels:
+        loki_rule: "true"
 generatorOptions:
   disableNameSuffixHash: true

@@ -1,0 +1,5 @@
+---
+type: REDIS
+config:
+  addr: dragonfly.datastore.svc.cluster.local:6379
+  db: 1

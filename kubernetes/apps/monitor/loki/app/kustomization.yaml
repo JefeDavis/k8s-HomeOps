@@ -4,5 +4,4 @@ kind: Kustomization
 namespace: monitor
 resources:
   - ./helmrelease.yaml
-  - ./secret-loki.sops.yaml
-  - ./prometheusrule.yaml
+  - ./objectbucketclaim.yaml
