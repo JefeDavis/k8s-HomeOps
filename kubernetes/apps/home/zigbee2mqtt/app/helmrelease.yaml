@@ -146,11 +146,10 @@ spec:
         enabled: true
         className: nginx-internal
         annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
           hajimari.io/enable: "true"
           hajimari.io/icon: "simple-icons:zigbee"
         hosts:
-          - host: &fqdn zigbee.${INTERNAL_DOMAIN}
+          - host: *fqdn
             paths:
               - path: /
                 service:
@@ -159,7 +158,7 @@ spec:
         tls:
           - hosts:
               - *fqdn
-            secretName: zigbee2mqtt-tls-internal
+            secretName: zigbee2mqtt-tls-external
 
     persistence:
       config:
