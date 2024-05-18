@@ -1,0 +1,62 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-atuin
+  annotations:
+    app.kubernetes.io/part-of: &app atuin
+    kyverno.io/ignore: "true"
+spec:
+  instances: 3
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.3-1
+  primaryUpdateStrategy: unsupervised # let k8s handle upgrades
+  storage:
+    size: 10Gi
+    storageClass: ceph-block
+  monitoring:
+    enablePodMonitor: true
+    podMonitorMetricRelabelings:
+      - { sourceLabels: ["cluster"], targetLabel: cnpg_cluster, action: replace }
+      - { regex: cluster, action: labeldrop }
+  bootstrap:
+    initdb:
+      dataChecksums: true
+      database: *app
+      owner: *app
+  backup:
+    retentionPolicy: 30d
+    barmanObjectStore:
+      wal:
+        compression: bzip2
+        maxParallel: 8
+      destinationPath: s3://cnpg/
+      endpointURL: http://minio.network.svc.cluster.local:9000
+      s3Credentials:
+        accessKeyId:
+          name: cloudnative-pg-secret
+          key: AWS_SECRET_ACCESS_KEY_ID
+        secretAccessKey:
+          name: cloudnative-pg-secret
+          key: AWS_SECRET_ACCESS_KEY
+
+#  # RECOVERY
+#  bootstrap:
+#    recovery:
+#      source: &previous-cluster pg-atuin
+#  ## Note: externalClusters is needed when recovering from an existing cnpg cluster
+#  externalClusters:
+#    - name: *previous-cluster
+#      barmanObjectStore:
+#        wal:
+#          compression: bzip2
+#          maxParallel: 8
+#        destinationPath: s3://cnpg/
+#          endpointURL: http://minio.network.svc.cluster.local:9000
+#        s3Credentials:
+#          accessKeyId:
+#            name: cloudnative-pg-secret
+#            key: AWS_ACCESS_KEY_ID
+#          secretAccessKey:
+#            name: cloudnative-pg-secret
+#            key: AWS_SECRET_ACCESS_KEY

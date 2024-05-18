@@ -7,6 +7,7 @@ resources:
   - ./namespace.yaml
   # Flux-Kustomizations
   - ./actions-runner/ks.yaml
+  - ./atuin/ks.yaml
   - ./kubernetes-schemas/ks.yaml
   - ./pulumi-kubernetes-operator/ks.yaml
 
