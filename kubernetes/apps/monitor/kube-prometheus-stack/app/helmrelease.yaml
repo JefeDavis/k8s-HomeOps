@@ -46,8 +46,10 @@ spec:
       alertmanagerSpec:
         replicas: 3
         useExistingSecret: true
-        configSecret: alertmanager-secret
+        configSecret: alertmanager-config
         externalUrl: https://alert-manager.${EXTERNAL_DOMAIN}
+        secrets:
+          - alertmanager-secret
         storage:
           volumeClaimTemplate:
             spec:
