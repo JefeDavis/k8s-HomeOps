@@ -1,7 +1,7 @@
 ---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: home
 commonLabels:
   app.kubernetes.io/name: home-assistant
   app.kubernetes.io/instance: home-assistant
@@ -10,11 +10,10 @@ resources:
   - ./secret-home-assistant.sops.yaml
   - ./secret-deploy-key.sops.yaml
   - ./helmrelease.yaml
+  - ../../../../templates/volsync
 configMapGenerator:
   - name: hass-config
     files:
       - ./config/configuration.yaml
     options:
       disableNameSuffixHash: true
-patchesStrategicMerge:
-  - ./patches/addons.yaml

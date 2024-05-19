@@ -1,127 +1,200 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: home-assistant
-  namespace: home
+  name: &app home-assistant
 spec:
-  interval: 15m
+  interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-      interval: 30m
-  install:
-    createNamespace: true
-    remediation:
-      retries: 3
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
-  uninstall:
-    keepHistory: false
   values:
-    controller:
-      type: statefulset
-      annotations:
-        reloader.stakater.com/auto: "true"
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          clone-repo:
+            image:
+              repository: alpine/git
+              tag: latest
+            command:
+              - "/bin/sh"
+              - -c
+              - |
+                cd /config
+                git fetch origin
+                git reset origin/main
+        containers:
+          main:
+            image:
+              repository: ghcr.io/onedr0p/home-assistant
+              tag: 2024.5.4@sha256:94308e2a32059da54a74e132a166fec31aa046637b0f1dbc897d21c2a25c5658
+            env:
+              TZ: ${TIMEZONE}
+              HASS_RECORDER_DB_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-home-assistant-app
+                    key: uri
+            envFrom:
+              - secretRef:
+                  name: home-assistant-secret
+                prefix: "HASS_"
+            ports:
+              - name: http
+                containerPort: 8123
+              - name: sonos
+                containerPort: 1400
+            probes:
+              liveness:
+                custom: true
+                spec:
+                  httpGet:
+                    path: /manifest.json
+                    port: 8123
+                  initialDelaySeconds: 3
+                  periodSeconds: 3
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
 
-    image:
-      repository: ghcr.io/home-assistant/home-assistant
-      tag: 2024.5.3
+            resources:
+              requests:
+                cpu: 47m
+                memory: 1Gi
+              limits:
+                memory: 2Gi
 
-    podAnnotations:
-      k8s.v1.cni.cncf.io/networks: |
-        [{
-          "name":"iot-vlan",
-          "namespace": "network",
-          "ips": ["10.0.90.42/24"],
-          "mac": "de:41:11:c5:8b:eb",
-          "gateway": "10.0.90.1"
-        }]
-    env:
-      TZ: "America/New York"
-      HASS_POSTGRES_USER:
-        valueFrom:
-          secretKeyRef:
-            name: pg-home-assistant-app
-            key: username
-      HASS_POSTGRES_PASS:
-        valueFrom:
-          secretKeyRef:
-            name: pg-home-assistant-app
-            key: password
-      HASS_RECORDER_DB_URL: "postgresql://$(HASS_POSTGRES_USER):$(HASS_POSTGRES_PASS)@pg-home-assistant-rw/home-assistant"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
 
-    initContainers:
-      clone-repo:
-        image: alpine/git:latest
-        command:
-          - "/bin/sh"
-          - -c
-          - |
-            cd /config
-            git fetch origin
-            git reset origin/main
+          codeserver:
+            image:
+              repository: ghcr.io/coder/code-server
+              tag: 4.89.1
+            env:
+              TZ: ${TIMEZONE}
+            args:
+              - "/config"
+              - --auth
+              - "none"
+              - --user-data-dir
+              - "/config/.vscode"
+              - --extensions-dir
+              - "/config/.vscode"
+        pod:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |
+              [{
+                "name":"iot-vlan",
+                "namespace": "network",
+                "ips": ["10.0.90.42/24"],
+                "mac": "de:41:11:c5:8b:eb",
+                "gateway": "10.0.90.1"
+              }]
 
-        volumeMounts:
-          - name: deploy-key
-            mountPath: /root/.ssh/id_rsa
-            subPath: ssh-privatekey
-          - name: deploy-key
-            mountPath: /root/.ssh/known_hosts
-            subPath: known_hosts
-          - name: config
-            mountPath: /config
-          - name: configuration
-            mountPath: /config/configuration.yaml
-            subPath: configuration.yaml
+        statefulset:
+          volumeClaimTemplates:
+            - name: config
+              globalMounts:
+                - path: /config1
+              accessMode: ReadWriteOnce
+              size: 5Gi
+              storageClass: ceph-block
 
-    envFrom:
-      - secretRef:
-          name: home-assistant-secret
-        prefix: "HASS_"
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
 
     service:
-      main:
+      *app :
+        controller: *app
         type: LoadBalancer
         annotations:
           external-dns.alpha.kubernetes.io/hostname: home.${INTERNAL_DOMAIN}
           io.cilium/lb-ipam-ips: ${SVC_HASS_ADDR}
         ports:
           http:
-            enabled: true
-            port: 8123
+            port: &port 8123
           sonos:
-            enabled: true
             port: 1400
 
+      &code codeserver:
+        controller: *app
+        type: ClusterIP
+        ports:
+          http:
+            enabled: true
+            port: &codeport 8080
+
     ingress:
-      main:
-        enabled: true
+      external:
         annotations:
           nginx.org/websocket-services: home-assistant
           cert-manager.io/cluster-issuer: letsencrypt-prod
           hajimari.io/enable: "true"
           hajimari.io/icon: "simple-icons:homeassistant"
-        ingressClassName: nginx-external
-        hosts:
+        className: nginx-external
+        hosts: &hosts
           - host: home.${EXTERNAL_DOMAIN}
             paths:
               - path: /
-        tls:
+                service:
+                  identifier: *app
+                  port: *port
+        tls: &tls
           - hosts:
               - home.${EXTERNAL_DOMAIN}
             secretName: home-assistant-tls-external
 
-    serviceMonitor:
-      main:
-        enabled: true
+      internal:
+        annotations:
+          nginx.org/websocket-services: home-assistant
+        className: nginx-internal
+        hosts: *hosts
+        tls: *tls
+
+      code-external:
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "simple-icons:homeassistant"
+        className: nginx-external
+        hosts: &code-hosts
+          - host: hass-code.${EXTERNAL_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: *code
+                  port: *codeport
+        tls: &code-tls
+          - hosts:
+              - hass-code.${EXTERNAL_DOMAIN}
+            secretName: hass-code-tls-external
+      code-internal:
+        className: nginx-internal
+        hosts: *code-hosts
+        tls: *code-tls
+        
+                  
+    serviceMonitors:
+      *app :
         endpoints:
           - port: http
             scheme: http
@@ -132,67 +205,47 @@ spec:
               name: home-assistant-secret
               key: PROMETHEUS_TOKEN
 
-
     persistence:
+      config1:
+        existingClaim: ${VOLSYNC_CLAIM}
+        globalMounts:
+          - path: /config
+
       deploy-key:
-        enabled: true
         type: secret
         name: home-assistant-deploy-key
         defaultMode: 256
-        subPath:
-          - path: ssh-privatekey
-            mountPath: /root/.ssh/id_rsa
-          - path: known_hosts
-            mountPath: /root/.ssh/known_hosts
+        globalMounts:
+          - path: /root/.ssh/id_rsa
+            subPath: ssh-privatekey
+          - path: /root/,ssh/known_hosts
+            subPath: known_hosts
+
       configuration:
-        enabled: true
         type: configMap
         name: hass-config
-        mountPath: /config/configuration.yaml
-        subPath: configuration.yaml
+        globalMounts:
+          - path: /config/configuration.yaml
+            subPath: configuration.yaml
+
       backups:
-        enabled: true
         type: custom
         volumeSpec:
           nfs:
             server: "${SYNOLOGY_ADDR}"
             path: /volume1/backups/home-assistant
-        mountPath: /config/backups
-        readOnly: false
+        advancedMounts:
+          *app : 
+            main:
+              - path: /config/backups
+
       media:
-        enabled: true
         type: custom
         volumeSpec:
           nfs:
             server: "${SYNOLOGY_ADDR}"
             path: /volume1/media/home-assistant
-        mountPath: /media
-        readOnly: false
-
-    probes:
-      liveness:
-        custom: true
-        spec:
-          httpGet:
-            path: /manifest.json
-            port: 8123
-          initialDelaySeconds: 3
-          periodSeconds: 3
-      readiness:
-        enabled: false
-      startup:
-        enabled: false
-
-    resources:
-      requests:
-        cpu: 47m
-        memory: 1Gi
-      limits:
-        memory: 2Gi
-
-    volumeClaimTemplates:
-      - name: config
-        mountPath: /config
-        accessMode: ReadWriteOnce
-        size: 5Gi
-        storageClass: ceph-block
+        advancedMounts:
+          *app :
+            main:
+              - path: /media
