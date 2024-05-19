@@ -21,17 +21,26 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:
-          clone-repo:
+          git-sync:
+            env:
+              GITSYNC_REPO: https://github.com/JefeDavis/hass-config
+              GITSYNC_REF: main
+              GITSYNC_PERIOD: 10s # 1 day
+              GITSYNC_ROOT: /config
+              GITSYNC_ADD_USER: ${UID}
             image:
-              repository: alpine/git
-              tag: latest
-            command:
-              - "/bin/sh"
-              - -c
-              - |
-                cd /config
-                git fetch origin
-                git reset origin/main
+              repository: registry.k8s.io/git-sync/git-sync
+              tag: v4.2.3@sha256:19cc7c317d125c5737ecb9a9159d00b5d97f39c45225c6483de365d62fc09fa8
+            restartPolicy: Always
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 128Mi
+            securityContext: 
+              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: false
+              capabilities: { drop: ["ALL"] }
         containers:
           main:
             image:
@@ -74,11 +83,10 @@ spec:
               limits:
                 memory: 2Gi
 
-            securityContext:
+            securityContext: 
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
-
           codeserver:
             image:
               repository: ghcr.io/coder/code-server
@@ -103,15 +111,6 @@ spec:
                 "mac": "de:41:11:c5:8b:eb",
                 "gateway": "10.0.90.1"
               }]
-
-        statefulset:
-          volumeClaimTemplates:
-            - name: config
-              globalMounts:
-                - path: /config1
-              accessMode: ReadWriteOnce
-              size: 5Gi
-              storageClass: ceph-block
 
     defaultPodOptions:
       securityContext:
@@ -206,7 +205,7 @@ spec:
               key: PROMETHEUS_TOKEN
 
     persistence:
-      config1:
+      config:
         existingClaim: ${VOLSYNC_CLAIM}
         globalMounts:
           - path: /config
@@ -215,11 +214,21 @@ spec:
         type: secret
         name: home-assistant-deploy-key
         defaultMode: 256
-        globalMounts:
-          - path: /root/.ssh/id_rsa
-            subPath: ssh-privatekey
-          - path: /root/,ssh/known_hosts
-            subPath: known_hosts
+        advancedMounts:
+          *app :
+            git-sync:
+              - path: /etc/git-secret/ssh
+                subPath: ssh-privatekey
+                readOnly: true
+              - path: /etc/git-secret/known_hosts
+                subPath: known_hosts
+            main: &sshmounts
+              - path: /root/.ssh/id_rsa
+                subPath: ssh-privatekey
+                readOnly: true
+              - path: /root/.ssh/known_hosts
+                subPath: known_hosts
+            codeserver: *sshmounts
 
       configuration:
         type: configMap
@@ -249,3 +258,10 @@ spec:
           *app :
             main:
               - path: /media
+
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          *app :
+            git-sync:
+              - path: /tmp
