@@ -8,7 +8,6 @@ resources:
   - ./baby-buddy/ks.yaml
   - ./esphome/ks.yaml
   - ./home-assistant/ks.yaml
-  - ./volvo2mqtt/ks.yaml
   - ./wyoming-services/ks.yaml
   - ./zigbee2mqtt/ks.yaml
 
