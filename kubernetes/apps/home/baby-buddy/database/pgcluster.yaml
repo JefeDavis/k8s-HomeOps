@@ -1,11 +1,12 @@
 ---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/cluster_v1.json
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: pg-baby-buddy
-  namespace: home
   annotations:
     kyverno.io/ignore: "true"
+    app.kubernetes.io/part-of: &app baby-buddy
 spec:
   instances: 3
   imageName: ghcr.io/cloudnative-pg/postgresql:15.5-15
@@ -13,22 +14,14 @@ spec:
   storage:
     size: 10Gi
     storageClass: ceph-block
-  postgresql:
-    parameters:
-      max_connections: "600"
-      shared_buffers: 256MB # amount of RAM to use for data caching, https://postgresqlco.nf/doc/en/param/shared_buffers/
   monitoring:
     enablePodMonitor: true
   # configured according to below link to allow customizing of initdb via Flux
   # https://cloudnative-pg.io/documentation/1.20/bootstrap/#configure-the-application-database
   bootstrap:
     initdb:
-      dataChecksums: true
-      database: baby-buddy
-      owner: baby-buddy
-      encoding: "UTF8"
-      localeCollate: en_US.utf8
-      localeCType: en_US.utf8
+      database: *app
+      owner: *app
   backup:
     retentionPolicy: 30d
     barmanObjectStore:
