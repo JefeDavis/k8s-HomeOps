@@ -1,14 +1,15 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: esphome
+  name: &app esphome
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 2.4.0
+      version: 3.1.0
       interval: 30m
       sourceRef:
         kind: HelmRepository
@@ -17,11 +18,10 @@ spec:
 
   values:
     controllers:
-      main:
+      *app :
         type: statefulset
         annotations:
           secret.reloader.stakater.com/reload: secret-esphome,home-assistant-deploykey
-
         pod:
           annotations:
             k8s.v1.cni.cncf.io/networks: |
@@ -32,7 +32,6 @@ spec:
                 "ips": ["10.0.90.5/24"],
                 "mac": "ce:95:be:b2:4f:ca"
               }]
-
         containers:
           main:
             image:
@@ -55,19 +54,17 @@ spec:
               limits:
                 memory: 2048M
 
-    service:
-      main:
+    services:
+      *app :
         ports:
           http:
-            port: 6052
+            port: &port 6052
 
     ingress:
-      main:
-        enabled: true
-        className: nginx-external
+      *app :
+        className: nginx-internal
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
-          auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "chip"
         hosts:
@@ -75,21 +72,19 @@ spec:
             paths:
               - path: /
                 service:
-                  name: main
-                  port: http
+                  identifier: *app
+                  port: *port
+                  
         tls:
           - hosts:
               - *hostname
-            secretName: esphome-tls-external
+            secretName: esphome-tls-internal
 
     persistence:
       config:
-        enabled: true
         existingClaim: "${VOLSYNC_CLAIM}"
-        advancedMounts:
-          main:
-            main:
-              - path: /config
+        globalMounts:
+          - path: /config
       secrets:
         type: secret
         name: secret-esphome
