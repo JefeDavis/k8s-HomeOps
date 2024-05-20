@@ -1,113 +1,155 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: bazarr
-  namespace: media
+  name: &app bazarr
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-      interval: 30m
   values:
-    controller:
-      type: statefulset
-      annotations:
-        reloader.stakater.com/auto: "true"
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/onedr0p/bazarr
+              tag: 1.4.2@sha256:7ea2869565d63bde8fd97d239de4bf5d16ba6f8db3f343b760e87ce4460951a0
 
-    image:
-      repository: ghcr.io/onedr0p/bazarr
-      tag: 1.4.2@sha256:7ea2869565d63bde8fd97d239de4bf5d16ba6f8db3f343b760e87ce4460951a0
+            env:
+              TZ: ${TIMEZONE}
+              BAZARR__INSTANCE_NAME: *app
+              BAZARR__PORT: &port 6767
+              BAZARR__APPLICATION_URL: https://bazarr.${EXTERNAL_DOMAIN}
+              BAZARR__LOG_LEVEL: info
+              BAZARR__API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: starr-apps-secret
+                    key: BAZARR_API_KEY
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                memory: 350Mi
+                cpu: 5m
+              limits:
+                memory: 431Mi
 
-    env:
-      TZ: America/New_York
-      BAZARR__INSTANCE_NAME: Bazarr
-      BAZARR__PORT: &port 6767
-      BAZARR__APPLICATION_URL: https://bazarr.${EXTERNAL_DOMAIN}
-      BAZARR__LOG_LEVEL: info
-      BAZARR__API_KEY:
-        valueFrom:
-          secretKeyRef:
-            name: starr-apps-secret
-            key: BAZARR_API_KEY
+          exporter:
+            image: 
+              repository: ghcr.io/onedr0p/exportarr
+              tag: v2.0.1
+            args: 
+              - bazarr
+              - --enable-additional-metrics
+            env:
+              URL: "http://localhost"
+              PORT: &metricsPort 9710
+              APIKEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: starr-apps-secret
+                    key: BAZARR_API_KEY
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 128Mi
+
+    statefulset:  
+      volumeClaimTemplates:
+        - name: config
+          mountPath: /config
+          accessMode: ReadWriteOnce
+          size: 1Gi
+          storageClass: ceph-block
+
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+        - 65539
+        - 1030
 
     service:
-      main:
+      *app :
+        controller: *app
         ports:
           http:
             port: *port
+          metrics:
+            port: *metricsPort
 
     ingress:
-      main:
-        enabled: true
-        ingressClassName: nginx-external
+      external:
+        className: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           theme.home.arpa/enabled: "true"
           auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "solar:subtitles-outline"
-        hosts:
+        hosts: &hosts
           - host: &host bazarr.${EXTERNAL_DOMAIN}
             paths:
               - path: /
-                pathType: Prefix
-        tls:
+                service:
+                  identifier: *app
+        tls: &tls
           - hosts:
               - *host
             secretName: bazarr-tls-external
+      internal:
+        className: nginx-internal
+        annotations:
+          theme.home.arpa/enabled: "true"
+        hosts: *hosts
+        tls: *tls
 
     persistence:
       media:
-        enabled: true
         existingClaim: nfs-media
 
       backups:
-        enabled: true
         type: custom
         volumeSpec:
           nfs:
             server: "${SYNOLOGY_ADDR}"
             path: /volume1/backups/bazarr
-        mountPath: /config/backup
-        readOnly: false
+        globalMounts:
+          - path: /config/backup
 
-    volumeClaimTemplates:
-      - name: config
-        mountPath: /config
-        accessMode: ReadWriteOnce
-        size: 1Gi
-        storageClass: ceph-block
-
-    podSecurityContext:
-      runAsUser: 568
-      runAsGroup: 568
-      fsGroup: 568
-      fsGroupChangePolicy: OnRootMismatch
-      supplementalGroups:
-        - 65539
-        - 1030
-
-    resources:
-      requests:
-        memory: 350Mi
-        cpu: 5m
-      limits:
-        memory: 431Mi
 
     serviceMonitor:
-      monitor:
+      metrics:
         enabled: true
-        serviceName: bazarr-monitor
+        serviceName: *app
         endpoints:
-          - port: http
+          - port: metrics
             scheme: http
             path: /metrics
             interval: 10m
-            scrapeTimeout: 2m
+            scrapeTimeout: 10s
