@@ -6,13 +6,20 @@ metadata:
   name: cluster-apps-bazarr
   namespace: flux-system
 spec:
-  interval: 10m
+  targetNamespace: media
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: bazarr
+      app.kubernetes.io/instance: bazarr
   path: "./kubernetes/apps/media/bazarr/app"
   prune: true
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
   postBuild:
     substituteFrom: []
   decryption:
