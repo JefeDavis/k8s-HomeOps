@@ -1,15 +1,18 @@
 ---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: home
 resources:
-- ./helmrelease.yaml
+  - ./helmrelease.yaml
 
 configMapGenerator:
-- name: openwakeword-config
-  namespace: home
-  files:
-  - hey_piper.tflite
+  - name: openwakeword-config
+    files:
+      - ./resources/hey_piper.tflite
+  - name: piper-config
+    files:
+      - ./resources/pre_process_map.yaml
+      - ./resources/voice_to_speaker.yaml
 
 generatorOptions:
   disableNameSuffixHash: true

@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -9,21 +10,17 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.4.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-      interval: 15m
-
   values:
     controllers:
-      main:
-        enabled: false
-
       piper:
         type: statefulset
         annotations:
+          app.kubernetes.io/name: piper
           reloader.stakater.com/auto: "true"
         containers:
           main:
@@ -31,19 +28,39 @@ spec:
               repository: rhasspy/wyoming-piper
               tag: 1.5.0
             args:
-              - --voice=en-gb-southern_english_female-low
+              - --voice=en_US-hfc_female-medium
             env:
-              TZ: "America/Chicago"
-        resources:
-          requests:
-            cpu: 500m
-            memory: 250Mi
-          limits:
-            memory: 500Mi
+              TZ: ${TIMEZONE}
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 500m
+                memory: 250Mi
+              limits:
+                memory: 500Mi
+          api:
+            image:
+              repository: ghcr.io/matatonic/openedai-speech-min
+              tag: 0.10.1
+            env:
+              TTS_HOME: voices
+              HF_HOME: voices
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+
         statefulset:
           volumeClaimTemplates:
             - name: data
-              mountPath: /data
+              advancedMounts:
+                main:
+                  - path: /data
+                api:
+                  - path: /app/voices
               accessMode: ReadWriteOnce
               size: 5Gi
               storageClass: ceph-block
@@ -51,6 +68,7 @@ spec:
       whisper:
         type: statefulset
         annotations:
+          app.kubernetes.io/name: whisper
           reloader.stakater.com/auto: "true"
         containers:
           main:
@@ -61,17 +79,23 @@ spec:
               - --model=small
               - --language=en
             env:
-              TZ: "America/Chicago"
-        resources:
-          requests:
-            cpu: 500m
-            memory: 250Mi
-          limits:
-            memory: 2500Mi
+              TZ: ${TIMEZONE}
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 500m
+                memory: 250Mi
+              limits:
+                memory: 2500Mi
+
         statefulset:
           volumeClaimTemplates:
             - name: data
-              mountPath: /data
+              globalMounts:
+                - path: /data
               accessMode: ReadWriteOnce
               size: 5Gi
               storageClass: ceph-block
@@ -79,7 +103,8 @@ spec:
       openwakeword:
         type: statefulset
         annotations:
-          reloader.stakater.com/auto: 'true'
+          app.kubernetes.io/name: openwakeword
+          reloader.stakater.com/auto: "true"
         containers:
           main:
             image:
@@ -87,29 +112,42 @@ spec:
               tag: 1.10.0
             args:
               - --preload-model
-              - 'ok_nabu'
+              - "ok_nabu"
               - --custom-model-dir
               - /custom
             env:
-              TZ: "America/Chicago"
+              TZ: ${TIMEZONE}
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
 
     service:
-      main:
-        enabled: false
-
       piper:
         type: LoadBalancer
         controller: piper
         annotations:
+          app.kubernetes.io/name: piper
           io.cilium/lb-ipam-ips: 192.168.77.102
         ports:
-          http:
+          piper:
             port: 10200
+          http:
+            port: 8000
 
       whisper:
         type: LoadBalancer
         controller: whisper
         annotations:
+          app.kubernetes.io/name: whisper
           io.cilium/lb-ipam-ips: 192.168.77.103
         ports:
           http:
@@ -120,18 +158,63 @@ spec:
         type: LoadBalancer
         controller: openwakeword
         annotations:
+          app.kubernetes.io/name: openwakeword
           io.cilium/lb-ipam-ips: 192.168.77.104
         ports:
           http:
             port: 10400
 
+    ingress:
+      piper:
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+        className: nginx-internal
+        hosts:
+          - host: piper.${EXTERNAL_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: piper
+                  port: http
+        tls:
+          - hosts:
+              - piper.${EXTERNAL_DOMAIN}
+            secretName: piper-tls-internal
+
     persistence:
+      piper-config:
+        type: configMap
+        name: piper-config
+        advancedMounts:
+          piper:
+            api:
+              - path: /app/config
+
       openwakeword-config:
-        enabled: true
         type: configMap
         name: openwakeword-config
         advancedMounts:
           openwakeword:
             main:
               - path: /custom
-                readOnly: true
+
+      pper-tmp:
+        type: emptyDir
+        advancedMounts:
+          piper:
+            main:
+              - path: /tmp
+
+      whisper-tmp:
+        type: emptyDir
+        advancedMounts:
+          whisper:
+            main:
+              - path: /tmp
+              
+      openwakeword-tmp:
+        type: emptyDir
+        advancedMounts:
+          openwakeword:
+            main:
+              - path: /tmp
