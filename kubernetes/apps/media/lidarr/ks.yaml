@@ -6,19 +6,33 @@ metadata:
   name: cluster-apps-lidarr
   namespace: flux-system
 spec:
-  interval: 10m
+  targetNamespace: media
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: &app lidarr
+      app.kubernetes.io/instance: *app
   path: "./kubernetes/apps/media/lidarr/app"
   prune: true
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
-  postBuild:
-    substituteFrom: []
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
   decryption:
     provider: sops
+  postBuild:
+    substitute:
+      APP: *app
+      VOLSYNC_CLAIM: lidarr-config
+      VOLSYNC_CAPACITY: 1Gi
+    substituteFrom:
+      - kind: Secret
+        name: flux-volsync-secret
   dependsOn:
     - name: cluster-apps-media-common
     - name: cluster-apps-media-common-mounts
     - name: cluster-apps-rook-ceph-cluster
     - name: cluster-apps-kube-prometheus-stack-crds
+    - name: cluster-apps-volsync
