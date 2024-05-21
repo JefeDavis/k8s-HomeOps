@@ -6,5 +6,6 @@ namespace: network
 resources:
   - ./minio.yaml
   - ./octoprint.yaml
+  - ./synology.yaml
   - ./unifi.yaml
 
