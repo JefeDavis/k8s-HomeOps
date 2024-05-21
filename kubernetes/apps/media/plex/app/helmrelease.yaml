@@ -69,17 +69,6 @@ spec:
                 gpu.intel.com/i915: 1
                 memory: 16Gi
 
-        statefulset:
-          volumeClaimTemplates:
-            - name: config
-              annotations:
-                backup.home.arpa/enabled: "true"
-              globalMounts:
-                - path: /config
-              accessMode: ReadWriteOnce
-              size: 35Gi
-              storageClass: ceph-block
-
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -170,7 +159,7 @@ spec:
       config1:
         existingClaim: ${VOLSYNC_CLAIM}
         globalMounts:
-          - path: /config1
+          - path: /config
 
       # Separate PVC for cache to avoid backing up cache files
       cache:
@@ -197,8 +186,6 @@ spec:
                   - ReadWriteOnce
                 resources:
                   requests:
-                    storage: 1Gi
-                  limits:
                     storage: 500Gi
 
       tmp:
