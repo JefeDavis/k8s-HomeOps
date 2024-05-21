@@ -1,42 +1,145 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: plex
-  namespace: media
+  name: &app plex
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-      interval: 30m
   values:
-    controller:
-      type: statefulset
-      annotations:
-        reloader.stakater.com/auto: "true"
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/onedr0p/plex
+              tag: 1.40.2.8395-c67dce28e@sha256:3861cc940ecdf97b773fa24d826407cea86559d0f26366d7acd10cef1704f46c
+            env:
+              TZ: ${TIMEZONE}
+              PLEX_ADVERTISE_URL: https://plex.${EXTERNAL_DOMAIN}:443,https://plex.${INTERNAL_DOMAIN}:32400,http://${SVC_PLEX_ADDR}:32400,plex.media.svc.cluster.local:32400
+              PLEX_NO_AUTH_NETWORKS: 10.0.0.0/8
+              PLEX_PREFERENCE_NAME: "FriendlyName=${ORGANIZATION}"
+              PLEX_PREFERENCE_DLNA: "DlnaEnabled=1"
+              PLEX_PREFERENCE_GDM: "GdmEnabled=1"
+              PLEX_PREFERENCE_GPU: "HardwareAcceleratedCodecs=1"
+              PLEX_PREFERENCE_INTERFACE: "PreferredNetworkInterface=eth0"
+              PLEX_PREFERENCE_PORT_MAPPING: "ManualPortMappingMode=1"
+              PLEX_PREFERENCE_MAPPED_PORT: "ManualPortMappingPort=443"
+              PLEX_PREFERENCE_LAN: "LanNetworksBandwidth=10.0.0.0/8"
+            envFrom:
+              - secretRef:
+                  name: plex-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /identity
+                    port: 32400
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+              limits:
+                gpu.intel.com/i915: 1
+                memory: 16Gi
 
-    image:
-      repository: plexinc/pms-docker
-      tag: 1.32.6.7557-1cf77d501
+        statefulset:
+          volumeClaimTemplates:
+            - name: config
+              annotations:
+                backup.home.arpa/enabled: "true"
+              globalMounts:
+                - path: /config
+              accessMode: ReadWriteOnce
+              size: 35Gi
+              storageClass: ceph-block
 
-    env:
-      TZ: "America/New_York"
-      ALLOWED_NETWORKS: "10.0.0.0/8"
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: [44, 10000]
+        seccompProfile: { type: RuntimeDefault }
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values: ["ollama"]
+                  - key: app.kuberentes.io/component
+                    operator: In
+                    values: ["backend"]
+              topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        intel.feature.node.kubernetes.io/gpu: "true"
 
-    envFrom:
-      - secretRef:
-          name: plex-secret
+    service:
+      *app :
+        controller: *app
+        type: LoadBalancer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: plex.${INTERNAL_DOMAIN}
+          io.cilium/lb-ipam-ips: ${SVC_PLEX_ADDR}
+        ports:
+          http:
+            port: &port 32400
+            primary: true
+          dnla-tcp:
+            port: 32469
+            protocol: TCP
+          dnla-udp:
+            port: 1900
+            protocol: UDP
+          bonjour-udp:
+            port: 5353
+            protocol: UDP
+          gdm-1:
+            port: 32410
+            protocol: UDP
+          gdm-2:
+            port: 32412
+            protocol: UDP
+          gdm-3:
+            port: 32413
+            protocol: UDP
+          gdm-4:
+            port: 32414
+            protocol: UDP
 
     ingress:
-      main:
-        enabled: true
-        ingressClassName: nginx-external
+      external:
+        className: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           theme.home.arpa/enabled: "true"
@@ -44,94 +147,46 @@ spec:
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:plex"
           hajimari.io/url: "https://plex.${EXTERNAL_DOMAIN}/web"
-        hosts:
-        - host: "plex.${EXTERNAL_DOMAIN}"
+        hosts: &hosts
+        - host: &host "plex.${EXTERNAL_DOMAIN}"
           paths:
           - path: /
-            pathType: Prefix
-        tls:
+            service:
+              identifier: *app
+              port: *port
+        tls: &tls
         - hosts:
-          - "plex.${EXTERNAL_DOMAIN}"
+            - *host
           secretName: plex-tls-external
 
-    podSecurityContext:
-      supplementalGroups:
-      - 39
-      - 44
-      - 109
-      - 100
-      - 1030
-
-    service:
-      main:
-        type: LoadBalancer
-        externalTrafficPolicy: Cluster
+      internal:
+        className: nginx-internal
         annotations:
-          io.cilium/lb-ipam-ips: ${SVC_PLEX_ADDR}
-        ports:
-          http:
-            port: 32400
-            targetPort: 32400
-            nodePort: 32400
-          dnla-tcp:
-            enabled: true
-            port: 32469
-            protocol: TCP
-            targetPort: 32469
-            nodePort: 32469
-          dnla-udp:
-            enabled: true
-            port: 1900
-            protocol: UDP
-            targetPort: 1900
-            nodePort: 1900
-          bonjour-udp:
-            enabled: true
-            port: 5353
-            protocol: UDP
-            targetPort: 5353
-            nodePort: 5353
-          gdm-1:
-            enabled: true
-            port: 32410
-            protocol: UDP
-            targetPort: 32410
-            nodePort: 32410
-          gdm-2:
-            enabled: true
-            port: 32412
-            protocol: UDP
-            targetPort: 32412
-            nodePort: 32412
-          gdm-3:
-            enabled: true
-            port: 32413
-            protocol: UDP
-            targetPort: 32413
-            nodePort: 32413
-          gdm-4:
-            enabled: true
-            port: 32414
-            protocol: UDP
-            targetPort: 32414
-            nodePort: 32414
+          theme.home.arpa/enabled: "true"
+        hosts: *hosts
+        tls: *tls
 
     persistence:
-      preference-bootstrap:
-        enabled: true
-        type: configMap
-        name: plex-preferences-bootstrap
-        mountPath: /etc/cont-init.d/41-Plex-Preferences
-        subPath: 41-Plex-Preferences
-        defaultMode: 493
-      preferences:
-        enabled: true
-        type: configMap
-        name: plex-preferences
-        mountPath: /etc/cont-config.d
-        defaultMode: 493
+      config1:
+        existingClaim: ${VOLSYNC_CLAIM}
+        globalMounts:
+          - path: /config1
+
+      # Separate PVC for cache to avoid backing up cache files
+      cache:
+        existingClaim: plex-cache
+        globalMounts:
+          - path: /config/Library/Application Support/Plex Media Server/Cache
+
+      logs:
+        type: emptyDir
+        globalMounts:
+          - path: /config/Library/Application Support/Plex Media Server/Logs
+
+      media:
+        existingClaim: nfs-media
+
       transcode:
-        enabled: true
         type: custom
         volumeSpec:
           ephemeral:
@@ -145,53 +200,17 @@ spec:
                     storage: 1Gi
                   limits:
                     storage: 500Gi
+
       tmp:
-        enabled: true
         type: emptyDir
         sizeLimit: 10Gi
-      media:
-        enabled: true
-        existingClaim: nfs-media
-        readOnly: false
+
       backup:
-        enabled: true
         type: custom
         volumeSpec:
           nfs:
             server: "${SYNOLOGY_ADDR}"
             path: /volume1/backups/plex
-        mountPath: /config/Backups
-        readOnly: false
+        globalMounts:
+          - path: /config/Backups
 
-    nodeSelector:
-      intel.feature.node.kubernetes.io/gpu: "true"
-
-    serviceMonitor:
-      monitor:
-        enabled: true
-        serviceName: plex-monitor
-        endpoints:
-          - port: http
-            scheme: http
-            path: /metrics
-            interval: 10m
-            scrapeTimeout: 2m
-
-    resources:
-      requests:
-        gpu.intel.com/i915: 1
-        cpu: 500m
-        memory: 2Gi
-      limits:
-        gpu.intel.com/i915: 1
-        memory: 10Gi
-
-    volumeClaimTemplates:
-      - name: config
-        metadata:
-          annotations:
-            backup.home.arpa/enabled: "true"
-        mountPath: /config
-        accessMode: ReadWriteOnce
-        size: 35Gi
-        storageClass: ceph-block
