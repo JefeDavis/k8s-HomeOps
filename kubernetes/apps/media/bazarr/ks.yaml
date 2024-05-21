@@ -9,8 +9,8 @@ spec:
   targetNamespace: media
   commonMetadata:
     labels:
-      app.kubernetes.io/name: bazarr
-      app.kubernetes.io/instance: bazarr
+      app.kubernetes.io/name: &app bazarr
+      app.kubernetes.io/instance: *app
   path: "./kubernetes/apps/media/bazarr/app"
   prune: true
   sourceRef:
@@ -21,7 +21,13 @@ spec:
   retryInterval: 1m
   timeout: 5m
   postBuild:
-    substituteFrom: []
+    substitute:
+      APP: *app
+      VOLSYNC_CLAIM: bazarr-config
+      VOLSYNC_CAPACITY: 1Gi
+    substituteFrom:
+      - kind: Secret
+        name: flux-volsync-secret
   decryption:
     provider: sops
   dependsOn:
@@ -29,3 +35,4 @@ spec:
     - name: cluster-apps-media-common-mounts
     - name: cluster-apps-rook-ceph-cluster
     - name: cluster-apps-kube-prometheus-stack-crds
+    - name: cluster-apps-volsync

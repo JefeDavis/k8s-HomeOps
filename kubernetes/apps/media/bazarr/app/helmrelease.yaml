@@ -77,23 +77,13 @@ spec:
               limits:
                 memory: 128Mi
 
-    statefulset:  
-      volumeClaimTemplates:
-        - name: config
-          mountPath: /config
-          accessMode: ReadWriteOnce
-          size: 1Gi
-          storageClass: ceph-block
-
+    defaultPodOptions:
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
         runAsGroup: 568
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
-        supplementalGroups:
-        - 65539
-        - 1030
 
     service:
       *app :
@@ -132,8 +122,20 @@ spec:
         tls: *tls
 
     persistence:
+      config:
+        existingClaim: ${VOLSYNC_CLAIM}
+        advancedMounts:
+          *app :
+            *app :
+              - path: /config
+
       media:
         existingClaim: nfs-media
+        advancedMounts:
+          *app :
+            *app :
+              - path: /media
+
 
       backups:
         type: custom
