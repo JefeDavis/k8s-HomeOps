@@ -1,138 +1,164 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: readarr
-  namespace: media
+  name: &app readarr
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-      interval: 30m
   values:
-    controller:
-      type: statefulset
-      annotions:
-        reloader.stakater.com/auto: "true"
-    image:
-      repository: ghcr.io/onedr0p/readarr-nightly
-      tag: 0.3.28.2548@sha256:133ba49e7cd6790fcae1d763a2a747b030ee56aaa9df4d85ae32f16933e5c535
-    env:
-      TZ: America/New_York
-      READARR__INSTANCE_NAME: Readarr
-      READARR__PORT: &port 8787
-      READARR__APPLICATION_URL: https://readarr.${EXTERNAL_DOMAIN}
-      READARR__LOG_LEVEL: info
-      READARR__API_KEY:
-        valueFrom:
-          secretKeyRef:
-            name: starr-apps-secret
-            key: READARR_API_KEY
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/onedr0p/readarr-nightly
+              tag: 0.3.28.2548@sha256:133ba49e7cd6790fcae1d763a2a747b030ee56aaa9df4d85ae32f16933e5c535
+            env:
+              TZ: ${TIMEZONE}
+              READARR__INSTANCE_NAME: Readarr
+              READARR__PORT: &port 8787
+              READARR__APPLICATION_URL: https://readarr.${EXTERNAL_DOMAIN}
+              READARR__LOG_LEVEL: info
+              READARR__API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: starr-apps-secret
+                    key: READARR_API_KEY
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                memory: 350Mi
+                cpu: 5m
+              limits:
+                memory: 431Mi
 
-    sidecars:
-      exporter:
-        name: exporter
-        image: ghcr.io/onedr0p/exportarr:v2.0.1
-        args: ["readarr"]
-        env:
-          - name: URL
-            value: "http://localhost"
-          - name: CONFIG
-            value: "/config/config.xml"
-          - name: PORT
-            value: &metricsPort 9711
-          - name: ENABLE_ADDITIONAL_METRICS
-            value: true
-          - name: ENABLE_UNKNOWN_QUEUE_ITEMS
-            value: false
-        ports:
-          - name: metrics
-            containerPort: *metricsPort 
-        volumeMounts:
-          - name: config
-            mountPath: /config
-            readOnly: true
+          exporter:
+            image: 
+              repository: ghcr.io/onedr0p/exportarr
+              tag: v2.0.1
+            args: 
+              - readarr
+              - --enable-additional-metrics
+            env:
+              - name: URL
+                value: "http://localhost"
+              - name: CONFIG
+                value: "/config/config.xml"
+              - name: PORT
+                value: &metricsPort 9711
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 128Mi
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
 
     service:
-      main:
+      *app :
+        controller: *app
         ports:
           http:
             port: *port
-      metrics:
-        ports:
+            primary: true
           metrics:
             port: *metricsPort
 
     ingress:
-      main:
-        enabled: true
-        ingressClassName: nginx-external
+      external:
+        className: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           theme.home.arpa/enabled: "true"
           auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "material-symbols:book-outline-rounded"
-        hosts:
+        hosts: &hosts
           - host: &host readarr.${EXTERNAL_DOMAIN}
             paths:
               - path: /
-                pathType: Prefix
-        tls:
+                service:
+                  identifier: *app
+                  port: *port
+        tls: &tls
           - hosts:
               - *host
             secretName: readarr-tls-external
+
+      internal:
+        className: nginx-internal
+        annotations:
+          theme.home.arpa/enabled: "true"
+        hosts: *hosts
+        tls: *tls
+
     persistence:
+      config:
+        existingClaim: ${VOLSYNC_CLAIM}
+        globalMounts:
+          - path: /config
+
       media:
-        enabled: true
         existingClaim: nfs-media
+        advancedMounts:
+          *app :
+            *app :
+              - path: /media
     
       backups:
-        enabled: true
         type: custom
         volumeSpec:
           nfs:
             server: "${SYNOLOGY_ADDR}"
             path: /volume1/backups/readarr
-        mountPath: /config/Backups
-        readOnly: false
+        advancedMounts:
+          *app :
+            *app :
+              - path: /config/Backups
 
-    volumeClaimTemplates:
-      - name: config
-        mountPath: /config
-        accessMode: ReadWriteOnce
-        size: 1Gi
-        storageClass: ceph-block
-
-    podSecurityContext:
-      runAsUser: 568
-      runAsGroup: 568
-      fsGroup: 568
-      fsGroupChangePolicy: OnRootMismatch
-      supplementalGroups:
-        - 65539
-        - 1030
-
-    resources:
-      requests:
-        memory: 350Mi
-        cpu: 5m
-      limits:
-        memory: 431Mi
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          *app :
+            *app :
+              - path: /tmp
 
     serviceMonitor:
       metrics:
         enabled: true
-        serviceName: readarr-metrics
+        serviceName: *app
         endpoints:
           - port: metrics
             scheme: http
             path: /metrics
             interval: 10m
-            scrapeTimeout: 2m
+            scrapeTimeout: 10s
