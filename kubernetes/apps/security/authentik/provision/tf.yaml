@@ -109,6 +109,7 @@ spec:
           url: https://grafana.${EXTERNAL_DOMAIN}
           group: Monitor
           client_id: grafana
+          client_type: confidential
           client_secret: ${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
           redirect_uris: 
             - https://grafana.${EXTERNAL_DOMAIN}/login/generic_oauth
@@ -116,9 +117,20 @@ spec:
           url: https://node-red.${EXTERNAL_DOMAIN}
           group: SelfHosted
           client_id: nodered
+          client_type: confidential
           client_secret: ${NODE_RED_OAUTH_CLIENT_SECRET}
           redirect_uris: 
             - https://node-red.${EXTERNAL_DOMAIN}/auth/strategy/callback
+        Mealie:
+          url: https://mealie.${EXTERNAL_DOMAIN}
+          group: Home
+          client_id: mealie
+          client_type: public
+          client_secret: null
+          redirect_uris:
+            - https://mealie.${EXTERNAL_DOMAIN}/login
+            - https://mealie.${EXTERNAL_DOMAIN}/login?direct=1
+            - https://mealie.${EXTERNAL_DOMAIN}/login*
     - name: groups
       value:
         ${ORGANIZATION}-Admins:
@@ -129,6 +141,13 @@ spec:
           name: "Grafana Admins"
           superuser: false
           parent: "${ORGANIZATION}-Admins"
+        Mealie-Admins:
+          name: "Mealie Admins"
+          superuser: false
+          parent: "${ORGANIZATION}-Admins"
+        Mealie-Users:
+          name: "Mealie Users"
+          superuser: false
     - name: users
       value:
         jefedavis:
@@ -137,5 +156,12 @@ spec:
           groups:
             - "${ORGANIZATION}-Admins"
             - "Grafana-Admins"
+            - "Mealie-Admins"
+            - "Mealie-Users"
+        zaradavis:
+          name: "${SPOUSE_NAME}"
+          email: "${SPOUSE_EMAIL}"
+          groups:
+            - "Mealie-Users"
 
 

@@ -1,0 +1,120 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app mealie
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/mealie-recipes/mealie
+              tag: v1.6.0@sha256:cb332e900663f94c0f993b65993e3d0ffc6efd5798537127f8cd195a02a28a17
+            env:
+              TZ: ${TIMEZONE}
+              BASE_URL: https://mealie.${EXTERNAL_DOMAIN}
+              PGID: ${APP_GID}
+              PUID: ${APP_UID}
+              AUTO_BACKUP_ENABLED: true
+              ALLOW_SIGNUP: false
+              SMTP_HOST: smtp-relay.network.svc.cluster.local.
+              SMTP_PORT: 2525
+              SMTP_FROM_NAME: Mealie
+              SMTP_FROM_EMAIL: mealie@${EXTERNAL_DOMAIN}
+              SMTP_AUTH_STRATEGY: NONE
+              DB_ENGINE: postgres
+              POSTGRES_URL_OVERRIDE:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-mealie-app
+                    key: uri
+              OIDC_AUTH_ENABLED: true
+              OIDC_CLIENT_ID: *app
+              OIDC_CONFIGURATION_URL: https://auth.${EXTERNAL_DOMAIN}/application/o/mealie/.well-known/openid-configuration
+              OIDC_REMEMBER_ME: true
+              OIDC_PROVIDER_NAME: "Authentik"
+              OIDC_AUTO_REDIRECT: true
+              OIDC_USER_GROUP: Mealie Users
+              OIDC_ADMIN_GROUP: Mealie Admins
+            securityContext: 
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+
+    defaultPodOptions:
+      securityContext:
+        fsGroup: ${APP_GID}
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: ${APP_GID}
+        runAsNonRoot: true
+        runAsUser: ${APP_UID}
+        seccompProfile:
+          type: RuntimeDefault
+
+    service:
+      *app :
+        controller: *app
+        ports:
+          http:
+            port: 9000
+
+    ingress:
+      external:
+        className: nginx-external
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          hajimari.io/enable: "true"
+          hajimari.io/icon: mdi:chef-hat
+        hosts: &hosts
+          - host: &host "mealie.${EXTERNAL_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: *app
+                  port: http
+        tls: &tls
+          - hosts:
+              - *host
+            secretName: mealie-tls-external
+      internal:
+        className: nginx-internal
+        hosts: *hosts
+        tls: *tls
+
+    persistence:
+      data:
+        existingClaim: ${VOLSYNC_CLAIM}
+        globalMounts:
+          - path: /app/data
+
+      backups:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/backups/mealie
+        globalMounts:
+          - path: /app/data/backups
+
+      tmp:
+        type: emptyDir

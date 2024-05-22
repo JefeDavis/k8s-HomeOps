@@ -52,6 +52,7 @@ resource "authentik_provider_oauth2" "oauth2_providers" {
   name                  = each.key
   access_token_validity = "hours=1"
   client_id             = each.value.client_id
+  client_type           = each.value.client_type
   client_secret         = sensitive(each.value.client_secret)
   authorization_flow    = data.authentik_flow.default-authorization-flow.id
   authentication_flow   = authentik_flow.davishaus-authentication.uuid

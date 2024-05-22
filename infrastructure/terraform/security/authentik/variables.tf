@@ -45,6 +45,7 @@ variable "oauth2_applications" {
   type = map(object({
     url           = string
     group         = string
+    client_type   = string
     client_id     = string
     client_secret = string
     redirect_uris = list(string)
