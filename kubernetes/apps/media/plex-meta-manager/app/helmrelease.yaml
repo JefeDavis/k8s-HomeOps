@@ -1,88 +1,76 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: plex-meta-manager
-  namespace: media
+  name: &app plex-meta-manager
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-  maxHistory: 3
-  install:
-    remediation:
-      retries: 3
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
-  uninstall:
-    keepHistory: false
   values:
-    controller:
-      type: cronjob
-      annotations:
-        secret.reloader.stakater.com/reload: &secret pmm-secret
-      cronjob:
-        schedule: 0 6 * * *
-    initContainers:
-      config-setup:
-        image: ghcr.io/onedr0p/alpine:3.19.1@sha256:3fbc581cb0fe29830376161ae026e2a765dcc11e1747477fe9ebf155720b8638
-        command:
-          - "/bin/sh"
-          - -c
-          - |
-            mkdir -p /config/assets
-            envsubst < /tmp/config-template/config.yml > /config/config.yml
-            exit 0
-        envFrom:
-          - secretRef:
-              name: starr-apps-secret
-          - secretRef:
-              name: pmm-secret
-        volumeMounts:
-          - name: config-template
-            mountPath: /tmp/config-template
-          - name: config
-            mountPath: /config
-    image:
-      repository: docker.io/meisnate12/plex-meta-manager
-      tag: v1.21.0
-    env:
-      TZ: "America/New York"
-      # PUID: "1000"
-      # PGID: "1000"
-    command:
-      - /scripts/run.sh
-    service:
-      main:
-        enabled: false
+    controllers:
+      *app :
+        type: cronjob
+        annotations:
+          secret.reloader.stakater.com/reload: &secret pmm-secret
+        cronjob:
+          schedule: 0 6 * * *
+        initContainers:
+          config-setup:
+            image:
+              repository: ghcr.io/onedr0p/alpine
+              tag: 3.19.1@sha256:3fbc581cb0fe29830376161ae026e2a765dcc11e1747477fe9ebf155720b8638
+            command:
+              - "/bin/sh"
+              - -c
+              - |
+                mkdir -p /config/assets
+                envsubst < /tmp/config-template/config.yml > /config/config.yml
+                exit 0
+            envFrom:
+              - secretRef:
+                  name: starr-apps-secret
+              - secretRef:
+                  name: *secret
+        containers:
+          *app :
+            image:
+              repository: docker.io/meisnate12/plex-meta-manager
+              tag: v1.21.0
+            env:
+              TZ: ${TIMEZONE}
+            command:
+              - /scripts/run.sh
+
     persistence:
       config:
-        enabled: true
         existingClaim: pmm-config
+
       config-prerolls:
-        enabled: true
         type: configMap
         name: pmm-prerolls
-        mountPath: /config/pre-rolls.yml
-        subPath: pre-rolls.yml
-        readOnly: true
+        globalMounts:
+          - path: /config/pre-rolls.yml
+            subPath: pre-rolls.yml
+            readOnly: true
+
       config-template:
         enabled: true
         type: configMap
         name: pmm-config-template
-        readOnly: true
-        mountPath: "-"
+        advancedMounts:
+          *app :
+            config-setup:
+              - path: /tmp/config-template
+                readOnly: true
       scripts:
-        enabled: true
         type: configMap
         name: pmm-scripts
-        mountPath: /scripts
         defaultMode: 511
