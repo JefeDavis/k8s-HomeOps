@@ -6,15 +6,28 @@ metadata:
   name: cluster-apps-radarr
   namespace: flux-system
 spec:
-  interval: 10m
+  targetNamespace: media
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: &app radarr
+      app.kubernetes.io/instance: *app
   path: "./kubernetes/apps/media/radarr/app"
   prune: true
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
+  interval: 10m
+  retryInterval: 1m
+  timeout: 5m
   postBuild:
-    substituteFrom: []
+    substitute:
+      APP: *app
+      VOLSYNC_CLAIM: radarr-config
+      VOLSYNC_CAPACITY: 1Gi
+    substituteFrom:
+      - kind: Secret
+        name: flux-volsync-secret
   decryption:
     provider: sops
   dependsOn:
@@ -22,6 +35,8 @@ spec:
     - name: cluster-apps-media-common-mounts
     - name: cluster-apps-rook-ceph-cluster
     - name: cluster-apps-kube-prometheus-stack-crds
+    - name: cluster-apps-volsync
+
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -30,13 +45,20 @@ metadata:
   name: cluster-apps-radarr-provision
   namespace: flux-system
 spec:
-  interval: 10m
+  targetNamespace: media
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: &app radarr
+      app.kubernetes.io/instance: *app
   path: "./kubernetes/apps/media/radarr/provision"
   prune: true
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
+  interval: 10m
+  retryInterval: 1m
+  timeout: 5m
   postBuild:
     substituteFrom: []
   dependsOn:
