@@ -6,16 +6,30 @@ metadata:
   name: cluster-apps-tautulli
   namespace: flux-system
 spec:
-  interval: 10m
+  targetNamespace: media
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: &app tautulli
+      app.kubernetes.io/instance: *app
   path: "./kubernetes/apps/media/tautulli/app"
   prune: true
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
   postBuild:
-    substituteFrom: []
+    substitute:
+      APP: *app
+      VOLSYNC_CLAIM: tautulli-config
+      VOLSYNC_CAPACITY: 1Gi
+    substituteFrom:
+      - kind: Secret
+        name: flux-volsync-secret
   dependsOn:
     - name: cluster-apps-plex
     - name: cluster-apps-rook-ceph-cluster
     - name: cluster-apps-kube-prometheus-stack-crds
+    - name: cluster-apps-volsync

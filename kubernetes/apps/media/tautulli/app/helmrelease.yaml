@@ -1,89 +1,101 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: tautulli
-  namespace: media
+  name: &app tautulli
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-      interval: 30m
   values:
-    controller:
-      type: statefulset
-      annotations:
-        reloader.stakater.com/auto: "true"
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/onedr0p/tautulli
+              tag: 2.13.4@sha256:633a57b2f8634feb67811064ec3fa52f40a70641be927fdfda6f5d91ebbd5d73
+            env:
+              TZ: ${TIMEZONE}
+              TAUTULLI__PORT: &port 8181
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                memory: 350Mi
+                cpu: 5m
+              limits:
+                memory: 431Mi
 
-    image:
-      repository: ghcr.io/onedr0p/tautulli
-      tag: 2.13.4@sha256:633a57b2f8634feb67811064ec3fa52f40a70641be927fdfda6f5d91ebbd5d73
-
-    env:
-      TZ: America/New_York
-      TAUTULLI__PORT: &port 8181
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
 
     service:
-      main:
+      *app :
+        controller: *app
         ports:
           http:
             port: *port
 
     ingress:
-      main:
-        enabled: true
-        ingressClassName: nginx-external
+      external:
+        className: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
-          theme.home.arpa/enabled: "true"
           auth.home.arpa/enabled: "true"
+          theme.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:chart-bar"
-        hosts:
+        hosts: &hosts
           - host: &host tautulli.${EXTERNAL_DOMAIN}
             paths:
               - path: /
-                pathType: Prefix
-        tls:
+                service:
+                  identifier: *app
+        tls: &tls
           - hosts:
               - *host
             secretName: tautulli-tls-external
+      internal:
+        className: nginx-internal
+        annotations:
+          theme.home.arpa/enabled: "true"
+        hosts: *hosts
+        tls: *tls
 
-    volumeClaimTemplates:
-      - name: config
-        mountPath: /config
-        accessMode: ReadWriteOnce
-        size: 1Gi
-        storageClass: ceph-block
+    persistence:
+      config:
+        existingClaim: ${VOLSYNC_CLAIM}
+        
+      backups:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/backups/tautulli
+        globalMounts:
+          - path: /config/backups
 
-    podSecurityContext:
-      runAsUser: 568
-      runAsGroup: 568
-      fsGroup: 568
-      fsGroupChangePolicy: OnRootMismatch
-      supplementalGroups:
-        - 65539
+      tmp:
+        type: emptyDir
 
-    resources:
-      requests:
-        memory: 350Mi
-        cpu: 5m
-      limits:
-        memory: 431Mi
-
-    serviceMonitor:
-      monitor:
-        enabled: true
-        serviceName: tautulli-monitor
-        endpoints:
-          - port: http
-            scheme: http
-            path: /metrics
-            interval: 10m
-            scrapeTimeout: 2m
