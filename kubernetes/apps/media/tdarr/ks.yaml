@@ -3,40 +3,76 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: cluster-apps-tdarr-config
+  namespace: flux-system
+spec:
+  targetNamespace: media
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: &app tdarr
+      app.kubernetes.io/instance: *app
+  path: "./kubernetes/templates/volsync"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-home-ops
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  postBuild:
+    substitute:
+      APP: tdarr-config
+      VOLSYNC_CLAIM: tdarr-config
+      VOLSYNC_ACCESSMODES: ReadWriteMany
+      VOLSYNC_CAPACITY: 1Gi
+      VOLSYNC_STORAGECLASS: ceph-filesystem
+      VOLSYNC_CACHE_STORAGECLASS: ceph-filesystem
+      VOLSYNC_SNAPSHOTCLASS: ceph-filesystem
+    substituteFrom:
+      - kind: Secret
+        name: flux-volsync-secret
+  decryption:
+    provider: sops
+  dependsOn:
+    - name: cluster-apps-volsync
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: cluster-apps-tdarr
   namespace: flux-system
 spec:
-  interval: 10m
+  targetNamespace: media
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: &app tdarr
+      app.kubernetes.io/instance: *app
   path: "./kubernetes/apps/media/tdarr/app"
   prune: true
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
   postBuild:
-    substituteFrom: []
+    substitute:
+      APP: *app
+      APP_UID: "568"
+      APP_GID: "568"
+      VOLSYNC_CLAIM: tdarr-data
+      VOLSYNC_CAPACITY: 15Gi
+      CONFIG_CLAIM: tdarr-config
+    substituteFrom:
+      - kind: Secret
+        name: flux-volsync-secret
   decryption:
     provider: sops
   dependsOn:
     - name: cluster-apps-media-common-mounts
     - name: cluster-apps-rook-ceph-cluster
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: cluster-apps-tdarr-node
-  namespace: flux-system
-spec:
-  interval: 10m
-  path: "./kubernetes/apps/media/tdarr/node"
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: k8s-home-ops
-  wait: true
-  postBuild:
-    substituteFrom: []
-  dependsOn:
-    - name: cluster-apps-tdarr
     - name: cluster-apps-intel-device-plugins-gpu
+    - name: cluster-apps-volsync
