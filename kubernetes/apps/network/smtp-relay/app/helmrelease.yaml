@@ -1,52 +1,90 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: &app smtp-relay
-  namespace: home
 spec:
+  interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-  interval: 15m
   values:
-    controller:
-      replicas: 1
-      strategy: RollingUpdate
+    controllers:
+      *app :
+        annotations:
+          configmap.reloader.stakater.com/reload: *app
+          secret.reloader.stakater.com/reload: *app
+        replicas: 2
+        strategy: RollingUpdate
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/foxcpp/maddy
+              tag: 0.7.1
 
-    image:
-      repository: ghcr.io/foxcpp/maddy
-      tag: 0.7.1
+            env:
+              SMTP_RELAY_METRICS_PORT: &metricsPort 8080
+              SMTP_RELAY_SMTP_PORT: &smtpPort 2525
+              SMTP_RELAY_SERVER_PORT: 587
+              DEBUG: "true"
+              SMTP_DOMAIN: "${EXTERNAL_DOMAIN}"
+            envFrom:
+              - secretRef:
+                  name: smtp-relay-secret
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 128Mi
 
-    env:
-      DEBUG: "true"
-      SMTP_SERVER: smtp.sendgrid.net
-      # OVERWRITE_FROM: "${SECRET_SENDGRID_USER_SMTP_RELAY}"
-      SMTP_USERNAME: apikey
-      SMTP_PASSWORD: "${SECRET_SENDGRID_APIKEY_SMTP_RELAY}"
-      SMTP_DOMAIN: "${EXTERNAL_DOMAIN}"
-      SMTP_PORT: "465"
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: *app
 
     service:
-      main:
+      *app :
+        controller: *app
         type: LoadBalancer
         loadBalancerIP: ${SVC_SMTP_RELAY_ADDR}
-        externalTrafficPolicy: Local
         ports:
           http:
-            port: 2525
+            port: *metricsPort
           metrics:
-            enabled: true
-            port: 9749
+            port: *smtpPort
 
     serviceMonitor:
-      main:
-        enabled: true
+      metrics:
+        serviceName: *app
         endpoints:
           - port: metrics
             scheme: http
@@ -56,23 +94,17 @@ spec:
 
     persistence:
       config:
-        enabled: true
         type: configMap
-        name: *app
-        subPath: maddy.conf
-        mountPath: /data/maddy.conf
-        readOnly: true
-      data:
-        enabled: true
+        name: smtp-relay-config
+        globalMounts:
+          - path: /data/maddy.conf
+            subPath: maddy.conf
+
+      cache:
         type: emptyDir
         medium: Memory
         sizeLimit: 1Gi
-        mountPath: /dev/shm
 
-
-    podAnnotations:
-      configmap.reloader.stakater.com/reload: *app
-      secret.reloader.stakater.com/reload: *app
 
     topologySpreadConstraints:
       - maxSkew: 1

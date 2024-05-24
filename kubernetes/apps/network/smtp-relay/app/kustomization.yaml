@@ -2,18 +2,12 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: network
 resources:
   - ./helmrelease.yaml
-labels:
-  - pairs:
-      app.kubernetes.io/name: smtp-relay
-      app.kubernetes.io/instance: smtp-relay
+  - ./secret-smtp-relay.sops.yaml
 configMapGenerator:
-  - name: smtp-relay
+  - name: smtp-relay-config
     files:
-      - ./config/maddy.conf
+      - ./resources/maddy.conf
 generatorOptions:
   disableNameSuffixHash: true
-  annotations:
-    kustomize.toolkit.fluxcd.io/substitute: disabled
