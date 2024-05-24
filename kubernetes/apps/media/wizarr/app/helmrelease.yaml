@@ -1,78 +1,86 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: wizarr
-  namespace: media
+  name: &app wizarr
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-      interval: 30m
   values:
-    controller:
-      type: statefulset
-      annotations:
-        reloader.stakater.com/auto: "true"
-    image:
-      repository: ghcr.io/wizarrrr/wizarr
-      tag: 3.5.1
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/wizarrrr/wizarr
+              tag: 4.1.1
+            env:
+              TZ: ${TIMEZONE}
+            # securityContext:
+            #   allowPrivilegeEscalation: false
+            #   readOnlyRootFilesystem: true
+            #   capabilities:
+            #     drop:
+            #       - ALL
+            resources:
+              requests:
+                memory: 350Mi
+                cpu: 10m
+              limits:
+                memory: 512Mi
 
-    env:
-      TZ: America/New_York
+    defaultPodOptions:
+      securityContext:
+        # runAsUser: 568
+        # runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
 
     service:
-      main:
+      *app :
+        controller: *app
         ports:
           http:
             port: &port 5690
 
     ingress:
-      main:
-        enabled: true
-        ingressClassName: nginx-external
+      external:
+        className: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:invite"
-        hosts:
+        hosts: &hosts
           - host: &host "join.${EXTERNAL_DOMAIN}"
             paths:
               - path: /
-                pathType: Prefix
-        tls:
+                service:
+                  identifier: *app
+                  port: *port
+        tls: &tls
           - hosts:
               - *host
             secretName: wizarr-tls-external
+      internal:
+        className: nginx-internal
+        hosts: *hosts
+        tls: *tls
 
-    volumeClaimTemplates:
-      - name: config
-        mountPath: /data/database
-        accessMode: ReadWriteOnce
-        size: 1Gi
-        storageClass: ceph-block
-
-    resources:
-      requests:
-        memory: 350Mi
-        cpu: 10m
-      limits:
-        memory: 512Mi
-
-    serviceMonitor:
-      monitor:
-        enabled: true
-        serviceName: wizarr-monitor
-        endpoints:
-          - port: http
-            scheme: http
-            path: /metrics
-            interval: 10m
-            scrapeTimeout: 2m
+    persistence:
+      data:
+        existingClaim: ${VOLSYNC_CLAIM}
+        globalMounts:
+          - path: /data/database
