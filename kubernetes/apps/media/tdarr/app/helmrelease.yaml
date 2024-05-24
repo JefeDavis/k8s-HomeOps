@@ -1,112 +1,153 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: tdarr
-  namespace: media
+  name: &app tdarr
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-  maxHistory: 3
-  install:
-    remediation:
-      retries: 3
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
-  uninstall:
-    keepHistory: false
   values:
-    image:
-      repository: ghcr.io/haveagitgat/tdarr_acc
-      tag: 2.00.20.1
+    controllers:
+      server:
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/haveagitgat/tdarr
+              tag: 2.19.01
+            env:
+              TZ: ${TIMEZONE}
+              PUID: ${APP_UID}
+              PGID: ${APP_GID}
+              ffmpegPath: "/usr/local/bin/ffmpeg"
+              TDARR_INSTANCE_NAME: Tdarr
+              TDARR__PORT: &port 8265
+              TDARR__APPLICATION_URL: &host "tdarr.${EXTERNAL_DOMAIN}"
+              TDARR__LOG_LEVEL: info
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                cpu: 10m
+                memory: 250Mi
+      nodes:
+        type: daemonset
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/haveagitgat/tdarr_node
+              tag: 2.19.01
+            env:
+              TZ: ${TIMEZONE}
+              PUID: ${APP_UID}
+              PGID: ${APP_GID}
+              serverIP: tdarr.media.svc.cluster.local
+              serverPort: &serverPort 8266
+              ffmpegPath: "/usr/local/bin/ffmpeg"
+              nodeName:
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                cpu: 10m
+                memory: 250Mi
+              limits:
+                gpu.intel.com/i915: 1
+        pod:
+          nodeSelector:
+            intel.feature.node.kubernetes.io/gpu: "true"
 
-    env:
-      TZ: "America/New_York"
-      PUID: "568"
-      PGID: "568"
-      ffmpegPath: "/usr/local/bin/ffmpeg"
-      TDARR_INSTANCE_NAME: Tdarr
-      TDARR__PORT: &port 8265
-      TDARR__APPLICATION_URL: &host "tdarr.${EXTERNAL_DOMAIN}"
-      TDARR__LOG_LEVEL: info
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: ${APP_UID}
+        runAsGroup: ${APP_GID}
+        fsGroup: ${APP_GID}
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: 
+          - 44
+        seccompProfile: { type: RuntimeDefault }
 
     service:
-      main:
+      *app :
+        controller: server
         ports:
           http:
             port: *port
+            primary: true
           server:
             enabled: true
             protocol: TCP
-            port: 8266
+            port: *serverPort
 
     ingress:
-      main:
-        enabled: true
-        ingressClassName: nginx-external
+      external:
+        className: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: clarity:media-changer-solid
-        hosts:
+        hosts: &hosts
           - host: *host
             paths:
               - path: /
-                pathType: Prefix
-        tls:
+                service:
+                  identifier: *app
+                  port: *port
+        tls: &tls
           - hosts:
               - *host
             secretName: tdarr-tls-external
+      internal:
+        className: nginx-internal
+        hosts: *hosts
+        tls: *tls
 
     persistence:
       config:
-        enabled: true
-        existingClaim: tdarr-config
-        mountPath: /app/configs
+        existingClaim: ${CONFIG_CLAIM}
+        globalMounts:
+          - path: /app/configs
+
       data:
-        enabled: true
-        existingClaim: tdarr-data
-        mountPath: /app/server
-      cache:
-        enabled: true
-        existingClaim: tdarr-cache
+        existingClaim: ${VOLSYNC_CLAIM}
+        advancedMounts:
+          server:
+            *app :
+              - path: /app/server
+
       media:
-        enabled: true
         existingClaim: nfs-media
 
+      cache:
+        existingClaim: tdarr-cache
+
       backups:
-        enabled: true
         type: custom
         volumeSpec:
           nfs:
             server: "${SYNOLOGY_ADDR}"
             path: /volume1/backups/tdarr
-        mountPath: /app/server/Tdarr/Backups
-        readOnly: false
-        
-    podSecurityContext:
-      runAsUser: 0
-      runAsGroup: 0
-      fsGroup: 100
-      supplementalGroups:
-        - 34
-        - 100
-      fsGroupChangePolicy: "OnRootMismatch"
-      capabilities:
-        add:
-          - CHOWN
-
-    resources:
-      requests:
-        cpu: 10m
-        memory: 250Mi
+        advancedMounts:
+          server:
+            *app :
+              - path: /app/server/Tdarr/Backups
