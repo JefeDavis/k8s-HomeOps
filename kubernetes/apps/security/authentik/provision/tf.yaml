@@ -113,14 +113,6 @@ spec:
           client_secret: ${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
           redirect_uris: 
             - https://grafana.${EXTERNAL_DOMAIN}/login/generic_oauth
-        Node-Red:
-          url: https://node-red.${EXTERNAL_DOMAIN}
-          group: SelfHosted
-          client_id: nodered
-          client_type: confidential
-          client_secret: ${NODE_RED_OAUTH_CLIENT_SECRET}
-          redirect_uris: 
-            - https://node-red.${EXTERNAL_DOMAIN}/auth/strategy/callback
         Mealie:
           url: https://mealie.${EXTERNAL_DOMAIN}
           group: Home
