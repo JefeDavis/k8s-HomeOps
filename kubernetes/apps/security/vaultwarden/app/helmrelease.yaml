@@ -1,132 +1,133 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: &app vaultwarden
-  namespace: security
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-      interval: 30m
-  install:
-    remediation:
-      retries: 5
-  upgrade:
-    remediation:
-      retries: 5
   values:
-    controller:
-      type: statefulset
-      annotations:
-        reloader.stakater.com/auto: "true"
-    image:
-      repository: vaultwarden/server
-      pullPolicy: IfNotPresent
-      tag: 1.30.5
-    upgradeStrategy: recreate
-    envFrom:
-      - secretRef:
-          name: vaultwarden-secret
-    strategy:
-      type: Recreate
-    env:
-      DATA_FOLDER: "config"
-      ICON_CACHE_FOLDER: "config/icon_cache"
-      ATTACHMENTS_FOLDER: "config/attachments"
-      SENDS_FOLDER: "config/sends"
-      DOMAIN: "https://vault.${EXTERNAL_DOMAIN}"
-      SMTP_FROM_NAME: Vault
-      SMTP_FROM: vault@${EXTERNAL_DOMAIN}
-      SMTP_HOST: smtp-relay.network.svc.cluster.local
-      SMTP_PORT: 2525
-      SMTP_SSL: "false"
-      WEBSOCKET_ADDRESS: 0.0.0.0
-      WEBSOCKET_ENABLED: true
-      WEBSOCKET_PORT: &websocket-port 3012
-      ROCKET_PORT: &port 8080
-      SIGNUPS_ALLOWED: "false"
-      INVITATIONS_ALLOWED: true
-      SENDS_ALLOWED: true
-      EMERGENCY_ACCESS_ALLOWED: true
-      DISABLE_ICON_DOWNLOAD: false
-      DISABLE_2FA_REMEMBER: false
-      PASSWORD_HINTS_ALLOWED: false
-      A_DATABASE_USERNAME:
-        valueFrom:
-          secretKeyRef:
-            name: pg-vaultwarden-app
-            key: username
-      A_DATABASE_PASSWORD:
-        valueFrom:
-          secretKeyRef:
-            name: pg-vaultwarden-app
-            key: password
-      DATABASE_URL: 'postgres://$(A_DATABASE_USERNAME):$(A_DATABASE_PASSWORD)@pg-vaultwarden-rw:5432/vaultwarden'
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          *app :
+            image:
+              repository: vaultwarden/server
+              tag: 1.30.5
+            env:
+              TZ: ${TIMEZONE}
+              DATA_FOLDER: "data"
+              ICON_CACHE_FOLDER: "icons"
+              ATTACHMENTS_FOLDER: "data/attachments"
+              SENDS_FOLDER: "data/sends"
+              TMP_FOLDER: "/tmp"
+              DOMAIN: "https://vault.${EXTERNAL_DOMAIN}"
+              SMTP_FROM_NAME: Vault
+              SMTP_FROM: vault@${EXTERNAL_DOMAIN}
+              SMTP_HOST: smtp-relay.network.svc.cluster.local
+              SMTP_PORT: 2525
+              SMTP_SECURITY: "off"
+              ROCKET_PORT: &port 80
+              SIGNUPS_ALLOWED: "false"
+              INVITATIONS_ALLOWED: true
+              SENDS_ALLOWED: true
+              EMERGENCY_ACCESS_ALLOWED: true
+              DISABLE_ICON_DOWNLOAD: false
+              DISABLE_2FA_REMEMBER: false
+              PASSWORD_HINTS_ALLOWED: false
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-vaultwarden-app
+                    key: uri
+            envFrom:
+              - secretRef:
+                  name: vaultwarden-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                memory: 64Mi
+                cpu: 5m
+              limits:
+                memory: 164Mi
+
+    defaultPodOptions:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile: { type: RuntimeDefault }
+
     service:
-      main:
+      *app :
+        controller: *app
         ports:
           http:
             port: *port 
-          websocket:
-            enabled: true
-            port: *websocket-port
+
     ingress:
-      main:
-        enabled: true
-        ingressClassName: nginx-external
+      external:
+        className: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           theme.home.arpa/enabled: "true"
+          theme.home.arpa/app: "bitwarden"
           hajimari.io/enable: "true"
           hajimari.io/icon: "ph:password-fill"
         hosts: &hosts
           - host: vault.${EXTERNAL_DOMAIN}
             paths:
               - path: /
-                pathType: Prefix
                 service:
-                  port: *port
-              - path: /notifications/hub
-                pathType: Prefix
-                service:
-                  port: *websocket-port
-              - path: /notifications/hub/negotiate
-                pathType: Prefix
-                service:
+                  identifier: *app
                   port: *port
         tls: &tls
           - hosts:
               - vault.${EXTERNAL_DOMAIN}
             secretName: "vaultwarden-tls-external"
+      external-admin:
+        className: nginx-external
+        annotations:
+          auth.home.arpa/enabled: "true"
+        hosts:
+          - host: vault.${EXTERNAL_DOMAIN}
+            paths:
+              - path: /admin
+                service:
+                  identifier: *app
+                  port: *port
+        tls: *tls
       internal:
-        enabled: true
-        ingressClassName: nginx-internal
+        className: nginx-internal
         annotations:
           theme.home.arpa/enabled: "true"
+          theme.home.arpa/app: "bitwarden"
         hosts: *hosts
         tls: *tls
 
-    podSecurityContext:
-      runAsUser: 568
-      runAsGroup: 568
-      fsGroup: 568
-      fsGroupChangePolicy: "OnRootMismatch"
-    volumeClaimTemplates:
-      - name: config
-        mountPath: /config
-        accessMode: ReadWriteOnce
-        size: 15Gi
-        storageClass: ceph-block
-    resources:
-      requests:
-        memory: 64Mi
-        cpu: 5m
-      limits:
-        memory: 164Mi
+    persistence:
+      data:
+        existingClaim: ${VOLSYNC_CLAIM}
+
+      icons:
+        type: emptyDir
+
+      tmp:
+        type: emptyDir

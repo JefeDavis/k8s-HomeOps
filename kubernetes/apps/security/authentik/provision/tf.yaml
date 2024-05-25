@@ -92,6 +92,9 @@ spec:
         Unifi:
           url: https://unifi.${EXTERNAL_DOMAIN}
           group: Network
+        VaultWarden:
+          url: https://vault.${EXTERNAL_DOMAIN}
+          group: Security
         Wizarr:
           url: https://join.${EXTERNAL_DOMAIN}
           group: Media
