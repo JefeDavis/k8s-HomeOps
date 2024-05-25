@@ -1,60 +1,96 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: theme-park
-  namespace: selfhosted
+  name: &app theme-park
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.1.0
       interval: 15m
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
   values:
-    image:
-      repository: ghcr.io/onedr0p/theme-park
-      tag: 1.16.2@sha256:e3e2050760a3cd7fba05a9ec0e9504a1a96c90029fc5fbe681b49e01d3959e61
+    controllers:
+      *app :
+        replicas: 2
+        strategy: RollingUpdate
+        pod:
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: *app
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/onedr0p/theme-park
+              tag: 1.16.2@sha256:e3e2050760a3cd7fba05a9ec0e9504a1a96c90029fc5fbe681b49e01d3959e61
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                cpu: 5m
+                memory: 10Mi
+              limits:
+                memory: 50Mi
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+
     service:
-      main:
+      *app :
+        controller: *app
         ports:
           http:
-            port: 8080
+            port: &port 8080
+
     ingress:
-      main:
-        enabled: true
-        ingressClassName: nginx-external
+      external:
+        className: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:paint-outline"
-        hosts:
+        hosts: &hosts
           - host: &host "theme-park.${EXTERNAL_DOMAIN}"
             paths:
               - path: /
-        tls:
+                service:
+                  identifier: *app
+                  port: *port
+        tls: &tls
           - hosts:
               - *host
             secretName: theme-park-tls-external
+      internal:
+        className: nginx-internal
+        hosts: *hosts
+        tls: *tls
+
     persistence:
       rdt-config:
-        enabled: true
         type: configMap
         name: theme-park-rdt-client-config
-        mountPath: /usr/share/nginx/html/css/base/rdt-client/
-      catppuccin-themes:
-        enabled: true
-        type: configMap
-        name: theme-park-catppuccin-config
-        mountPath: /usr/share/nginx/html/css/theme-options/catppuccin-macchiato.css
-        subPath: catppuccin-macchiato.css
-    resources:
-      requests:
-        cpu: 5m
-        memory: 10Mi
-      limits:
-        memory: 10Mi
+        globalMounts:
+          - path: /usr/share/nginx/html/css/base/rdt-client/
+
+      tmp:
+        type: emptyDir
