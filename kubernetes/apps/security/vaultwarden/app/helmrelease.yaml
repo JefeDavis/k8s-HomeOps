@@ -46,6 +46,7 @@ spec:
               DISABLE_ICON_DOWNLOAD: false
               DISABLE_2FA_REMEMBER: false
               PASSWORD_HINTS_ALLOWED: false
+              PUSH_ENABLED: "true"
               DATABASE_URL:
                 valueFrom:
                   secretKeyRef:
