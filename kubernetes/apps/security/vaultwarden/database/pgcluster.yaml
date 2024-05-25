@@ -3,7 +3,6 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: pg-vaultwarden
-  namespace: security
 spec:
   instances: 3
   imageName: ghcr.io/cloudnative-pg/postgresql:15.5-15
@@ -12,10 +11,6 @@ spec:
   storage:
     size: 8Gi
     storageClass: ceph-block
-  postgresql:
-    parameters:
-      max_connections: "600"
-      shared_buffers: 256MB # amount of RAM to use for data caching, https://postgresqlco.nf/doc/en/param/shared_buffers/
   monitoring:
     enablePodMonitor: true
   # configured according to below link to allow customizing of initdb via Flux
@@ -25,9 +20,6 @@ spec:
       dataChecksums: true
       database: vaultwarden
       owner: vaultwarden
-      encoding: "UTF8"
-      localeCollate: en_US.utf8
-      localeCType: en_US.utf8
 
   backup:
     retentionPolicy: 30d

@@ -6,13 +6,19 @@ metadata:
   name: cluster-apps-vaultwarden-database
   namespace: flux-system
 spec:
-  interval: 10m
+  targetNamespace: security
+  commonMetadata:
+    labels:
+      app.kubernetes.io/part-of: vaultwarden
   path: "./kubernetes/apps/security/vaultwarden/database"
   prune: true
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
   postBuild:
     substituteFrom: []
   decryption:
@@ -28,17 +34,31 @@ metadata:
   name: cluster-apps-vaultwarden
   namespace: flux-system
 spec:
-  interval: 10m
+  targetNamespace: security
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: &app vaultwarden
+      app.kubernetes.io/instance: *app
   path: "./kubernetes/apps/security/vaultwarden/app"
   prune: true
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
   postBuild:
-    substituteFrom: []
+    substitute:
+      APP: *app
+      VOLSYNC_CLAIM: vaultwarden-data
+      VOLSYNC_CAPACITY: 15Gi
+    substituteFrom:
+      - kind: Secret
+        name: flux-volsync-secret
   decryption:
     provider: sops
   dependsOn:
     - name: cluster-apps-vaultwarden-database
     - name: cluster-apps-smtp-relay
+    - name: cluster-apps-volsync
