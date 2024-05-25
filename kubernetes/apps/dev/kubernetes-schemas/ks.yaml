@@ -6,14 +6,19 @@ metadata:
   name: cluster-apps-kubernetes-schemas
   namespace: flux-system
 spec:
+  targetNamespace: dev
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: &app kubernetes-schemas
+      app.kubernetes.io/instance: *app
   path: ./kubernetes/apps/dev/kubernetes-schemas/app
   prune: true
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
-  postBuild:
-    substituteFrom: []
   interval: 30m
   retryInterval: 1m
   timeout: 5m
+  postBuild:
+    substituteFrom: []
