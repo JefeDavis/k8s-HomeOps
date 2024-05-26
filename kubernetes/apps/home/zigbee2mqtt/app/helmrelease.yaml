@@ -105,6 +105,7 @@ spec:
         runAsGroup: 568
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
       
     service:
       *app :
@@ -115,38 +116,28 @@ spec:
 
     ingress:
       external:
-        enabled: true
         className: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           auth.home.arpa/enabled: "true"
+          internal-dns.home.arpa/disabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "simple-icons:zigbee"
-        hosts:
-          - host: &fqdn zigbee.${EXTERNAL_DOMAIN}
+        hosts: &hosts
+          - host: &host zigbee.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 service:
                   identifier: *app
                   port: *port
-        tls:
+        tls: &tls
           - hosts:
-              - *fqdn
+              - *host
             secretName: zigbee2mqtt-tls-external
       internal:
-        enabled: true
         className: nginx-internal
-        hosts:
-          - host: *fqdn
-            paths:
-              - path: /
-                service:
-                  identifier: *app
-                  port: *port
-        tls:
-          - hosts:
-              - *fqdn
-            secretName: zigbee2mqtt-tls-external
+        hosts: *hosts
+        tls: *tls
 
     persistence:
       data:

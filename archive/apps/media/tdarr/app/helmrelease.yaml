@@ -106,22 +106,18 @@ spec:
           auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: clarity:media-changer-solid
-        hosts: &hosts
+        hosts:
           - host: *host
             paths:
               - path: /
                 service:
                   identifier: *app
                   port: *port
-        tls: &tls
+        tls:
           - hosts:
               - *host
             secretName: tdarr-tls-external
-      internal:
-        className: nginx-internal
-        hosts: *hosts
-        tls: *tls
-
+      
     persistence:
       config:
         existingClaim: ${CONFIG_CLAIM}

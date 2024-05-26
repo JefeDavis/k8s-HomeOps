@@ -103,25 +103,19 @@ spec:
           auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "material-symbols:book-outline-rounded"
-        hosts: &hosts
+        hosts:
           - host: &host readarr.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 service:
                   identifier: *app
                   port: *port
-        tls: &tls
+        tls:
           - hosts:
               - *host
             secretName: readarr-tls-external
 
-      internal:
-        className: nginx-internal
-        annotations:
-          theme.home.arpa/enabled: "true"
-        hosts: *hosts
-        tls: *tls
-
+      
     persistence:
       config:
         existingClaim: ${VOLSYNC_CLAIM}

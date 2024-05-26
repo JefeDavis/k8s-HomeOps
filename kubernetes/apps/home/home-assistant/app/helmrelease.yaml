@@ -133,14 +133,8 @@ spec:
             port: &port 8123
           sonos:
             port: 1400
-
-      &code codeserver:
-        controller: *app
-        type: ClusterIP
-        ports:
-          http:
-            enabled: true
-            port: &codeport 8080
+          code:
+            port: &codePort 8080
 
     ingress:
       external:
@@ -150,47 +144,36 @@ spec:
           hajimari.io/enable: "true"
           hajimari.io/icon: "simple-icons:homeassistant"
         className: nginx-external
-        hosts: &hosts
+        hosts:
           - host: home.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 service:
                   identifier: *app
                   port: *port
-        tls: &tls
+        tls:
           - hosts:
               - home.${EXTERNAL_DOMAIN}
             secretName: home-assistant-tls-external
 
-      internal:
-        annotations:
-          nginx.org/websocket-services: home-assistant
-        className: nginx-internal
-        hosts: *hosts
-        tls: *tls
-
       code-external:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
+          auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
-          hajimari.io/icon: "simple-icons:homeassistant"
+          hajimari.io/icon: "simple-icons:vscode"
         className: nginx-external
-        hosts: &code-hosts
+        hosts:
           - host: hass-code.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 service:
-                  identifier: *code
-                  port: *codeport
-        tls: &code-tls
+                  identifier: *app
+                  port: *codePort
+        tls:
           - hosts:
               - hass-code.${EXTERNAL_DOMAIN}
             secretName: hass-code-tls-external
-      code-internal:
-        className: nginx-internal
-        hosts: *code-hosts
-        tls: *code-tls
-        
                   
     serviceMonitors:
       *app :

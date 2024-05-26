@@ -3,7 +3,6 @@ apiVersion: v1
 kind: Endpoints
 metadata:
   name: synology
-  namespace: network
 subsets:
   - addresses:
     - ip: ${SYNOLOGY_ADDR}
@@ -14,7 +13,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: synology
-  namespace: network
 spec:
  ports:
    - name: http
@@ -29,11 +27,12 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     cert-manager.io/cluster-issuer: letsencrypt-prod
     auth.home.arpa/enabled: "true"
+    internal-dns.home.arpa/disabled: "true"
     hajimari.io/enable: "true"
-    hajimari.io/icon: "simple-icons:ubiquiti"
+    hajimari.io/icon: "simple-icons:synology"
   labels:
-    app.kubernetes.io/instance: unifi
-    app.kubernetes.io/name: unifi
+    app.kubernetes.io/name: &app synology
+    app.kubernetes.io/instance: *app
   name: synology-external
   namespace: network
 spec:
@@ -60,24 +59,23 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   labels:
-    app.kubernetes.io/instance: synology
-    app.kubernetes.io/name: synology
+    app.kubernetes.io/name: &app synology
+    app.kubernetes.io/instance: *app
   name: synology-internal
-  namespace: network
 spec:
   ingressClassName: nginx-internal
   rules:
-  - host: nas.${EXTERNAL_DOMAIN}
+  - host: &host nas.${EXTERNAL_DOMAIN}
     http:
       paths:
       - backend:
           service:
-            name: synology
+            name: *app
             port:
               number: 5001
         path: /
         pathType: Prefix
   tls:
   - hosts:
-    - nas.${EXTERNAL_DOMAIN}
+    - *host
     secretName: synology-tls-external

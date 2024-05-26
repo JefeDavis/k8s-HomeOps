@@ -136,25 +136,19 @@ spec:
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:plex"
           hajimari.io/url: "https://plex.${EXTERNAL_DOMAIN}/web"
-        hosts: &hosts
+        hosts:
         - host: &host "plex.${EXTERNAL_DOMAIN}"
           paths:
           - path: /
             service:
               identifier: *app
               port: *port
-        tls: &tls
+        tls:
         - hosts:
             - *host
           secretName: plex-tls-external
 
-      internal:
-        className: nginx-internal
-        annotations:
-          theme.home.arpa/enabled: "true"
-        hosts: *hosts
-        tls: *tls
-
+      
     persistence:
       config1:
         existingClaim: ${VOLSYNC_CLAIM}

@@ -139,25 +139,19 @@ spec:
           theme.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:eye-circle-outline"
-        hosts: &hosts
+        hosts:
           - host: &host "request.${EXTERNAL_DOMAIN}"
             paths:
               - path: /
                 service:
                   identifier: *app
                   port: *port
-        tls: &tls
+        tls:
           - hosts:
               - *host
             secretName: overseerr-tls-external
 
-      internal:
-        className: nginx-internal
-        annotations:
-          theme.home.arpa/enabled: "true"
-        hosts: *hosts
-        tls: *tls
-          
+                
     persistence:
       config:
         existingClaim: ${VOLSYNC_CLAIM}

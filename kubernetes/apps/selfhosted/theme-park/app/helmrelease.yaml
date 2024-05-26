@@ -69,22 +69,18 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:paint-outline"
-        hosts: &hosts
+        hosts:
           - host: &host "theme-park.${EXTERNAL_DOMAIN}"
             paths:
               - path: /
                 service:
                   identifier: *app
                   port: *port
-        tls: &tls
+        tls:
           - hosts:
               - *host
             secretName: theme-park-tls-external
-      internal:
-        className: nginx-internal
-        hosts: *hosts
-        tls: *tls
-
+      
     persistence:
       rdt-config:
         type: configMap

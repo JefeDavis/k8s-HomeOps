@@ -63,22 +63,18 @@ spec:
           auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:invite"
-        hosts: &hosts
+        hosts:
           - host: &host "join.${EXTERNAL_DOMAIN}"
             paths:
               - path: /
                 service:
                   identifier: *app
                   port: *port
-        tls: &tls
+        tls:
           - hosts:
               - *host
             secretName: wizarr-tls-external
-      internal:
-        className: nginx-internal
-        hosts: *hosts
-        tls: *tls
-
+      
     persistence:
       data:
         existingClaim: ${VOLSYNC_CLAIM}

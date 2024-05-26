@@ -84,7 +84,7 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-prod
           hajimari.io/enable: "true"
           hajimari.io/icon: mdi:chef-hat
-        hosts: &hosts
+        hosts:
           - host: &host "mealie.${EXTERNAL_DOMAIN}"
             paths:
               - path: /
@@ -92,15 +92,11 @@ spec:
                 service:
                   identifier: *app
                   port: http
-        tls: &tls
+        tls:
           - hosts:
               - *host
             secretName: mealie-tls-external
-      internal:
-        className: nginx-internal
-        hosts: *hosts
-        tls: *tls
-
+      
     persistence:
       data:
         existingClaim: ${VOLSYNC_CLAIM}

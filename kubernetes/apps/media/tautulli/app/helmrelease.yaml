@@ -66,23 +66,17 @@ spec:
           theme.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:chart-bar"
-        hosts: &hosts
+        hosts:
           - host: &host tautulli.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 service:
                   identifier: *app
-        tls: &tls
+        tls:
           - hosts:
               - *host
             secretName: tautulli-tls-external
-      internal:
-        className: nginx-internal
-        annotations:
-          theme.home.arpa/enabled: "true"
-        hosts: *hosts
-        tls: *tls
-
+      
     persistence:
       config:
         existingClaim: ${VOLSYNC_CLAIM}

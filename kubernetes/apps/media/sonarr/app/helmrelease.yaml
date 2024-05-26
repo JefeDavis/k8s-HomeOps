@@ -103,24 +103,18 @@ spec:
           auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:television-classic"
-        hosts: &hosts
+        hosts:
           - host: &host sonarr.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 service:
                   identifier: *app
                   port: *port
-        tls: &tls
+        tls:
           - hosts:
               - *host
             secretName: sonarr-tls-external
-      internal:
-        className: nginx-internal
-        annotations:
-          theme.home.arpa/enabled: "true"
-        hosts: *hosts
-        tls: *tls
-          
+                
     persistence:
       config:
         existingClaim: ${VOLSYNC_CLAIM}
