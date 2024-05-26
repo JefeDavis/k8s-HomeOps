@@ -62,6 +62,9 @@ spec:
         OctoPrint:
           url: https://octoprint.${EXTERNAL_DOMAIN}
           group: Network
+        Ollama:
+          url: https://ollama.${EXTERNAL_DOMAIN}
+          group: AI
         Prometheus:
           url: https://prometheus.${EXTERNAL_DOMAIN}
           group: Monitor
