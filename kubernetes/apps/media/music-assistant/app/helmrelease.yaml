@@ -41,7 +41,9 @@ spec:
               [{
                 "name":"iot-vlan",
                 "namespace": "network",
-                "ips": ["10.0.90.6/24"]
+                "ips": ["10.0.90.62/24"],
+                "mac": "b2:c8:9e:b6:5f:28",
+                "gateway": "10.0.90.1"
               }]
 
     defaultPodOptions:

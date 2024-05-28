@@ -30,7 +30,8 @@ spec:
                 "interface": "eth1",
                 "namespace": "network",
                 "ips": ["10.0.90.5/24"],
-                "mac": "ce:95:be:b2:4f:ca"
+                "mac": "ce:95:be:b2:4f:ca",
+                "gateway": "10.0.90.1"
               }]
         containers:
           main:
