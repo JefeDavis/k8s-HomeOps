@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./dragonfly.yaml
+  - ./pgcluster.yaml
+  - ./scheduledbackup.yaml
+  - ./podmonitor.yaml
+configMapGenerator:
+  # - name: blocky-datasource
+  #   files:
+  #     - datasource.yaml=./resources/datasource.yaml
+  #   options:
+  #     labels:
+  #       grafana_datasource: "true"
+  - name: blocky-configmap
+    files:
+      - config.yml=./resources/config.yaml
+generatorOptions:
+  disableNameSuffixHash: true

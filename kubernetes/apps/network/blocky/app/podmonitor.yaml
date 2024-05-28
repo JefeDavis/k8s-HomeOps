@@ -1,0 +1,12 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: dns-dragonfly
+spec:
+  selector:
+    matchLabels:
+      app: dns-dragonfly
+  podTargetLabels: ["app"]
+  podMetricsEndpoints:
+    - port: admin
