@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: external-dns-internal
+  name: &app internal-dns
   namespace: network
 spec:
   interval: 30m
@@ -17,7 +17,7 @@ spec:
         namespace: flux-system
       interval: 30m
   values:
-    fullnameOverride: &name external-dns-internal
+    fullnameOverride: *app
 
     sources:
       - crd
@@ -25,7 +25,7 @@ spec:
       - service
 
     podAnnotations:
-      secret.reloader.stakater.com/reload: external-dns-internal-secret
+      secret.reloader.stakater.com/reload: internal-dns-secret
 
     interval: 10s
     policy: sync
@@ -52,10 +52,10 @@ spec:
           - target:
               version: v1
               kind: Deployment
-              name: external-dns-internal
+              name: internal-dns
             patch: |
               - op: add
                 path: /spec/template/spec/containers/0/envFrom
                 value:
                   - secretRef:
-                      name: external-dns-internal-secret
+                      name: internal-dns-secret
