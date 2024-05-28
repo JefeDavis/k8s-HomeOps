@@ -53,3 +53,4 @@ panel_iframe:
   mass:
     title: "Music Assistant"
     url: "https://music.${EXTERNAL_DOMAIN}"
+adaptive_lighting:
