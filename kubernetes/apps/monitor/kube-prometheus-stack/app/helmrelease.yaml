@@ -183,7 +183,7 @@ spec:
             name: *secret
             key: objstore.yml
           # renovate: depName=quay.io/thanos/thanos datasource=docker
-          version: "v0.35.0"
+          version: "0.35.1"
         retention: 2d
         retentionSize: "15GB"
         resources:
