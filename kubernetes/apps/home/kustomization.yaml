@@ -9,6 +9,7 @@ resources:
   - ./baby-buddy/ks.yaml
   - ./esphome/ks.yaml
   - ./home-assistant/ks.yaml
+  - ./maker-management-platform/ks.yaml
   - ./mealie/ks.yaml
   - ./wyoming-services/ks.yaml
   - ./zigbee2mqtt/ks.yaml
