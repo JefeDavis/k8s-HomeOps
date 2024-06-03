@@ -6,12 +6,12 @@ metadata:
   name: cluster-apps-maker-management-platform
   namespace: flux-system
 spec:
-  targetNamespace: home
+  targetNamespace: print
   commonMetadata:
     labels:
       app.kubernetes.io/name: &app maker-management-platform
       app.kubernetes.io/instance: *app
-  path: "./kubernetes/apps/home/maker-management-platform/app"
+  path: "./kubernetes/apps/print/maker-management-platform/app"
   prune: true
   sourceRef:
     kind: GitRepository

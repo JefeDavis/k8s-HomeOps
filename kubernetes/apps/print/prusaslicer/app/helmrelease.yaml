@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app maker-management-platform
+  name: &app prusaslicer
 spec:
   interval: 30m
   chart:
@@ -22,13 +22,10 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          agent:
+          *app :
             image:
-              repository: ghcr.io/maker-management-platform/agent
-              tag: v1.3.2
-            env:
-              LIBRARY_PATH: /library
-              LOG_PATH: ""
+              repository: ghcr.io/angelnu/prusaslicer-novnc
+              tag: 2.7.4@sha256:a219943e0d20d39144fe8a31b694456196d8a0773980bb35750579d56f379d64
             resources:
               requests:
                 cpu: 12m
@@ -41,46 +38,32 @@ spec:
               capabilities:
                 drop:
                   - ALL
-          ui:
-            image:
-              repository: ghcr.io/maker-management-platform/mmp-ui
-              tag: v1.3.0
-            env:
-              AGENT_ADDRESS: localhost:8000
-            resources:
-              requests:
-                cpu: 12m
-                memory: 128M
-              limits:
-                memory: 128M
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - ALL
 
     defaultPodOptions:
       securityContext:
-        runAsUser: 568
-        runAsGroup: 568
+        runAsUser: 33
+        runAsGroup: 33
         fsGroup: 568
         fsGroupChangePolicy: "OnRootMismatch"
 
     service:
       *app :
-        controller: maker-management-platform
+        controller: *app
         ports:
           http:
-            port: &port 8081
+            port: &port 8080
 
     ingress:
       internal:
         className: nginx-internal
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
+          hajimari.io/enable: "true"
+          hajimari.io/icon: mdi:printer-3d
+          hajimari.io/info: Prusa Slicer
+          hajimari.io/group: Print
         hosts:
-          - host: &host mmp.${EXTERNAL_DOMAIN}
+          - host: &host prusaslicer.${EXTERNAL_DOMAIN}
             paths:
               - path: /
                 service:
@@ -89,30 +72,20 @@ spec:
         tls:
           - hosts:
               - *host
-            secretName: mmp-tls-internal
+            secretName: prusaslicer-tls-internal
 
 
     persistence:
-      data:
+      config:
         existingClaim: ${VOLSYNC_CLAIM}
-        advancedMounts:
-          maker-management-platform:
-            agent:
-              - path: /library
-                subPath: library
-              - path: /data
-                subPath: data
+        globalMounts:
+          - path: /configs/.config/PrusaSlicer
+      prints:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/media/library/prints
 
       tmp:
-        enabled: true
         type: emptyDir
-        advancedMounts:
-          maker-management-platform:
-            agent:
-              - path: /app/temp
-                subPath: agent-tmp
-              - path: /app/cache
-                subPath: agent-cache
-            ui:
-              - path: /config/caddy
-                subPath: caddy
