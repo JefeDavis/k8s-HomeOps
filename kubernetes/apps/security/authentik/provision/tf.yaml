@@ -83,6 +83,9 @@ spec:
         Sonarr:
           url: https://sonarr.${EXTERNAL_DOMAIN}
           group: Media
+        Stable-Diffusion:
+          url: https://stable-diffusion.${EXTERNAL_DOMAIN}
+          group: AI
         Tautulli:
           url: https://tautulli.${EXTERNAL_DOMAIN}
           group: Media

@@ -1,0 +1,34 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-stable-diffusion
+  namespace: flux-system
+spec:
+  targetNamespace: ai
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: &app stable-diffusion
+  path: "./kubernetes/apps/ai/stable-diffusion/app"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-home-ops
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  decryption:
+    provider: sops
+  postBuild:
+    substitute:
+      APP: *app
+      VOLSYNC_CLAIM: stable-diffusion-data
+      VOLSYNC_CAPACITY: 32Gi
+    substituteFrom:
+      - kind: Secret
+        name: flux-volsync-secret
+  dependsOn:
+    - name: cluster-apps-intel-device-plugins-gpu
+    - name: cluster-apps-volsync
