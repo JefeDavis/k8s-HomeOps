@@ -19,6 +19,7 @@ spec:
         dnsZones:
           - '${EXTERNAL_DOMAIN}'
           - '${INTERNAL_DOMAIN}'
+          - '${PROFESSIONAL_DOMAIN}'
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -40,4 +41,5 @@ spec:
         dnsZones:
           - '${EXTERNAL_DOMAIN}'
           - '${INTERNAL_DOMAIN}'
+          - '${PROFESSIONAL_DOMAIN}'
 
