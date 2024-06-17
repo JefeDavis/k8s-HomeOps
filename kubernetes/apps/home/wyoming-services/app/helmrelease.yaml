@@ -44,7 +44,7 @@ spec:
           api:
             image:
               repository: ghcr.io/matatonic/openedai-speech-min
-              tag: 0.11.0
+              tag: 0.12.3
             env:
               TTS_HOME: voices
               HF_HOME: voices
