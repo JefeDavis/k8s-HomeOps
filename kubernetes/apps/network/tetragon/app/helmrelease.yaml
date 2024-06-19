@@ -39,6 +39,8 @@ spec:
         enabled: true
         serviceMonitor:
           enabled: true
+      healthGrpc:
+        port: 6790
     tetragonOperator:
       podInfo:
         enabled: true
