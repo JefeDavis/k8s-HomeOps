@@ -31,7 +31,7 @@ spec:
           main:
             image:
               repository: flaresolverr/flaresolverr
-              tag: v3.3.19
+              tag: v3.3.20
             resources:
               requests:
                 cpu: 50m
