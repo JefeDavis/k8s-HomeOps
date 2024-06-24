@@ -67,6 +67,8 @@ spec:
     substituteFrom:
       - kind: Secret
         name: grafana-secret
+      - kind: Secret
+        name: headscale-secret
   dependsOn:
     - name: cluster-apps-authentik
     - name: cluster-apps-plex

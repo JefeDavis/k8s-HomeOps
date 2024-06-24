@@ -132,6 +132,15 @@ spec:
             - https://mealie.${EXTERNAL_DOMAIN}/login
             - https://mealie.${EXTERNAL_DOMAIN}/login?direct=1
             - https://mealie.${EXTERNAL_DOMAIN}/login*
+        Headscale:
+          url: https://headscale.${EXTERNAL_DOMAIN} 
+          group: Network
+          client_id: ${HEADSCALE_OIDC_CLIENT_ID}
+          client_type: confidential
+          client_secret: ${HEADSCALE_OIDC_CLIENT_SECRET}
+          redirect_uris:
+            - https://headscale.${EXTERNAL_DOMAIN}/oidc/callback
+            - https://headscale.${EXTERNAL_DOMAIN}/admin/oidc_callback
     - name: groups
       value:
         ${ORGANIZATION}-Admins:
@@ -149,6 +158,9 @@ spec:
         Mealie-Users:
           name: "Mealie Users"
           superuser: false
+        Headscale-Users:
+          name: "Headscale_Users"
+          superuser: false
     - name: users
       value:
         jefedavis:
@@ -159,6 +171,7 @@ spec:
             - "Grafana-Admins"
             - "Mealie-Admins"
             - "Mealie-Users"
+            - "Headscale-Users"
         zaradavis:
           name: "${SPOUSE_NAME}"
           email: "${SPOUSE_EMAIL}"
