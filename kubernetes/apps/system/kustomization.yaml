@@ -13,5 +13,6 @@ resources:
   - ./reloader/ks.yaml
   - ./reflector/ks.yaml
   - ./smarter-device-manager/ks.yaml
+  - ./spegel/ks.yaml
   - ./system-upgrade-controller/ks.yaml
 

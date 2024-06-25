@@ -35,6 +35,7 @@ resources:
   - prometheus-community.yaml
   - pulumi.yaml
   - rook-ceph.yaml
+  - spegel.yaml
   - stakater.yaml
   - stevehipwell.yaml
   - synology-csi.yaml
