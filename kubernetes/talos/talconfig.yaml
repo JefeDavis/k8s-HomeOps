@@ -40,17 +40,17 @@ nodes:
     networkInterfaces:
       - interface: eth0
         dhcp: false
-        mtu: 9000
+        mtu: 1500
         vlans:
           - vlanId: 770
-            mtu: 9000
+            mtu: 1500
             dhcp: true
             dhcpOptions:
               routeMetric: 1024
             vip:
               ip: ${CLUSTER_ENDPOINT_IP}
           - vlanId: 90
-            mtu: 9000
+            mtu: 1500
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
@@ -69,9 +69,8 @@ nodes:
             mountPath: /usr/local/etc/nut/upsmon.conf
       - name: tailscale
         environment:
-          - TS_AUTHKEY=${TS_AUTHKEY}
           - TS_AUTH_ONCE=true
-          - TS_EXTRA_ARGS=--login-server=https://headscale.${EXTERNAL_DOMAIN} --reset
+          - TS_EXTRA_ARGS=--login-server=https://headscale.${EXTERNAL_DOMAIN}
 
   # intel nuc panther canyon / i7 / 256GB / 1TB SSD / 2TB Nvme
   - hostname: jsdyb-nuc-002.${INTERNAL_DOMAIN}
@@ -82,17 +81,16 @@ nodes:
     networkInterfaces:
       - interface: eth0
         dhcp: false
-        mtu: 9000
         vlans:
           - vlanId: 770
-            mtu: 9000
+            mtu: 1500
             dhcp: true
             dhcpOptions:
               routeMetric: 1024
             vip:
               ip: ${CLUSTER_ENDPOINT_IP}
           - vlanId: 90
-            mtu: 9000
+            mtu: 1500
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
@@ -111,9 +109,8 @@ nodes:
             mountPath: /usr/local/etc/nut/upsmon.conf
       - name: tailscale
         environment:
-          - TS_AUTHKEY=${TS_AUTHKEY}
           - TS_AUTH_ONCE=true
-          - TS_EXTRA_ARGS=--login-server=https://headscale.${EXTERNAL_DOMAIN} --reset
+          - TS_EXTRA_ARGS=--login-server=https://headscale.${EXTERNAL_DOMAIN}
 
   # intel nuc panther canyon / i7 / 256GB / 1TB SSD / 2TB Nvme
   - hostname: jsdyb-nuc-003.${INTERNAL_DOMAIN}
@@ -124,17 +121,16 @@ nodes:
     networkInterfaces:
       - interface: eth0
         dhcp: false
-        mtu: 9000
         vlans:
           - vlanId: 770
-            mtu: 9000
+            mtu: 1500
             dhcp: true
             dhcpOptions:
               routeMetric: 1024
             vip:
               ip: ${CLUSTER_ENDPOINT_IP}
           - vlanId: 90
-            mtu: 9000
+            mtu: 1500
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
@@ -153,7 +149,6 @@ nodes:
             mountPath: /usr/local/etc/nut/upsmon.conf
       - name: tailscale
         environment:
-          # - TS_AUTHKEY=${TS_AUTHKEY}
           - TS_AUTH_ONCE=true
           - TS_EXTRA_ARGS=--login-server=https://headscale.${EXTERNAL_DOMAIN}
 controlPlane:
