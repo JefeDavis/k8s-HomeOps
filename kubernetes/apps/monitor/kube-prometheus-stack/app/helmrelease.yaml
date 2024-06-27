@@ -126,13 +126,6 @@ spec:
               replacement: $1
               sourceLabels: ["__meta_kubernetes_pod_node_name"]
               targetLabel: kubernetes_node
-      resources:
-        requests:
-          cpu: 15m
-          memory: 127M
-        limits:
-          memory: 153M
-
     nodeExporter:
       enabled: true
     prometheus-node-exporter:
