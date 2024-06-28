@@ -24,7 +24,7 @@ spec:
           *app :
             image:
               repository: ghcr.io/juanfont/headscale
-              tag: 0.22.3@sha256:aadf29a875bb2ffdf6579869e5759935f7a64b9fd19fcea9d5385c5d7220dc7b
+              tag: 0.23.0-alpha12@sha256:31c31103931fee0269017a21330332d83269ccd139f736c8ce8d0cc8ab053068
             args: ["headscale", "serve"]
             env:
               TZ: ${TIMEZONE}
