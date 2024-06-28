@@ -41,24 +41,24 @@ spec:
                   name: headscale-secret
                   key: HEADSCALE_OIDC_CLIENT_SECRET
 
-              HEADSCALE_DB_TYPE: postgres
-              HEADSCALE_DB_HOST:
+              HEADSCALE_DATABASE_TYPE: postgres
+              HEADSCALE_DATABASE_POSTGRES_HOST:
                 secretKeyRef:
                   name: pg-headscale-app
                   key: host
-              HEADSCALE_DB_PORT:
+              HEADSCALE_DATABASE_POSTGRES_PORT:
                 secretKeyRef:
                   name: pg-headscale-app
                   key: port
-              HEADSCALE_DB_NAME:
+              HEADSCALE_DATABASE_POSTGRES_NAME:
                 secretKeyRef:
                   name: pg-headscale-app
                   key: dbname
-              HEADSCALE_DB_USER:
+              HEADSCALE_DATABASE_POSTGRES_USER:
                 secretKeyRef:
                   name: pg-headscale-app
                   key: username
-              HEADSCALE_DB_PASS:
+              HEADSCALE_DATABASE_POSTGRES_PASS:
                 secretKeyRef:
                   name: pg-headscale-app
                   key: password
