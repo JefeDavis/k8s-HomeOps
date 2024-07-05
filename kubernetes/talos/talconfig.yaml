@@ -69,6 +69,7 @@ nodes:
             mountPath: /usr/local/etc/nut/upsmon.conf
       - name: tailscale
         environment:
+          - TS_AUTHKEY=${TS_AUTHKEY}
           - TS_AUTH_ONCE=true
           - TS_EXTRA_ARGS=--login-server=https://headscale.${EXTERNAL_DOMAIN}
 
@@ -109,6 +110,7 @@ nodes:
             mountPath: /usr/local/etc/nut/upsmon.conf
       - name: tailscale
         environment:
+          - TS_AUTHKEY=${TS_AUTHKEY}
           - TS_AUTH_ONCE=true
           - TS_EXTRA_ARGS=--login-server=https://headscale.${EXTERNAL_DOMAIN}
 
@@ -149,6 +151,7 @@ nodes:
             mountPath: /usr/local/etc/nut/upsmon.conf
       - name: tailscale
         environment:
+          - TS_AUTHKEY=${TS_AUTHKEY}
           - TS_AUTH_ONCE=true
           - TS_EXTRA_ARGS=--login-server=https://headscale.${EXTERNAL_DOMAIN}
 controlPlane:
