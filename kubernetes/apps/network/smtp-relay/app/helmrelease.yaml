@@ -77,10 +77,10 @@ spec:
         type: LoadBalancer
         loadBalancerIP: ${SVC_SMTP_RELAY_ADDR}
         ports:
-          http:
-            port: *metricsPort
-          metrics:
+          smtp:
             port: *smtpPort
+          metrics:
+            port: *metricsPort
 
     serviceMonitor:
       metrics:
