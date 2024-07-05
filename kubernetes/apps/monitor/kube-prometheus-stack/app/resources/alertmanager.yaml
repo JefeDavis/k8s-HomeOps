@@ -29,32 +29,31 @@ receivers:
   - name: pushover
     pushover_configs:
       - html: true
-        message: |-
-          {{ "{{-" }} range .Alerts {{ "}}" }}
-            {{ "{{-" }} if ne .Annotations.description "" {{ "}}" }}
-              {{ "{{" }} .Annotations.description {{ "}}" }}
-            {{ "{{-" }} else if ne .Annotations.summary "" {{ "}}" }}
-              {{ "{{" }} .Annotations.summary {{ "}}" }}
-            {{ "{{-" }} else if ne .Annotations.message "" {{ "}}" }}
-              {{ "{{" }} .Annotations.message {{ "}}" }}
-            {{ "{{-" }} else {{ "}}" }}
-              Alert description not available
-            {{ "{{-" }} end {{ "}}" }}
-            {{ "{{-" }} if gt (len .Labels.SortedPairs) 0 {{ "}}" }}
-              <small>
-              {{ "{{-" }} range .Labels.SortedPairs {{ "}}" }}
-                <b>{{ "{{" }} .Name {{ "}}" }}:</b> {{ "{{" }} .Value {{ "}}" }}
-              {{ "{{-" }} end {{ "}}" }}
-              </small>
-            {{ "{{-" }} end {{ "}}" }}
-          {{ "{{-" }} end {{ "}}" }}
-        priority: |-
-          {{ "{{" }} if eq .Status "firing" {{ "}}" }}1{{ "{{" }} else {{ "}}" }}0{{ "{{" }} end {{ "}}" }}
-        send_resolved: true
-        sound: gamelan
-        title: >-
-          {{ "{{" }} .CommonLabels.alertname {{ "}}" }}
-          [{{ "{{" }} .Status | toUpper {{ "}}" }}{{ "{{" }} if eq .Status "firing" {{ "}}" }}:{{ "{{" }} .Alerts.Firing | len {{ "}}" }}{{ "{{" }} end {{ "}}" }}]
-        token: /etc/alertmanager/secrets/alertmanager-secret/PUSHOVER_TOKEN
+        token_file: /etc/alertmanager/secrets/alertmanager-secret/PUSHOVER_TOKEN
         url_title: View in Alertmanager
-        user_key: /etc/alertmanager/secrets/alertmanager-secret/PUSHOVER_USER_KEY
+        user_key_file: /etc/alertmanager/secrets/alertmanager-secret/PUSHOVER_USER_KEY
+        sound: gamelan
+        send_resolved: true
+        priority: |-
+          {{ if eq .Status "firing" }}1{{ else }}0{{ end }}
+        title: |-
+          [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+        message: |-
+          {{- range .Alerts }}
+            {{- if ne .Annotations.description "" }}
+              <b>Description:</b> <i>{{ .Annotations.description }}</i>
+            {{- else if ne .Annotations.summary "" }}
+              <b>Summary:</b> <i>{{ .Annotations.summary }}</i>
+            {{- else if ne .Annotations.message "" }}
+              <b>Message:</b> <i>{{ .Annotations.message }}</i>
+            {{- else }}
+              <b>Description:</b> <i>N/A</i>
+            {{- end }}
+            {{- if gt (len .Labels.SortedPairs) 0 }}
+              <small>
+              {{- range .Labels.SortedPairs }}
+                • <b>{{ .Name }}:</b> {{ .Value }}
+              {{- end }}
+              </small>
+            {{- end }}
+          {{- end }}
