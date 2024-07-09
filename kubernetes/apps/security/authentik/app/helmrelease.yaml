@@ -67,7 +67,7 @@ spec:
         from: "authentik@${EXTERNAL_DOMAIN}"
 
     geoip:
-      enabled: true
+      enabled: false
       accountId: "878850"
       licenseKey: ${SECRET_MAXMIND_LICENSE_KEY}
 
