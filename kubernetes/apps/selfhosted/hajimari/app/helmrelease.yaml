@@ -57,10 +57,9 @@ spec:
     ingress:
       main:
         enabled: true
-        ingressClassName: nginx-external
+        ingressClassName: nginx-internal
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-prod"
-          auth.home.arpa/enabled: "true"
           hajimari.io/enable: "false"
         hosts:
           - host: &host portal.${EXTERNAL_DOMAIN}

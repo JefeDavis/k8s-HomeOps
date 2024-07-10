@@ -27,7 +27,6 @@ kind: Ingress
 metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    auth.home.arpa/enabled: "true"
     hajimari.io/enable: "true"
     hajimari.io/icon: "simple-icons:octoprint"
   labels:
@@ -36,7 +35,7 @@ metadata:
   name: octoprint
   namespace: network
 spec:
-  ingressClassName: nginx-external
+  ingressClassName: nginx-internal
   rules:
   - host: octoprint.${EXTERNAL_DOMAIN}
     http:

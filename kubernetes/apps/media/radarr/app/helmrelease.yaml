@@ -96,10 +96,9 @@ spec:
 
     ingress:
       external:
-        className: nginx-external
+        className: nginx-internal
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
-          auth.home.arpa/enabled: "true"
           theme.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:movie-open-outline"

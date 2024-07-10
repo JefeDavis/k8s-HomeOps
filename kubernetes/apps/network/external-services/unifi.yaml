@@ -28,7 +28,6 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    auth.home.arpa/enabled: "true"
     hajimari.io/enable: "true"
     hajimari.io/icon: "simple-icons:ubiquiti"
   labels:

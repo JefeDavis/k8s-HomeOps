@@ -156,13 +156,12 @@ spec:
               - home.${EXTERNAL_DOMAIN}
             secretName: home-assistant-tls-external
 
-      code-external:
+      code:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
-          auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "simple-icons:vscode"
-        className: nginx-external
+        className: nginx-internal
         hosts:
           - host: hass-code.${EXTERNAL_DOMAIN}
             paths:

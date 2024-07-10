@@ -29,10 +29,9 @@ spec:
       ingress:
         enabled: true
         pathType: Prefix
-        ingressClassName: nginx-external
+        ingressClassName: nginx-internal
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
-          auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "mdi:alert-decagram-outline"
           hajimari.io/appName: "Alert Manager"
@@ -135,10 +134,9 @@ spec:
     prometheus:
       ingress:
         enabled: true
-        ingressClassName: nginx-external
+        ingressClassName: nginx-internal
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-prod
-          auth.home.arpa/enabled: "true"
           hajimari.io/enable: "true"
           hajimari.io/icon: "simple-icons:prometheus"
           hajimari.io/appName: "Prometheus"
