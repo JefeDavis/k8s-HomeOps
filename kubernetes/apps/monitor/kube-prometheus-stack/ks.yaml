@@ -6,6 +6,7 @@ metadata:
   name: cluster-apps-kube-prometheus-stack-crds
   namespace: flux-system
 spec:
+  targetNamespace: monitor
   path: ./kubernetes/apps/monitor/kube-prometheus-stack/crds
   prune: true
   sourceRef:
