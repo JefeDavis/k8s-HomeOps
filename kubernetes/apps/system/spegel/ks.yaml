@@ -15,3 +15,5 @@ spec:
   wait: true
   postBuild:
     substituteFrom: []
+  dependsOn:
+    - name: cluster-apps-kube-prometheus-stack-crds
