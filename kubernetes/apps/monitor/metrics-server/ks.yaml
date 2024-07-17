@@ -6,12 +6,15 @@ metadata:
   name: cluster-apps-metrics-server
   namespace: flux-system
 spec:
-  interval: 10m
+  targetNamespace: monitor
   path: "./kubernetes/apps/monitor/metrics-server/app"
   prune: true
   sourceRef:
     kind: GitRepository
     name: k8s-home-ops
   wait: true
+  interval: 30m
+  timeout: 5m
+  retryInterval: 1m
   postBuild:
     substituteFrom: []
