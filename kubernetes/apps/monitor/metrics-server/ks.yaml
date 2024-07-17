@@ -18,3 +18,5 @@ spec:
   retryInterval: 1m
   postBuild:
     substituteFrom: []
+  dependsOn:
+    - name: cluster-apps-kube-prometheus-stack-crds
