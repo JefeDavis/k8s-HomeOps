@@ -66,4 +66,3 @@ spec:
   dependsOn:
     - name: cluster-apps-baby-buddy-database
     - name: cluster-apps-rook-ceph-cluster
-    - name: cluster-apps-volsync-policy

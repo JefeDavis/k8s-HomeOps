@@ -64,4 +64,3 @@ spec:
   dependsOn:
     - name: cluster-apps-mealie-database
     - name: cluster-apps-rook-ceph-cluster
-    - name: cluster-apps-volsync-policy
