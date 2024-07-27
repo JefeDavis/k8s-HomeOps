@@ -21,7 +21,7 @@ spec:
           *app :
             image:
               repository: ghcr.io/gabe565/stable-diffusion/webui
-              tag: 1.9.4@sha256:0ad759cad1a1e5e40caffd6a4ae989fc6dc226abe8b988d230899a8d0d962a0b
+              tag: 1.10.0@sha256:b4a416591d8f222248d515726158404c616d596e7649cd9ab5274d995f3cb7a7
               pullPolicy: IfNotPresent
             args:
               - --xformers
