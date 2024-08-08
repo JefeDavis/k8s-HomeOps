@@ -3,11 +3,11 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-cert-manager
+  name: cluster-apps-istio-base
   namespace: flux-system
 spec:
-  interval: 10m
-  path: "./kubernetes/apps/security/cert-manager/app"
+  targetNamespace: istio-system
+  path: ./kubernetes/apps/istio-system/istio/base
   prune: true
   sourceRef:
     kind: GitRepository
@@ -15,18 +15,21 @@ spec:
   wait: true
   postBuild:
     substituteFrom: []
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
   dependsOn:
     - name: cluster-apps-kube-prometheus-stack-crds
+    - name: cluster-apps-cert-manager-istio-csr
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-cert-manager-issuers
+  name: cluster-apps-istio-cni
   namespace: flux-system
 spec:
-  interval: 10m
-  path: "./kubernetes/apps/security/cert-manager/issuers"
+  targetNamespace: istio-system
+  path: ./kubernetes/apps/istio-system/istio/cni
   prune: true
   sourceRef:
     kind: GitRepository
@@ -34,18 +37,20 @@ spec:
   wait: true
   postBuild:
     substituteFrom: []
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
   dependsOn:
-    - name: cluster-apps-cert-manager
+    - name: cluster-apps-istio-base
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-cert-manager-istio-csr
+  name: cluster-apps-istio-istiod
   namespace: flux-system
 spec:
-  interval: 10m
-  path: "./kubernetes/apps/security/cert-manager/csr"
+  targetNamespace: istio-system
+  path: ./kubernetes/apps/istio-system/istio/app
   prune: true
   sourceRef:
     kind: GitRepository
@@ -53,6 +58,8 @@ spec:
   wait: true
   postBuild:
     substituteFrom: []
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
   dependsOn:
-    - name: cluster-apps-cert-manager-issuers
-
+    - name: cluster-apps-istio-cni
