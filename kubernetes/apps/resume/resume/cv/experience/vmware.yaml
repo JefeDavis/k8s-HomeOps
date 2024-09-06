@@ -10,10 +10,15 @@ spec:
   employer: VMware Tanzu Labs
   location: Remote
   startDate: 2021-03-01
-  endDate: Present
+  endDate: 2023-10-31
   positions:
     - title: Senior Staff Solutions Architect
       startDate: 2023-08-01
+      highlights:
+        - Led initiatives to enable customers in bootstrapping and accelerating their DevOps journeys using Tanzu and cloud-native technologies.
+        - Mentored and developed technical skills for fellow architects in Kubernetes, container orchestration, and cloud-native ecosystems.
+        - Acted as a strategic "fixer" for high-profile, complex customer engagements, resolving technical challenges and improving customer satisfaction.
+        - Expanded role beyond Kubernetes deployments to architect comprehensive datacenter environments, including compute systems, storage infrastructure, storage networking, and datacenter networking, ensuring robust and scalable solutions for customers.
     - title: Staff Field Engineer
       endDate: 2023-07-31
       highlights:

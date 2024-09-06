@@ -1,0 +1,16 @@
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: JobExperience
+metadata:
+  name: second-front-jobs
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/employer: secondFrontSystems
+spec:
+  employer: Second Front Systems
+  location: Remote
+  startDate: 2023-11-01
+  endDate: Present
+  positions:
+    - title: Federal Solutions Architect
+      highlights: []
