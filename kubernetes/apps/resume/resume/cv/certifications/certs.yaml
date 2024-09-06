@@ -2,6 +2,81 @@
 apiVersion: resumes.jefedavis.dev/v1alpha1
 kind: Certification
 metadata:
+  name: cks
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: vmware
+spec:
+  title: Certified Kubernetes Security Specialist
+  issuer: The Linux Foundation
+  earnedDate: 2024-08-28
+  alias: CKS
+  validationURL: https://www.credly.com/badges/7d16ac3a-574d-40fe-8b62-6f8a626e5e05
+  imageURL: https://images.credly.com/size/680x680/images/9945dfcb-1cca-4529-85e6-db1be3782210/kubernetes-security-specialist-logo2.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: cka
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: vmware
+spec:
+  title: Certified Kubernetes Administrator
+  issuer: The Linux Foundation
+  earnedDate: 2024-08-05
+  alias: CKA
+  validationURL: https://www.credly.com/badges/aa615f8f-1d26-43b4-9746-61dd82036952
+  imageURL: https://images.credly.com/size/680x680/images/8b8ed108-e77d-4396-ac59-2504583b9d54/cka_from_cncfsite__281_29.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: ckad
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: vmware
+spec:
+  title: Certified Kubernetes Application Developer
+  issuer: The Linux Foundation
+  earnedDate: 2024-08-08
+  alias: CKAD
+  validationURL: https://www.credly.com/badges/830cc1bd-f056-4463-8565-1e17da057f85
+  imageURL: https://images.credly.com/size/680x680/images/f88d800c-5261-45c6-9515-0458e31c3e16/ckad_from_cncfsite.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: kcsa
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: vmware
+spec:
+  title: Kubernetes and Cloud Native Security Associate
+  issuer: The Linux Foundation
+  earnedDate: 2024-08-10
+  alias: KCSA
+  validationURL: https://www.credly.com/badges/169db619-01f4-4344-ae59-1f7bf252a0ca
+  imageURL: https://images.credly.com/size/680x680/images/67dd8a95-8876-4051-9cb9-3d97c204f85a/image.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: kcna
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: vmware
+spec:
+  title: Kubernetes and Cloud Native Associate
+  issuer: The Linux Foundation
+  earnedDate: 2024-08-01
+  alias: KCNA
+  validationURL: https://www.credly.com/badges/335cee65-5eaa-4a78-8ae7-6d3cb7647c78
+  imageURL: https://images.credly.com/size/680x680/images/f28f1d88-428a-47f6-95b5-7da1dd6c1000/KCNA_badge.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
   name: vcix6-dcv
   labels:
     resume.jefedavis.dev/candidate: jeffdavis

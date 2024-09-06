@@ -6,6 +6,7 @@ metadata:
   name: cluster-apps-multus
   namespace: flux-system
 spec:
+  targetNamespace: network
   interval: 10m
   path: "./kubernetes/apps/network/multus/app"
   postBuild:
