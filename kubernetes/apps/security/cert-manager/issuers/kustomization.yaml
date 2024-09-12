@@ -7,4 +7,3 @@ resources:
   - ./secret-cloudflare-api-token.sops.yaml
   - ./clusterissuer-letsencrypt.yaml
   - ./clusterissuer-local.yaml
-  - ./clusterissuer-istio.yaml
