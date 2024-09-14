@@ -15,7 +15,7 @@ spec:
           serviceAccountName: dynamic-dns
           containers:
           - name: dynamic-dns
-            image: alpine/k8s:1.30.3
+            image: alpine/k8s:1.31.1
             command:
             - /bin/sh
             - -c
