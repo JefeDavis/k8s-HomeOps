@@ -26,10 +26,9 @@ cluster:
 cni:
   exclusive: false
 
-enableCnpStatusUpdates: true
-endpointStatus:
+enableRuntimeDeviceDetection: true
+endpointRoutes:
   enabled: true
-  status: "policy"
 
 k8sServiceHost: localhost
 
