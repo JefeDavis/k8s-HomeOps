@@ -47,7 +47,7 @@ ipv4NativeRoutingCIDR: 172.22.0.0/16
 hubble:
   enabled: false
 
-kubeProxyReplacement: strict
+kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 
 l7Proxy: true
