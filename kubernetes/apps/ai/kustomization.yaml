@@ -7,5 +7,4 @@ resources:
   - ./namespace.yaml
   # Flux-Kustomizations
   - ./ollama/ks.yaml
-  - ./stable-diffusion/ks.yaml
 
