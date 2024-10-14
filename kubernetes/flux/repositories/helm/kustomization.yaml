@@ -39,6 +39,6 @@ resources:
   - stakater.yaml
   - stevehipwell.yaml
   - synology-csi.yaml
-  - tf-controller.yaml
+  - tofu-controller.yaml
   - weave-gitops.yaml
   - zalando-postgres-operator.yaml
