@@ -40,5 +40,4 @@ resources:
   - stevehipwell.yaml
   - synology-csi.yaml
   - tofu-controller.yaml
-  - weave-gitops.yaml
   - zalando-postgres-operator.yaml
