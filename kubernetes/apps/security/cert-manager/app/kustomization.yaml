@@ -5,4 +5,4 @@ kind: Kustomization
 namespace: security
 resources:
   - ./helmrelease.yaml
-  - ./dashboard/
+  # - ./dashboard/
