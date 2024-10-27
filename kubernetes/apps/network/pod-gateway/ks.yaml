@@ -19,3 +19,4 @@ spec:
     provider: sops
   dependsOn:
     - name: cluster-apps-cert-manager
+    - name: cluster-apps-generic-device-plugin
