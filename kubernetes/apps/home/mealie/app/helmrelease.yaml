@@ -24,7 +24,7 @@ spec:
           app:
             image:
               repository: ghcr.io/mealie-recipes/mealie
-              tag: v2.0.0@sha256:c2ea6f1e7fecaa7befe6f2dd02423b5ff31c4551f5afb64576fba0e65a2a4c5b
+              tag: v2.2.0@sha256:ea53ca0e874cf30c3e6bbed35f5a01a029bafb602d050ddd584fdb7defdb6f8a
             env:
               TZ: ${TIMEZONE}
               BASE_URL: https://mealie.${EXTERNAL_DOMAIN}
