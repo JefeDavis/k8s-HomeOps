@@ -169,12 +169,12 @@ spec:
           - new-service-discovery-manager
         externalUrl: https://prometheus.${EXTERNAL_DOMAIN}
         thanos:
-          image: quay.io/thanos/thanos:v0.36.1@sha256:e542959e1b36d5046083d1b64a7049c356b68a44a173c58b3ae7c0c9ada932d5
+          image: quay.io/thanos/thanos:v0.37.1@sha256:0b8ff659dd63ffc4e545517af14f203cd27f69d1b0a06ca5df1359f0090a0b33
           objectStorageConfig:
             name: *secret
             key: objstore.yml
           # renovate: depName=quay.io/thanos/thanos datasource=docker
-          version: "0.36.1"
+          version: "0.37.1"
         retention: 2d
         retentionSize: "15GB"
         resources:
