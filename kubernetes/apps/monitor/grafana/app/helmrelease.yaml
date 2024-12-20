@@ -331,8 +331,8 @@ spec:
       observability:
         prometheus:
           # renovate: depName="Prometheus"
-          gnetId: 19105
-          revision: 5
+          gnetId: 19106
+          revision: 6
           datasource: Prometheus
         thanos-bucket-replicate:
           url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/thanos/dashboards/bucket-replicate.json
