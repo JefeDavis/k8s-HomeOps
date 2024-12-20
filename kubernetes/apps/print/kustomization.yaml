@@ -7,5 +7,4 @@ resources:
   - ./namespace.yaml
   # Flux-Kustomizations
   - ./maker-management-platform/ks.yaml
-  - ./prusaslicer/ks.yaml
 
