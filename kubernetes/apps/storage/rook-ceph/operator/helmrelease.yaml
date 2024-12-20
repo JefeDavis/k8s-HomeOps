@@ -20,6 +20,8 @@ spec:
       enabled: true
 
     csi:
+      snapshotter:
+        tag: v8.2.0
       enableLiveness: true
       serviceMonitor:
         enabled: true
