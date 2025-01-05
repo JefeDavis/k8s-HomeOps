@@ -1,0 +1,126 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app teddy-cloud
+  namespace: media
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/toniebox-reverse-engineering/teddycloud
+              tag: latest
+            env:
+              TZ: ${TIMEZONE}
+            securityContext: 
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+
+    defaultPodOptions:
+      securityContext:
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      *app :
+        controller: *app
+        ports:
+          ui:
+            port: 8443
+          stream:
+            port: 443
+    ingress:
+      ui:
+        enabled: true
+        className: nginx-internal
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          hajimari.io/enable: "true"
+          hajimari.io/icon: mdi:teddy-bear
+        hosts:
+          - host: &host "tonie.${EXTERNAL_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: *app
+                  port: ui
+        tls:
+          - hosts:
+              - *host
+            secretName: teddy-cloud-tls-external
+      stream:
+        enabled: true
+        className: nginx-external
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+        hosts:
+          - host: &host "tonie-stream.${EXTERNAL_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: *app
+                  port: stream
+    persistence:
+      config:
+        enabled: true
+        existingClaim: ${VOLSYNC_CLAIM}
+        globalMounts:
+          - path: /teddycloud/config
+      certs:
+        enabled: true
+        existingClaim: teddy-cloud-certs
+        globalMounts:
+          - path: /teddycloud/certs
+      firmware:
+        enabled: true
+        accessMode: ReadWriteOnce
+        size: 5Gi
+        storageClass: ceph-block
+        globalMounts:
+          - path: /teddycloud/data/firmware
+      content:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/teddycloud/content
+        globalMounts:
+          - path: /teddycloud/data/content
+      library:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/teddycloud/library
+        globalMounts:
+          - path: /teddycloud/data/library
+      cache:
+        enabled: true
+        globalMounts:
+          - path: /teddycloud/cache
+        type: emptyDir
+
