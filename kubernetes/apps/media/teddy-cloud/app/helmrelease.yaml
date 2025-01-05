@@ -47,7 +47,7 @@ spec:
         controller: *app
         ports:
           ui:
-            port: 8443
+            port: 80
           stream:
             port: 443
     ingress:
