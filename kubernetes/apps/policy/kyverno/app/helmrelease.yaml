@@ -35,6 +35,14 @@ spec:
         clusterRole:
           extraResources:
             - apiGroups:
+                - '*'
+              resources:
+                - '*'
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
                 - ""
               resources:
                 - pods
@@ -51,6 +59,17 @@ spec:
     reportsController:
       serviceMonitor:
         enabled: true
+      rbac:
+        clusterRole:
+          extraResources:
+            - apiGroups:
+                - '*'
+              resources:
+                - '*'
+              verbs:
+                - get
+                - list
+                - watch
     admissionController:
       replicas: 3
       serviceMonitor:
@@ -68,6 +87,14 @@ spec:
       rbac:
         clusterRole:
           extraResources:
+            - apiGroups:
+                - '*'
+              resources:
+                - '*'
+              verbs:
+                - get
+                - list
+                - watch
             - apiGroups:
                 - ""
               resources:
