@@ -44,7 +44,7 @@ spec:
           main:
             image:
               repository: ghcr.io/onedr0p/home-assistant
-              tag: 2024.12.5@sha256:638e519c874a06389ce6f03e435dd80a6697e8692eac88b459775839410f3439
+              tag: 2025.1.0@sha256:a3e6b1301107c5ca4dd3e1e7fa25edd0618acc9f812c75674cce7481fb05c759
             env:
               TZ: ${TIMEZONE}
               HASS_RECORDER_DB_URL:
