@@ -7,6 +7,7 @@ resource "authentik_provider_proxy" "proxy_providers" {
   skip_path_regex       = each.value.skip_path_regex
   authorization_flow    = data.authentik_flow.default-authorization-flow.id
   authentication_flow   = authentik_flow.davishaus-authentication.uuid
+  invalidation_flow     = data.authentik_flow.default-invalidation-flow.id
 }
 
 resource "authentik_application" "proxy_apps" {
@@ -55,8 +56,9 @@ resource "authentik_provider_oauth2" "oauth2_providers" {
   client_type           = each.value.client_type
   client_secret         = sensitive(each.value.client_secret)
   authorization_flow    = data.authentik_flow.default-authorization-flow.id
+  invalidation_flow     = data.authentik_flow.default-invalidation-flow.id
   authentication_flow   = authentik_flow.davishaus-authentication.uuid
-  redirect_uris         = each.value.redirect_uris
+  allowed_redirect_uris = each.value.redirect_uris
   signing_key           = data.authentik_certificate_key_pair.default-certificate.id
   property_mappings     = data.authentik_property_mapping_provider_scope.oauth2-scopes.ids
 }
