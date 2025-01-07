@@ -43,12 +43,12 @@ spec:
               OLLAMA_MODELS: &pvc /models
             resources:
               requests:
-                cpu: 2000m
+                cpu: 500m
                 memory: 16Gi
-                gpu.intel.com/i915: "1"
+                gpu.intel.com/i915: "2"
               limits:
                 memory: 16Gi
-                gpu.intel.com/i915: "1"
+                gpu.intel.com/i915: "2"
         pod:
           affinity:
             nodeAffinity:
