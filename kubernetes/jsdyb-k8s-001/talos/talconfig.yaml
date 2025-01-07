@@ -55,8 +55,8 @@ nodes:
       topology.kubernetes.io/region: jsdyb
       topology.kubernetes.io/zone: jsdyb-u
       # Needed because Labels are limited to 63 Characters
-      factory.talos.dev/schematic-prefix: 373392515ac3890a73d3b1f6cf23d4b9
-      factory.talos.dev/schematic-suffix: 6e20aef2dd5b42cb00bd73de1b0e07ff
+      factory.talos.dev/schematic-prefix: 18658a59d33fe7e5006c2695b33ea9bd
+      factory.talos.dev/schematic-suffix: 20e95d4554729529c63ad705872441b6
     extensionServices:
       - name: nut-client
         configFiles:
@@ -91,8 +91,8 @@ nodes:
       topology.kubernetes.io/region: jsdyb
       topology.kubernetes.io/zone: jsdyb-u
       # Needed because Labels are limited to 63 Characters
-      factory.talos.dev/schematic-prefix: 373392515ac3890a73d3b1f6cf23d4b9
-      factory.talos.dev/schematic-suffix: 6e20aef2dd5b42cb00bd73de1b0e07ff
+      factory.talos.dev/schematic-prefix: 18658a59d33fe7e5006c2695b33ea9bd
+      factory.talos.dev/schematic-suffix: 20e95d4554729529c63ad705872441b6
     extensionServices:
       - name: nut-client
         configFiles:
@@ -127,8 +127,8 @@ nodes:
       topology.kubernetes.io/region: jsdyb
       topology.kubernetes.io/zone: jsdyb-u
       # Needed because Labels are limited to 63 Characters
-      factory.talos.dev/schematic-prefix: 373392515ac3890a73d3b1f6cf23d4b9
-      factory.talos.dev/schematic-suffix: 6e20aef2dd5b42cb00bd73de1b0e07ff
+      factory.talos.dev/schematic-prefix: 18658a59d33fe7e5006c2695b33ea9bd
+      factory.talos.dev/schematic-suffix: 20e95d4554729529c63ad705872441b6
     extensionServices:
       - name: nut-client
         configFiles:
@@ -143,7 +143,7 @@ controlPlane:
         - net.ifnames=0
       systemExtensions:
         officialExtensions:
-          - siderolabs/i915-ucode
+          - siderolabs/i915
           - siderolabs/intel-ucode
           - siderolabs/iscsi-tools
           - siderolabs/nut-client
