@@ -10,7 +10,7 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: &app stable-diffusion
-  path: "./kubernetes/apps/ai/stable-diffusion/app"
+  path: "./kubernetes/jsdyb-k8s-001/apps/ai/stable-diffusion/app"
   prune: true
   sourceRef:
     kind: GitRepository

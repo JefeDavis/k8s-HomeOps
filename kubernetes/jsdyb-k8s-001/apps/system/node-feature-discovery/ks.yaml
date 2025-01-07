@@ -1,0 +1,36 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-node-feature-discovery
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: "./kubernetes/jsdyb-k8s-001/apps/system/node-feature-discovery/app"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-home-ops
+  wait: true
+  postBuild:
+    substituteFrom: []
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-node-feature-discovery-rules
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: "./kubernetes/jsdyb-k8s-001/apps/system/node-feature-discovery/rules"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-home-ops
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: cluster-apps-node-feature-discovery

@@ -5,7 +5,7 @@ export NAMESPACE1=$2
 export NAMESPACE2=$3
 
 export REPO_ROOT=$(git rev-parse --show-toplevel)
-export APPS_ROOT="$REPO_ROOT/kubernetes/apps"
+export APPS_ROOT="$REPO_ROOT/./kubernetes/jsdyb-k8s-001/apps"
 
 need() {
     if ! command -v "$1" &> /dev/null

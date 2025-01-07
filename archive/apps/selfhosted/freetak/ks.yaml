@@ -6,7 +6,7 @@ metadata:
   name: cluster-apps-freetak
   namespace: flux-system
 spec:
-  path: ./kubernetes/apps/selfhosted/freetak/app
+  path: ./kubernetes/jsdyb-k8s-001/apps/selfhosted/freetak/app
   prune: true
   sourceRef:
     kind: GitRepository

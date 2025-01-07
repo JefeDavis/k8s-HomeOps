@@ -1,0 +1,66 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-mealie-database
+  namespace: flux-system
+spec:
+  targetNamespace: &ns home
+  commonMetadata:
+    labels:
+      app.kubernetes.io/part-of: mealie
+  path: "./kubernetes/jsdyb-k8s-001/apps/home/mealie/database"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-home-ops
+  healthChecks:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      name: pg-mealie
+      namespace: *ns
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  postBuild:
+    substituteFrom: []
+  decryption: 
+    provider: sops
+  dependsOn:
+    - name: cluster-apps-cloudnative-pg
+    - name: cluster-apps-rook-ceph-cluster
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-mealie
+  namespace: flux-system
+spec:
+  targetNamespace: home
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: &app mealie
+  path: "./kubernetes/jsdyb-k8s-001/apps/home/mealie/app"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-home-ops
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  postBuild:
+    substitute:
+      APP: *app
+      APP_UID: "568"
+      APP_GID: "568"
+      VOLSYNC_CLAIM: mealie-data
+      VOLSYNC_CAPACITY: 5Gi
+    substituteFrom:
+      - kind: Secret
+        name: flux-volsync-secret
+  dependsOn:
+    - name: cluster-apps-mealie-database
+    - name: cluster-apps-rook-ceph-cluster

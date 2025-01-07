@@ -6,7 +6,7 @@ metadata:
   name: cluster-apps-loki
   namespace: flux-system
 spec:
-  path: "./kubernetes/apps/monitor/loki/app"
+  path: "./kubernetes/jsdyb-k8s-001/apps/monitor/loki/app"
   prune: true
   sourceRef:
     kind: GitRepository

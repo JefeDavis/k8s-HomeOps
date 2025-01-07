@@ -1,0 +1,37 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-multus
+  namespace: flux-system
+spec:
+  targetNamespace: network
+  interval: 10m
+  path: "./kubernetes/jsdyb-k8s-001/apps/network/multus/app"
+  postBuild:
+    substituteFrom: []
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-home-ops
+  wait: true
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-multus-config
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: "./kubernetes/jsdyb-k8s-001/apps/network/multus/config"
+  postBuild:
+    substituteFrom: []
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-home-ops
+  wait: true
+  dependsOn:
+    - name: cluster-apps-multus

@@ -11,7 +11,7 @@ spec:
     labels:
       app.kubernetes.io/name: &app prusaslicer
       app.kubernetes.io/instance: *app
-  path: "./kubernetes/apps/print/prusaslicer/app"
+  path: "./kubernetes/jsdyb-k8s-001/apps/print/prusaslicer/app"
   prune: true
   sourceRef:
     kind: GitRepository

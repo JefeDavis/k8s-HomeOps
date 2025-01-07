@@ -10,7 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: &appname node-red
   interval: 10m
-  path: "./kubernetes/apps/selfhosted/node-red/app"
+  path: "./kubernetes/jsdyb-k8s-001/apps/selfhosted/node-red/app"
   prune: true
   sourceRef:
     kind: GitRepository
