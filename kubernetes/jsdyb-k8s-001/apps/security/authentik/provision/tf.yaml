@@ -121,7 +121,8 @@ spec:
           client_type: confidential
           client_secret: ${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
           redirect_uris: 
-            - https://grafana.${EXTERNAL_DOMAIN}/login/generic_oauth
+            - matching_mode: "strict"
+              url: https://grafana.${EXTERNAL_DOMAIN}/login/generic_oauth
         Mealie:
           url: https://mealie.${EXTERNAL_DOMAIN}
           group: Home
@@ -129,18 +130,12 @@ spec:
           client_type: public
           client_secret: null
           redirect_uris:
-            - https://mealie.${EXTERNAL_DOMAIN}/login
-            - https://mealie.${EXTERNAL_DOMAIN}/login?direct=1
-            - https://mealie.${EXTERNAL_DOMAIN}/login*
-        Headscale:
-          url: https://headscale.${EXTERNAL_DOMAIN} 
-          group: Network
-          client_id: ${HEADSCALE_OIDC_CLIENT_ID}
-          client_type: confidential
-          client_secret: ${HEADSCALE_OIDC_CLIENT_SECRET}
-          redirect_uris:
-            - https://headscale.${EXTERNAL_DOMAIN}/oidc/callback
-            - https://headscale.${EXTERNAL_DOMAIN}/admin/oidc_callback
+            - matching_mode: "strict"
+              url: https://mealie.${EXTERNAL_DOMAIN}/login
+            - matching_mode: "strict"
+              url: https://mealie.${EXTERNAL_DOMAIN}/login?direct=1
+            - matching_mode: "strict"
+              url: https://mealie.${EXTERNAL_DOMAIN}/login*
     - name: groups
       value:
         ${ORGANIZATION}-Admins:
