@@ -206,6 +206,14 @@ controlPlane:
         network:
           nameservers:
             - ${DNS_SERVER}
+    # Disable Host DNS
+    - |-
+      machine:
+        features:
+          hostDNS:
+            enabled: true
+            resolveMemberNames: true
+            forwardKubeDNSToHost: false
 
     # Configure NTP
     - |-
