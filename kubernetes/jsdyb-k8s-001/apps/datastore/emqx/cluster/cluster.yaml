@@ -25,6 +25,9 @@ spec:
         ]
         no_match: "deny"
       }
+      mqtt {
+        max_packet_size="2MB"
+      }
   bootstrapAPIKeys:
     - secretRef:
         key:
