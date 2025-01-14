@@ -25,7 +25,7 @@ spec:
         - '${INTERNAL_DOMAIN}'
         - '*.${INTERNAL_DOMAIN}'
       tls:
-        credentialName: internal-domain 
+        credentialName: internal-domain-tls
         mode: SIMPLE
         minProtocolVersion: TLSV1_2
         maxProtocolVersion: TLSV1_3

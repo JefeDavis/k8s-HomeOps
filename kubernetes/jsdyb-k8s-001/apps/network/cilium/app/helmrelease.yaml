@@ -21,6 +21,8 @@ spec:
       name: cilium-values
 
   values:
+    gatewayAPI:
+      enabled: true
     hubble:
       enabled: true
       metrics:

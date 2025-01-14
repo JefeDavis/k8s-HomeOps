@@ -57,6 +57,9 @@ loadBalancer:
 
 localRedirectPolicy: true
 
+nodePort:
+  enabled: true
+
 operator:
   rollOutPods: true
 
