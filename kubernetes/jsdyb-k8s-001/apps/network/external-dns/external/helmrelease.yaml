@@ -23,6 +23,11 @@ spec:
       - crd
       - ingress
       - service
+      - gateway-httproute
+      - gateway-grpcroute
+      - gateway-tlsroute
+      - gateway-tcproute
+      - gateway-udproute
 
     podAnnotations:
       secret.reloader.stakater.com/reload: external-dns-secret
