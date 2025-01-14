@@ -1,0 +1,38 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: public-gateway
+spec:
+  gatewayClassName: cilium
+  listeners:
+  - name: external-https
+    protocol: HTTPS
+    port: 443
+    hostname: "*.${EXTERNAL_DOMAIN}"
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            gateway.networking.k8s.io/shared-gateway-access: "true"
+    tls:
+      certificateRefs:
+      - kind: Secret
+        group: ""
+        name: "wildcard-tls-external"
+  - name: internal-https
+    protocol: HTTPS
+    port: 443
+    hostname: "*.${INTERNAL_DOMAIN}"
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            gateway.networking.k8s.io/shared-gateway-access: "true"
+    tls:
+      certificateRefs:
+      - kind: Secret
+        group: ""
+        name: "wildcard-tls-internal"

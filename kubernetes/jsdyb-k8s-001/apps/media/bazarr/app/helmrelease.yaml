@@ -96,25 +96,46 @@ spec:
           metrics:
             port: *metricsPort
 
-    ingress:
-      external:
-        className: nginx-internal
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          theme.home.arpa/enabled: "true"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "solar:subtitles-outline"
-        hosts:
-          - host: &host bazarr.${EXTERNAL_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: *app
-                  port: *port
-        tls:
-          - hosts:
-              - *host
-            secretName: bazarr-tls-external
+    # ingress:
+    #   external:
+    #     className: nginx-internal
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #       theme.home.arpa/enabled: "true"
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/icon: "solar:subtitles-outline"
+    #     hosts:
+    #       - host: &host bazarr.${EXTERNAL_DOMAIN}
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: *app
+    #               port: *port
+    #     tls:
+    #       - hosts:
+    #           - *host
+    #         secretName: bazarr-tls-external
+    
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - &host bazarr.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - name: *app
+                kind: Service
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
       
     persistence:
       config:
