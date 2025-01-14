@@ -88,29 +88,29 @@ spec:
                 cpu: 5m
               limits:
                 memory: 431Mi
-          exporter:
-            image:
-              repository: ghcr.io/willfantom/overseerr-exporter
-              tag: 1.2.1
-            args:
-              - --overseerr.address
-              - "http://localhost:5055"
-              - --overseerr.api-key
-              - "$(OVERSEERR_API_KEY)"
-            envFrom:
-              - secretRef:
-                  name: overseerr-secret
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - ALL
-            resources:
-              requests:
-                cpu: 10m
-              limits:
-                memory: 128Mi
+          # exporter:
+          #   image:
+          #     repository: ghcr.io/willfantom/overseerr-exporter
+          #     tag: 1.2.1
+          #   args:
+          #     - --overseerr.address
+          #     - "http://localhost:5055"
+          #     - --overseerr.api-key
+          #     - "$(OVERSEERR_API_KEY)"
+          #   envFrom:
+          #     - secretRef:
+          #         name: overseerr-secret
+          #   securityContext:
+          #     allowPrivilegeEscalation: false
+          #     readOnlyRootFilesystem: true
+          #     capabilities:
+          #       drop:
+          #         - ALL
+          #   resources:
+          #     requests:
+          #       cpu: 10m
+          #     limits:
+          #       memory: 128Mi
 
     defaultPodOptions:
       securityContext:
@@ -131,27 +131,47 @@ spec:
           metrics:
             port: 9850
 
-    ingress:
-      external:
-        className: nginx-external
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          theme.home.arpa/enabled: "true"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "mdi:eye-circle-outline"
-        hosts:
-          - host: &host "request.${EXTERNAL_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: *app
-                  port: *port
-        tls:
-          - hosts:
-              - *host
-            secretName: overseerr-tls-external
+    # ingress:
+    #   external:
+    #     className: nginx-external
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #       theme.home.arpa/enabled: "true"
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/icon: "mdi:eye-circle-outline"
+    #     hosts:
+    #       - host: &host "request.${EXTERNAL_DOMAIN}"
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: *app
+    #               port: *port
+    #     tls:
+    #       - hosts:
+    #           - *host
+    #         secretName: overseerr-tls-external
 
-                
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: public-gateway
+            namespace: network
+        hostnames:
+          - &host overseerr.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - name: *app
+                kind: Service
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+      
     persistence:
       config:
         existingClaim: ${VOLSYNC_CLAIM}

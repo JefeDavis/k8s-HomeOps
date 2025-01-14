@@ -94,26 +94,47 @@ spec:
           metrics:
             port: *metricsPort
 
-    ingress:
-      external:
-        className: nginx-internal
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          theme.home.arpa/enabled: "true"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "mdi:movie-open-outline"
-        hosts:
-          - host: &host radarr.${EXTERNAL_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: *app
-                  port: *port
-        tls:
-          - hosts:
-              - *host
-            secretName: radarr-tls-external
+    # ingress:
+    #   external:
+    #     className: nginx-internal
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #       theme.home.arpa/enabled: "true"
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/icon: "mdi:movie-open-outline"
+    #     hosts:
+    #       - host: &host radarr.${EXTERNAL_DOMAIN}
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: *app
+    #               port: *port
+    #     tls:
+    #       - hosts:
+    #           - *host
+    #         secretName: radarr-tls-external
       
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - &host radarr.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - name: *app
+                kind: Service
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
     persistence:
       config:
         existingClaim: ${VOLSYNC_CLAIM}

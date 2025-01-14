@@ -126,28 +126,48 @@ spec:
             port: 32414
             protocol: UDP
 
-    ingress:
-      external:
-        className: nginx-external
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          theme.home.arpa/enabled: "true"
-          nginx.ingress.kubernetes.io/backend-protocol: HTTPS
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "mdi:plex"
-          hajimari.io/url: "https://plex.${EXTERNAL_DOMAIN}/web"
-        hosts:
-        - host: &host "plex.${EXTERNAL_DOMAIN}"
-          paths:
-          - path: /
-            service:
-              identifier: *app
-              port: *port
-        tls:
-        - hosts:
-            - *host
-          secretName: plex-tls-external
+    # ingress:
+    #   external:
+    #     className: nginx-external
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #       theme.home.arpa/enabled: "true"
+    #       nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/icon: "mdi:plex"
+    #       hajimari.io/url: "https://plex.${EXTERNAL_DOMAIN}/web"
+    #     hosts:
+    #     - host: &host "plex.${EXTERNAL_DOMAIN}"
+    #       paths:
+    #       - path: /
+    #         service:
+    #           identifier: *app
+    #           port: *port
+    #     tls:
+    #     - hosts:
+    #         - *host
+    #       secretName: plex-tls-external
 
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: public-gateway
+            namespace: network
+        hostnames:
+          - &host plex.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - name: *app
+                kind: Service
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
       
     persistence:
       config1:

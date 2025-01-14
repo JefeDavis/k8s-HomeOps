@@ -57,25 +57,46 @@ spec:
           http:
             port: *port
 
-    ingress:
-      external:
-        className: nginx-internal
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          theme.home.arpa/enabled: "true"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "mdi:chart-bar"
-        hosts:
-          - host: &host tautulli.${EXTERNAL_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: *app
-        tls:
-          - hosts:
-              - *host
-            secretName: tautulli-tls-external
+    # ingress:
+    #   external:
+    #     className: nginx-internal
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #       theme.home.arpa/enabled: "true"
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/icon: "mdi:chart-bar"
+    #     hosts:
+    #       - host: &host tautulli.${EXTERNAL_DOMAIN}
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: *app
+    #     tls:
+    #       - hosts:
+    #           - *host
+    #         secretName: tautulli-tls-external
       
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - &host tautulli.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - name: *app
+                kind: Service
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
     persistence:
       config:
         existingClaim: ${VOLSYNC_CLAIM}

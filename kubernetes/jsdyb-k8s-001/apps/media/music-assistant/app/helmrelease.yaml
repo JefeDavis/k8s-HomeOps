@@ -62,26 +62,47 @@ spec:
           http:
             port: &port 8095
 
-    ingress:
-      internal:
-        enabled: true
-        className: nginx-internal
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "mdi:headphones"
-        hosts:
-        - host: &host "music.${EXTERNAL_DOMAIN}"
-          paths:
-          - path: /
-            service:
-              identifier: *app
-              port: *port
-        tls:
-        - hosts:
-          - *host
-          secretName: music-assistant-tls-external
+    # ingress:
+    #   internal:
+    #     enabled: true
+    #     className: nginx-internal
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/icon: "mdi:headphones"
+    #     hosts:
+    #     - host: &host "music.${EXTERNAL_DOMAIN}"
+    #       paths:
+    #       - path: /
+    #         service:
+    #           identifier: *app
+    #           port: *port
+    #     tls:
+    #     - hosts:
+    #       - *host
+    #       secretName: music-assistant-tls-external
 
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - &host music.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - name: *app
+                kind: Service
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+      
     persistence:
       data:
         existingClaim: ${VOLSYNC_CLAIM}
