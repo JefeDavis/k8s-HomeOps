@@ -1,0 +1,31 @@
+---
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: istio-ingressgateway
+  namespace: istio-system
+spec:
+  selector:
+    app: istio-gateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - '${INTERNAL_DOMAIN}'
+        - '*.${INTERNAL_DOMAIN}'
+      tls:
+        httpsRedirect: true
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - '${INTERNAL_DOMAIN}'
+        - '*.${INTERNAL_DOMAIN}'
+      tls:
+        credentialName: internal-domain 
+        mode: SIMPLE
+        minProtocolVersion: TLSV1_2
+        maxProtocolVersion: TLSV1_3

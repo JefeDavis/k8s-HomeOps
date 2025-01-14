@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: internal-domain
+spec:
+  secretName: internal-domain-tls
+  issuerRef:
+    name: jsdyb-k8s-001-internal-issuer
+    kind: ClusterIssuer
+  commonName: internal.davishaus.dev
+  dnsNames: ["internal.davishaus.dev", "*.internal.davishaus.dev"]

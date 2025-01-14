@@ -1,0 +1,45 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-istio
+  namespace: flux-system
+spec:
+  targetNamespace: istio-system
+  interval: 10m
+  path: "./kubernetes/${CLUSTER}/apps/istio-system/istio/app"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  decryption:
+    provider: sops
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: cluster-apps-cilium
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-istio-gateway
+  namespace: flux-system
+spec:
+  targetNamespace: istio-system
+  interval: 10m
+  path: "./kubernetes/${CLUSTER}/apps/istio-system/istio/gateway"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  decryption:
+    provider: sops
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: cluster-apps-istio
+    - name: cluster-apps-cert-manager-issuers
