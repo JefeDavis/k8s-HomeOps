@@ -10,11 +10,11 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: dragonfly
-  path: ./kubernetes/jsdyb-k8s-001/apps/datastore/dragonfly/app
+  path: ./kubernetes/${CLUSTER}/apps/datastore/dragonfly/app
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   dependsOn:
     - name: cluster-apps-rook-ceph-cluster
@@ -37,11 +37,11 @@ spec:
       app.kubernetes.io/name: dragonfly-cluster
   dependsOn:
     - name: cluster-apps-dragonfly
-  path: ./kubernetes/jsdyb-k8s-001/apps/datastore/dragonfly/cluster
+  path: ./kubernetes/${CLUSTER}/apps/datastore/dragonfly/cluster
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []

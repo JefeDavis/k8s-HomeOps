@@ -1,0 +1,41 @@
+
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  generate-age-key:
+    desc: Generate age key for SOPs
+    preconditions:
+      - which sops age-keygen
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - mkdir {{ .CLUSTER_DIR }}/.age
+      - age-keygen -o {{ .CLUSTER_DIR }}/keys.txt
+
+  deploy-age-key:
+    desc: load age key into kubernetes as a secret
+    preconditions:
+      - which kubectl
+      - test -f "{{ .CLUSTER_DIR }}/.age/keys.txt"
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - kubectl create secret generic sops-age -n flux-system --from-file=age.agekey={{ .CLUSTER_DIR }}/.age/keys.txt --dry-run=client -oyaml | kubectl apply --force -f -
+
+  deploy-gcp-kms-key:
+    desc: load gcp kms into kubernetes as a secret
+    preconditions:
+      - which kubectl
+      - test -f "{{ .CLUSTER_DIR }}/bootstrap/flux/secret-gcp-kms.sops.yaml"
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - sops -d "{{ .CLUSTER_DIR }}/bootstrap/flux/secret-gcp-kms.sops.yaml" | kubectl apply --server-side --force-conflicts -f -

@@ -7,11 +7,11 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/jsdyb-k8s-001/apps/policy/kyverno/app"
+  path: "./kubernetes/${CLUSTER}/apps/policy/kyverno/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []
@@ -27,11 +27,11 @@ metadata:
   name: cluster-apps-cluster-policies
   namespace: flux-system
 spec:
-  path: ./kubernetes/jsdyb-k8s-001/apps/policy/kyverno/policies
+  path: ./kubernetes/${CLUSTER}/apps/policy/kyverno/policies
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: false # no flux ks dependents
   postBuild:
     substituteFrom: []

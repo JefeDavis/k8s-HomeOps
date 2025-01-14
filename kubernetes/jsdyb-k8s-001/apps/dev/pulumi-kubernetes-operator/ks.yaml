@@ -6,11 +6,11 @@ metadata:
   name: cluster-apps-pulumi-operator
   namespace: flux-system
 spec:
-  path: ./kubernetes/jsdyb-k8s-001/apps/dev/pulumi-kubernetes-operator/app
+  path: ./kubernetes/${CLUSTER}/apps/dev/pulumi-kubernetes-operator/app
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []

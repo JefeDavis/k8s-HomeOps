@@ -28,25 +28,52 @@ spec:
       [global]
       bdev_enable_discard = true
       bdev_async_discard = true
+      osd_class_update_on_start = false
     cephClusterSpec:
-      network:
-        provider: host
-        connections:
-          requireMsgr2: true
-
-      mgr:
-        modules:
-          - name: rook
-            enabled: true
-          - name: pg_autoscaler
-            enabled: true
-
       crashCollector:
         disable: false
 
       dashboard:
         enabled: true
         urlPrefix: /
+        ssl: false
+        prometheusEndpoint: http://prometheus-operated.monitor.svc.cluster.local:9090
+
+      mgr:
+        modules:
+          - name: pg_autoscaler
+            enabled: true
+
+      network:
+        provider: host
+        connections:
+          requireMsgr2: true
+
+      resources:
+        mgr:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+        mon:
+          requests:
+            cpu: 50m
+            memory: 512Mi
+          limits:
+            memory: 1Gi
+        osd:
+          requests:
+            cpu: 500m
+            memory: 2Gi
+          limits:
+            memory: 6Gi
+        mgr-sidecar:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
 
       storage:
         useAllNodes: false
@@ -105,6 +132,9 @@ spec:
 
     cephBlockPoolsVolumeSnapshotClass:
       enabled: true
+      name: csi-ceph-blockpool
+      isDefault: false
+      deletionPolicy: Delete
 
     cephFileSystems:
       - name: ceph-filesystem
@@ -116,6 +146,7 @@ spec:
             - failureDomain: host
               replicated:
                 size: 3
+              name: data0
           metadataServer:
             activeCount: 1
             activeStandby: true
@@ -131,6 +162,7 @@ spec:
           name: ceph-filesystem
           reclaimPolicy: Delete
           allowVolumeExpansion: true
+          volumeBindingMode: Immediate
           mountOptions: []
           parameters:
             csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
@@ -143,7 +175,9 @@ spec:
 
     cephFileSystemVolumeSnapshotClass:
       enabled: true
-
+      name: csi-ceph-filesystem
+      isDefault: false
+      deletionPolicy: Delete
 
     cephObjectStores:
       - name: ceph-objectstore

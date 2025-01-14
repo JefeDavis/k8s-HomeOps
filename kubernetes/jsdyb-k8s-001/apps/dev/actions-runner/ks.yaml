@@ -6,11 +6,11 @@ metadata:
   name: cluster-apps-actions-runner-controller
   namespace: flux-system
 spec:
-  path: ./kubernetes/jsdyb-k8s-001/apps/dev/actions-runner/controller
+  path: ./kubernetes/${CLUSTER}/apps/dev/actions-runner/controller
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []
@@ -27,11 +27,11 @@ metadata:
 spec:
   dependsOn:
     - name: cluster-apps-actions-runner-controller
-  path: ./kubernetes/jsdyb-k8s-001/apps/dev/actions-runner/runners
+  path: ./kubernetes/${CLUSTER}/apps/dev/actions-runner/runners
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []

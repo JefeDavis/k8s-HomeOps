@@ -10,11 +10,11 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/part-of: baby-buddy
-  path: "./kubernetes/jsdyb-k8s-001/apps/home/baby-buddy/database"
+  path: "./kubernetes/${CLUSTER}/apps/home/baby-buddy/database"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   healthChecks:
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster
@@ -42,11 +42,11 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: &app baby-buddy
-  path: "./kubernetes/jsdyb-k8s-001/apps/home/baby-buddy/app"
+  path: "./kubernetes/${CLUSTER}/apps/home/baby-buddy/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m

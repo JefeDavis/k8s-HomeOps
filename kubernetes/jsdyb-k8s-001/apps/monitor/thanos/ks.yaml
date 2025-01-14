@@ -7,11 +7,11 @@ metadata:
   namespace: flux-system
 spec:
   targetNamespace: monitor
-  path: "./kubernetes/jsdyb-k8s-001/apps/monitor/thanos/app"
+  path: "./kubernetes/${CLUSTER}/apps/monitor/thanos/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   interval: 30m
   retryInterval: 1m
   timeout: 15m

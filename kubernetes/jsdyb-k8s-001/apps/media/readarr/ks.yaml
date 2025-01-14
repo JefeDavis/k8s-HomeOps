@@ -11,11 +11,11 @@ spec:
     labels:
       app.kubernetes.io/name: &app readarr
       app.kubernetes.io/instance: *app
-  path: "./kubernetes/jsdyb-k8s-001/apps/media/readarr/app"
+  path: "./kubernetes/${CLUSTER}/apps/media/readarr/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 10m
   retryInterval: 1m

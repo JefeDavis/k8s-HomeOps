@@ -1,0 +1,108 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  VOLSYNC_TASK_RESOURCES_DIR: "{{.ROOT_DIR}}/.taskfiles/volsync/resources"
+
+tasks:
+  unlock:
+    desc: Unlock all restic source repos [K8S_CLUSTER=main]
+    preconditions:
+      - which kubectl
+    requires:
+      vars:
+        - CLUSTER
+    vars:
+      SOURCES:
+        sh: kubectl get replicationsources --all-namespaces --no-headers --output=jsonpath='{range .items[*]}{.metadata.namespace},{.metadata.name}{"\n"}{end}'
+    cmds:
+      - for:
+          var: SOURCES
+          split: "\n"
+        cmd: kubectl --namespace {{splitList "," .ITEM | first}} patch --field-manager=flux-client-side-apply replicationsources {{splitList "," .ITEM | last}} --type merge --patch "{\"spec\":{\"restic\":{\"unlock\":\"{{now | unixEpoch}}\"}}}"
+
+  list:
+    desc: List snapshots for an app [CLUSTER=jsdyb-k8s-001] [NS=default] [APP=required]
+    preconditions:
+      - which kubectl minijinja-cli
+      - kubectl --namespace {{.NS}} get replicationsources {{.APP}}
+      - test -f "{{.VOLSYNC_TASK_RESOURCES_DIR}}/list-snapshots.yaml.j2"
+    requires:
+      vars:
+        - K8S_CLUSTER
+        - APP
+    vars:
+      NS: '{{.NS | default "default"}}'
+      JOB: "list-snapshots-{{ .APP }}"
+    env:
+      NS: "{{.NS}}"
+      APP: "{{.APP}}"
+    cmds:
+      - minijinja-cli {{.VOLSYNC_TASK_RESOURCES_DIR}}/list-snapshots.yaml.j2 | kubectl apply --server-side --filename -
+      - until kubectl --namespace {{.NS}} get job/{{ .JOB }} &>/dev/null; do sleep 5; done
+      - kubectl --namespace {{.NS}} wait job/{{ .JOB }} --for=condition=complete --timeout=5m
+      - stern --namespace {{.NS}} job/{{ .JOB }} --no-follow
+      - kubectl --namespace {{.NS}} delete job {{ .JOB }}
+
+  snapshot:
+    desc: Snapshot an app [K8S_CLUSTER=main] [NS=default] [APP=required]
+    preconditions:
+      - which kubectl
+      - kubectl --namespace {{.NS}} get replicationsources {{.APP}}
+    requires:
+      vars:
+        - K8S_CLUSTER
+        - APP
+    vars:
+      NS: '{{.NS | default "default"}}'
+      JOB: volsync-src-{{.APP}}
+    cmds:
+      - kubectl --namespace {{.NS}} patch replicationsources {{.APP}} --type merge -p '{"spec":{"trigger":{"manual":"{{now | unixEpoch}}"}}}'
+      - until kubectl --namespace {{.NS}} get job/{{.JOB}} &>/dev/null; do sleep 5; done
+      - kubectl --namespace {{.NS}} wait job/{{.JOB}} --for=condition=complete --timeout=120m
+
+  restore:
+    desc: Restore an app [K8S_CLUSTER=main] [NS=default] [APP=required] [PREVIOUS=required]
+    preconditions:
+      - which flux kubectl minijinja-cli
+      - test -f {{.VOLSYNC_TASK_RESOURCES_DIR}}/replicationdestination.yaml.j2
+    requires:
+      vars:
+        - K8S_CLUSTER
+        - APP
+        - PREVIOUS
+    vars:
+      NS: '{{.NS | default "default"}}'
+      CONTROLLER:
+        sh: kubectl --namespace {{.NS}} get deployment {{.APP}} &>/dev/null && echo deployment || echo statefulset
+    env:
+      NS: "{{.NS}}"
+      APP: "{{.APP}}"
+      PREVIOUS: "{{.PREVIOUS}}"
+      CLAIM:
+        sh: kubectl --namespace {{.NS}} get replicationsources/{{.APP}} --output=jsonpath="{.spec.sourcePVC}"
+      ACCESS_MODES:
+        sh: kubectl --namespace {{.NS}} get replicationsources/{{.APP}} --output=jsonpath="{.spec.restic.accessModes}"
+      STORAGE_CLASS_NAME:
+        sh: kubectl --namespace {{.NS}} get replicationsources/{{.APP}} --output=jsonpath="{.spec.restic.storageClassName}"
+      PUID:
+        sh: kubectl --namespace {{.NS}} get replicationsources/{{.APP}} --output=jsonpath="{.spec.restic.moverSecurityContext.runAsUser}"
+      PGID:
+        sh: kubectl --namespace {{.NS}} get replicationsources/{{.APP}} --output=jsonpath="{.spec.restic.moverSecurityContext.runAsGroup}"
+    cmds:
+      # Suspend
+      - flux --namespace flux-system suspend kustomization {{.APP}}
+      - flux --namespace {{.NS}} suspend helmrelease {{.APP}}
+      - kubectl --namespace {{.NS}} scale {{.CONTROLLER}}/{{.APP}} --replicas 0
+      - kubectl --namespace {{.NS}} wait pod --for=delete --selector="app.kubernetes.io/name={{.APP}}" --timeout=5m
+      # Restore
+      - minijinja-cli {{.VOLSYNC_TASK_RESOURCES_DIR}}/replicationdestination.yaml.j2 | kubectl apply --server-side --filename -
+      - until kubectl --namespace {{.NS}} get job/volsync-dst-{{.APP}}-manual &>/dev/null; do sleep 5; done
+      - kubectl --namespace {{.NS}} wait job/volsync-dst-{{.APP}}-manual --for=condition=complete --timeout=120m
+      - kubectl --namespace {{.NS}} delete replicationdestination {{.APP}}-manual
+      # Resume
+      - flux --namespace flux-system resume kustomization {{.APP}}
+      - flux --namespace {{.NS}} resume helmrelease {{.APP}}
+      - flux --namespace {{.NS}} reconcile helmrelease {{.APP}} --force
+      - kubectl --namespace {{.NS}} wait pod --for=condition=ready --selector="app.kubernetes.io/name={{.APP}}" --timeout=5m

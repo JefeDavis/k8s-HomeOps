@@ -7,11 +7,11 @@ metadata:
   namespace: flux-system
 spec:
   targetNamespace: monitor
-  path: ./kubernetes/jsdyb-k8s-001/apps/monitor/kube-prometheus-stack/crds
+  path: ./kubernetes/${CLUSTER}/apps/monitor/kube-prometheus-stack/crds
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []
@@ -29,11 +29,11 @@ metadata:
   namespace: flux-system
 spec:
   targetNamespace: monitor
-  path: ./kubernetes/jsdyb-k8s-001/apps/monitor/kube-prometheus-stack/app
+  path: ./kubernetes/${CLUSTER}/apps/monitor/kube-prometheus-stack/app
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []

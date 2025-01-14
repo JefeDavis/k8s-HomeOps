@@ -9,11 +9,11 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: &app generic-device-plugin
-  path: ./kubernetes/jsdyb-k8s-001/apps/system/generic-device-plugin/app
+  path: ./kubernetes/${CLUSTER}/apps/system/generic-device-plugin/app
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: false # no flux ks dependents
   interval: 10m
   retryInterval: 1m

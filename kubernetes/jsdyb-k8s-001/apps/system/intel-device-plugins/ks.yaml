@@ -6,10 +6,10 @@ metadata:
   name: cluster-apps-intel-device-plugins-operator
   namespace: flux-system
 spec:
-  path: "./kubernetes/jsdyb-k8s-001/apps/system/intel-device-plugins/operator"
+  path: "./kubernetes/${CLUSTER}/apps/system/intel-device-plugins/operator"
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   interval: 10m
   prune: true
   wait: true
@@ -26,10 +26,10 @@ metadata:
   name: cluster-apps-intel-device-plugins-gpu
   namespace: flux-system
 spec:
-  path: "./kubernetes/jsdyb-k8s-001/apps/system/intel-device-plugins/gpu"
+  path: "./kubernetes/${CLUSTER}/apps/system/intel-device-plugins/gpu"
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   interval: 30m
   prune: true
   wait: true

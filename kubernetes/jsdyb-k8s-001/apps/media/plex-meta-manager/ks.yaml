@@ -7,14 +7,14 @@ metadata:
   namespace: flux-system
 spec:
   interval: 30m
-  path: ./kubernetes/jsdyb-k8s-001/apps/media/plex-meta-manager/app
+  path: ./kubernetes/${CLUSTER}/apps/media/plex-meta-manager/app
   postBuild:
     substituteFrom: []
   prune: true
   retryInterval: 1m
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   timeout: 5m
   wait: true
   dependsOn:

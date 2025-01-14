@@ -6,11 +6,11 @@ metadata:
   name: cluster-apps-tf-controller
   namespace: flux-system
 spec:
-  path: ./kubernetes/jsdyb-k8s-001/apps/flux-system/tf-controller/app
+  path: ./kubernetes/${CLUSTER}/apps/flux-system/tf-controller/app
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []

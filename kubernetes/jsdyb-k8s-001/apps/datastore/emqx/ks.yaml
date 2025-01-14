@@ -10,11 +10,11 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/jsdyb-k8s-001/apps/datastore/emqx/operator
+  path: ./kubernetes/${CLUSTER}/apps/datastore/emqx/operator
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m
@@ -34,11 +34,11 @@ metadata:
   namespace: flux-system
 spec:
   targetNamespace: datastore
-  path: ./kubernetes/jsdyb-k8s-001/apps/datastore/emqx/cluster
+  path: ./kubernetes/${CLUSTER}/apps/datastore/emqx/cluster
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m

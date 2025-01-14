@@ -6,11 +6,11 @@ metadata:
   name: cluster-apps-volsync
   namespace: flux-system
 spec:
-  path: "./kubernetes/jsdyb-k8s-001/apps/storage/volsync/app"
+  path: "./kubernetes/${CLUSTER}/apps/storage/volsync/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   timeout: 5m

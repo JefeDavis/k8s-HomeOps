@@ -1,0 +1,249 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  generate-config:
+    desc: Generate clusterconfig for Talos
+    aliases:
+      - generate
+    preconditions:
+      - which test talhelper
+      - test -f {{ .CLUSTER_DIR }}/talos/talsecret.sops.yaml
+      - test -f {{ .CLUSTER_DIR }}/talos/talconfig.yaml
+      - test -f {{ .CLUSTER_DIR }}/talos/talenv.sops.yaml
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - talhelper genconfig
+        --secret-file {{ .CLUSTER_DIR }}/talos/talsecret.sops.yaml
+        --config-file {{ .CLUSTER_DIR }}/talos/talconfig.yaml
+        --env-file {{ .CLUSTER_DIR }}/talos/talenv.sops.yaml
+        --out-dir {{ .CLUSTER_DIR }}/talos/clusterconfig
+
+  apply-config:
+    desc: Apply clusterconfig for a Talos cluster
+    aliases:
+      - apply
+    preconditions:
+      - which talosctl test talhelper
+      - test -f "${TALOSCONFIG}"
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+    vars:
+      MODE: '{{ .MODE | default "auto" }}'
+    cmds:
+      - talhelper gencommand apply
+        --config-file {{ .CLUSTER_DIR }}/talos/talconfig.yaml
+        --env-file {{ .CLUSTER_DIR }}/talos/talenv.sops.yaml
+        --out-dir {{ .CLUSTER_DIR }}/talos/clusterconfig
+        {{ if .NODE }}--node {{ .NODE }} {{ end }}
+        --extra-flags --mode={{ .MODE | default "auto" }}
+        {{- if eq .INSECURE true }},--insecure{{ end }}
+        {{- if eq .DRYRUN true }},--dry-run{{ end }}
+        | bash
+
+  upgrade-node:
+    desc: upgrade Talos node
+    aliases:
+      - upgrade
+    preconditions:
+      - which talosctl test
+      - test -f "${TALOSCONFIG}"
+      - talosctl --nodes {{ .NODE }} get machineconfig
+    requires:
+      vars:
+        - NODE
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - talhelper gencommand upgrade
+        --config-file {{ .CLUSTER_DIR }}/talos/talconfig.yaml
+        --env-file {{ .CLUSTER_DIR }}/talos/talenv.sops.yaml
+        --out-dir {{ .CLUSTER_DIR }}/talos/clusterconfig
+        --node {{ .NODE }}
+        --extra-flags --timeout=10m
+        | bash
+      - talosctl --nodes {{ .NODE }} health --wait-timeout=10m --server=false
+
+  upgrade-k8s:
+    desc: upgrade Kubernetes on Talos
+    preconditions:
+      - which talosctl test
+      - test -f "${TALOSCONFIG}"
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - talhelper gencommand upgrade-k8s
+        --config-file {{ .CLUSTER_DIR }}/talos/talconfig.yaml
+        --env-file {{ .CLUSTER_DIR }}/talos/talenv.sops.yaml
+        --out-dir {{ .CLUSTER_DIR }}/talos/clusterconfig
+        {{ if .NODE }}--node {{ .NODE }} {{ end }}
+        | bash
+
+  kubeconfig:
+    desc: upgrade Kubernetes on Talos
+    preconditions:
+      - which talosctl test
+      - test -f "${TALOSCONFIG}"
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - talhelper gencommand kubeconfig
+        --config-file {{ .CLUSTER_DIR }}/talos/talconfig.yaml
+        --env-file {{ .CLUSTER_DIR }}/talos/talenv.sops.yaml
+        --out-dir {{ .CLUSTER_DIR }}/talos/clusterconfig
+        --extra-flags --force,--force-context-name={{ .CLUSTER }},{{ .CLUSTER_DIR }}
+        | bash
+
+  reboot-node:
+    desc: Reboot Talos on a single node [NODE=required] [MODE=default]
+    preconditions:
+      - which talosctl test
+      - talosctl --nodes {{ .NODE }} get machineconfig
+      - talosctl config info
+      - test -f {{ .CLUSTER_DIR }/talos/talconfig.yaml
+      - test -f "${TALOSCONFIG}"
+    requires:
+      vars: 
+        - NODE
+        - CLUSTER
+        - CLUSTER_DIR
+    vars:
+      MODE: '{{ .MODE | default "default" }}'
+    cmds:
+      - task: down
+      - talosctl --nodes {{ .NODE }} reboot --mode={{ .MODE }}
+      - talosctl --nodes {{ .NODE }} health
+      - task: up
+      
+  reboot-cluster:
+    desc: Reboot all Talos nodes in cluster [CLUSTER={{ .CLUSTER }}] [MODE=default]
+    preconditions:
+      - which jq talosctl
+    vars:
+      NODE_IPs:
+        sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(" ")'
+    cmds:
+      - for: { var: NODE_IPS }
+        task: reboot-node
+        vars:
+          IP: '{{ .ITEM }}'
+          MODE: '{{ .MODE }}'
+
+  shutdown-cluster:
+    desc: Shutdown Talos across the whole cluster
+    prompt: Shutdown the Talos cluster ... continue?
+    preconditions:
+      - talosctl --nodes {{ .NODE_IPS }} get machineconfig
+      - talosctl config info
+      - test -f "${TALOSCONFIG}"
+      - which jq talosctl
+    requires:
+      vars: 
+        - CLUSTER
+        - CLUSTER_DIR
+    vars:
+      NODE_IPS:
+        sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(",")'
+    cmd: talosctl shutdown --nodes {{ .NODE_IPS }} --force
+
+  reset-node:
+    desc: Reset a Talos node [NODE=required]
+    prompt: Reset Talos node {{ .NODE }} ... continue?
+    preconditions:
+      - test -f "${TALOSCONFIG}"
+      - talosctl config info >/dev/null 2>&1
+      - talosctl --nodes {{ .NODE }} get machineconfig >/dev/null 2>&1
+    requires:
+      vars:
+        - NODE
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - talhelper gencommand reset
+        --config-file {{ .CLUSTER_DIR }}/talos/talconfig.yaml
+        --env-file {{ .CLUSTER_DIR }}/talos/talenv.sops.yaml
+        --out-dir {{ .CLUSTER_DIR }}/talos/clusterconfig
+        --node {{ .NODE }}
+        --extra-flags --system-labels-to-wipe=STATE,--system-labels-to-wipe=EPHEMERAL,--graceful=false,--reboot
+        | bash
+
+  reset-cluster:
+    desc: Reset a Talos cluster
+    prompt: Reset Talos cluster {{ .CLUSTER }}... continue?
+    preconditions:
+      - test -f "${TALOSCONFIG}"
+      - talosctl config info >/dev/null 2>&1
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - talhelper gencommand reset
+        --config-file {{ .CLUSTER_DIR }}/talos/talconfig.yaml
+        --env-file {{ .CLUSTER_DIR }}/talos/talenv.sops.yaml
+        --out-dir {{ .CLUSTER_DIR }}/talos/clusterconfig
+        --extra-flags --system-labels-to-wipe=STATE,--system-labels-to-wipe=EPHEMERAL,--graceful=false,--reboot
+        | bash
+
+  _bootstrap:
+    desc: bootstrap for a Talos cluster
+    # internal: true
+    preconditions:
+      - which talosctl test
+      - test -f "${TALOSCONFIG}"
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - until $(
+          talhelper gencommand bootstrap 
+          --config-file {{ .CLUSTER_DIR }}/talos/talconfig.yaml
+          --env-file {{ .CLUSTER_DIR }}/talos/talenv.sops.yaml
+          --out-dir {{ .CLUSTER_DIR }}/talos/clusterconfig
+          | bash
+        ); do sleep 5; done
+
+  _generate-secrets:
+    desc: bootstrap secrets for talos
+    internal: true
+    preconditions:
+      - which talhelper test sops
+      - test -f {{ .CLUSTER_DIR }}/.age/keys.txt
+      - test -f {{ .ROOT_DIR }}/.sops.yaml
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+        - SOPS_AGE_KEY_FILE
+    cmds:
+      - talhelper gensecrets > {{ .CLUSTER_DIR }}/talos/talsecret.sops.yaml
+      - touch {{ .CLUSTER_DIR }}/talos/talenv.sops.yaml
+      - sops -e -i {{ .CLUSTER_DIR }}/talos/talsecret.sops.yaml
+      - sops -e -i {{ .CLUSTER_DIR }}/talos/talenv.sops.yaml
+
+  _down:
+    internal: true
+    preconditions:
+      - which kubectl
+    cmds:
+      - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
+      - until kubectl wait jobs --all --all-namespaces --for=condition=complete --timeout=5m &>/dev/null; do sleep 5; done
+
+  _up:
+    internal: true
+    preconditions:
+      - which kubectl
+    cmds:
+      - until kubectl wait cephcluster --for=jsonpath=.status.ceph.health=HEALTH_OK --timeout=10m --all --all-namespaces &>/dev/null; do sleep 5; done
+      - until kubectl wait jobs --all --all-namespaces --for=condition=complete --timeout=5m &>/dev/null; do sleep 5; done

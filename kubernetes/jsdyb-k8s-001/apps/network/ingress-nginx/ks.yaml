@@ -7,16 +7,17 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/jsdyb-k8s-001/apps/network/ingress-nginx/external"
+  path: "./kubernetes/${CLUSTER}/apps/network/ingress-nginx/external"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []
   dependsOn:
     - name: cluster-apps-kube-prometheus-stack-crds
+    - name: cluster-apps-cert-manager
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -26,16 +27,17 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/jsdyb-k8s-001/apps/network/ingress-nginx/internal"
+  path: "./kubernetes/${CLUSTER}/apps/network/ingress-nginx/internal"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []
   dependsOn:
     - name: cluster-apps-kube-prometheus-stack-crds
+    - name: cluster-apps-cert-manager
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -45,11 +47,11 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/jsdyb-k8s-001/apps/network/ingress-nginx/monitoring"
+  path: "./kubernetes/${CLUSTER}/apps/network/ingress-nginx/monitoring"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []

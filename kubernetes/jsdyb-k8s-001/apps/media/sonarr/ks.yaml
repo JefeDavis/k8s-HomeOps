@@ -11,11 +11,11 @@ spec:
     labels:
       app.kubernetes.io/name: &app sonarr
       app.kubernetes.io/instance: *app
-  path: "./kubernetes/jsdyb-k8s-001/apps/media/sonarr/app"
+  path: "./kubernetes/${CLUSTER}/apps/media/sonarr/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m
@@ -49,11 +49,11 @@ spec:
     labels:
       app.kubernetes.io/name: &app sonarr
       app.kubernetes.io/instance: *app
-  path: "./kubernetes/jsdyb-k8s-001/apps/media/sonarr/provision"
+  path: "./kubernetes/${CLUSTER}/apps/media/sonarr/provision"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m

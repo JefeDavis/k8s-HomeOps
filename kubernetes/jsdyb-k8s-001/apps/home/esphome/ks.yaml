@@ -10,11 +10,11 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: &app esphome
-  path: "./kubernetes/jsdyb-k8s-001/apps/home/esphome/app"
+  path: "./kubernetes/${CLUSTER}/apps/home/esphome/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m

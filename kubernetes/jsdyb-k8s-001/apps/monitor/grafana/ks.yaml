@@ -6,11 +6,11 @@ metadata:
   name: cluster-apps-grafana
   namespace: flux-system
 spec:
-  path: ./kubernetes/jsdyb-k8s-001/apps/monitor/grafana/app
+  path: ./kubernetes/${CLUSTER}/apps/monitor/grafana/app
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []

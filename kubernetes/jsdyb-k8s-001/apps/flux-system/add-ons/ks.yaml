@@ -6,11 +6,11 @@ metadata:
   name: cluster-apps-flux-monitoring
   namespace: flux-system
 spec:
-  path: ./kubernetes/jsdyb-k8s-001/apps/flux-system/add-ons/monitoring
+  path: ./kubernetes/${CLUSTER}/apps/flux-system/add-ons/monitoring
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []
@@ -30,36 +30,13 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: ./kubernetes/jsdyb-k8s-001/apps/flux-system/add-ons/notifications
+  path: ./kubernetes/${CLUSTER}/apps/flux-system/add-ons/notifications
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []
   dependsOn:
     - name: cluster-apps-kube-prometheus-stack
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: cluster-apps-flux-webhooks
-  namespace: flux-system
-spec:
-  path: ./kubernetes/jsdyb-k8s-001/apps/flux-system/add-ons/webhooks
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: k8s-home-ops
-  wait: true
-  postBuild:
-    substituteFrom: []
-  decryption:
-    provider: sops
-  interval: 30m
-  retryInterval: 1m
-  timeout: 5m
-  dependsOn:
-    - name: cluster-apps-cert-manager-issuers

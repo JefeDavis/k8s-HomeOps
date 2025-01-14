@@ -11,11 +11,11 @@ spec:
     labels:
       app.kubernetes.io/name: &app system-upgrade-controller
       app.kubernetes.io/instance: *app
-  path: ./kubernetes/jsdyb-k8s-001/apps/system/system-upgrade-controller/app
+  path: ./kubernetes/${CLUSTER}/apps/system/system-upgrade-controller/app
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m
@@ -36,11 +36,11 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/part-of: system-upgrade-controller
-  path: ./kubernetes/jsdyb-k8s-001/apps/system/system-upgrade-controller/plans
+  path: ./kubernetes/${CLUSTER}/apps/system/system-upgrade-controller/plans
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m

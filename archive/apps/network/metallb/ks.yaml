@@ -7,11 +7,11 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/jsdyb-k8s-001/apps/network/metallb/app"
+  path: "./kubernetes/${CLUSTER}/apps/network/metallb/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []
@@ -26,11 +26,11 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/jsdyb-k8s-001/apps/network/metallb/pool"
+  path: "./kubernetes/${CLUSTER}/apps/network/metallb/pool"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []

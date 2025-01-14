@@ -1,0 +1,144 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+vars:
+  BOOTSTRAP_RESOURCES_DIR: '{{ .ROOT_DIR }}/.taskfiles/bootstrap/resources'
+
+tasks:
+  all:
+    desc: Bootstrap everything
+    requires:
+      vars: 
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      # - task: sops
+      - task: talos
+      - task: secrets
+      - task: apps
+
+  sops:
+    desc: Bootstrap SOPS with age [CLUSTER={{ .CLUSTER }}]
+    prompt: Are you sure you want to generate a new AGE key and talos secret?
+    requires:
+      vars: 
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - task: :sops:generate-age-key
+      - task: :talos:_generate-secrets
+  
+  talos:
+    desc: Bootstrap Talos [CLUSTER={{ .CLUSTER }}]
+    preconditions:
+      - which talhelper talosctl test
+      - talosctl config info
+      - test -f "${TALOSCONFIG}"
+    requires:
+      vars: 
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - task: :talos:generate-config
+      - task: :talos:apply-config
+        vars:
+          INSECURE: true
+      - task: :talos:_bootstrap
+      - task: :talos:kubeconfig
+
+  regcred:
+    desc: Bootstrap regcred [CLUSTER={{ .CLUSTER }}]
+    preconditions:
+      - which kubectl
+    requires:
+      vars:
+        - IMAGE_REGISTRY
+        - IMAGE_REGISTRY_USER
+        - IMAGE_REGISTRY_PASS
+        - CLUSTER
+        - CLUSTER_DIR
+    vars:
+      namespaces:
+        - kube-system
+        - flux-system
+        - system
+    cmds:
+      - until kubectl get nodes; do sleep 5; done
+      - for:
+          var: namespaces
+        cmd: kubectl get ns {{ .ITEM }} || kubectl create ns {{ .ITEM }}
+        
+      - for:
+          var: namespaces
+        cmd: kubectl create secret docker-registry 2f-regcred --docker-username=${IMAGE_REGISTRY_USER} --docker-password=${IMAGE_REGISTRY_PASS} --docker-server=${IMAGE_REGISTRY} --dry-run=client -oyaml | kubectl apply --force -n {{ .ITEM }} -f -
+      - cmd: kubectl annotate -n kube-system secret 2f-regcred replicator.v1.mittwald.de/replicate-to=".*" || true
+
+  secrets:
+    desc: Bootstrap Secrets [CLUSTER={{ .CLUSTER }}]
+    preconditions:
+      - which kubectl
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - until kubectl get nodes; do sleep 5; done
+      # - task: regcred
+      # - task: git-auth
+      - task: :sops:deploy-gcp-kms-key
+      - task: cluster-settings
+
+  apps:
+    desc: Bootstrap Apps [CLUSTER={{ .CLUSTER }}]
+    preconditions:
+      - which helmfile kubectl jq
+      - test -f "{{ .CLUSTER_DIR }}/bootstrap/apps/helmfile.yaml"
+      - test -f "{{ .CLUSTER_DIR}}/bootstrap/templates/wipe-rook.yaml.gotmpl"
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+        - DISK_MODEL
+    vars:
+      NODE_COUNT:
+        sh: talosctl config info --output json | jq --raw-output '.nodes | length'
+    cmds:
+      - until kubectl get nodes; do sleep 5; done
+      - helmfile --quiet --file {{ .CLUSTER_DIR }}/bootstrap/apps/helmfile.yaml apply --skip-diff-on-install --suppress-diff
+      - until kubectl wait nodes --for=condition=Ready --all --timeout=10m; do sleep 5; done
+      - helmfile --quiet --file {{ .CLUSTER_DIR }}/bootstrap/apps/helmfile.yaml destroy --selector name=wipe-rook
+  
+  git-auth:
+    desc: Bootstrap Git Auth Secret [CLUSTER={{ .CLUSTER }}]
+    preconditions:
+      - which kubectl flux
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+        - GIT_REPO_URL
+        - GIT_REPO_USER
+        - GIT_REPO_PASS
+    cmds:
+      - until kubectl get nodes; do sleep 5; done
+      - flux create secret git git-token-auth
+        --url={{ .GIT_REPO_URL }}
+        --username={{ .GIT_REPO_USER }}
+        --password={{ .GIT_REPO_PASS }}
+
+  cluster-settings:
+    desc: Bootstrap Cluster settings [CLUSTER={{ .CLUSTER }}]
+    preconditions:
+      - which test kubectl flux
+      - test -f {{ .CLUSTER_DIR }}/flux/settings/configmap-cluster-settings.yaml
+      - test -f {{ .CLUSTER_DIR }}/flux/settings/secret-cluster-secrets.sops.yaml
+    requires:
+      vars:
+        - CLUSTER
+        - CLUSTER_DIR
+    cmds:
+      - until kubectl get nodes; do sleep 5; done
+      - kubectl get ns flux-system || kubectl create ns flux-system
+      - sops -d {{ .CLUSTER_DIR }}/flux/settings/secret-cluster-secrets.sops.yaml | kubectl apply --server-side --force-conflicts -f -
+      - flux envsubst < {{ .CLUSTER_DIR }}/flux/settings/configmap-cluster-settings.yaml | kubectl apply --server-side --force-conflicts -f -

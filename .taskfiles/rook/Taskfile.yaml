@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  ROOK_TASK_RESOURCES_DIR: "{{.ROOT_DIR}}/.taskfiles/rook/resources"
+
+tasks:
+  wipe-disk:
+    desc: Wipe all remnants of rook-ceph from a given disk  [CLUSTER={{ .CLUSTER }}] [NODE=required]
+    preconditions:
+      - which kubectl
+      - test -f {{.ROOK_TASK_RESOURCES_DIR}}/wipe-rook.yaml
+      - kubectl wait nodes -l kubernetes.io/hostname={{.NODE}} --timeout 0 --for condition=Ready
+    requires:
+      vars:
+        - CLUSTER
+        - NODE
+    env:
+      NODE: "{{ .NODE }}"
+    cmds:
+      - flux envsubst < {{.ROOK_TASK_RESOURCES_DIR}}/wipe-rook.yaml | kubectl apply --server-side -f -
+      - until kubectl --namespace default get job/wipe-rook-{{ .NODE }} &>/dev/null; do sleep 5; done
+      - kubectl --namespace default wait job/wipe-rook-{{ .NODE }} --for=condition=complete --timeout=5m
+      - kubectl logs --namespace default job/wipe-rook-{{ .NODE }}
+      - kubectl --namespace default delete job wipe-rook-{{ .NODE }}

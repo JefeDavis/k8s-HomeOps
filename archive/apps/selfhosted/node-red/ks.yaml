@@ -10,11 +10,11 @@ spec:
     labels:
       app.kubernetes.io/name: &appname node-red
   interval: 10m
-  path: "./kubernetes/jsdyb-k8s-001/apps/selfhosted/node-red/app"
+  path: "./kubernetes/${CLUSTER}/apps/selfhosted/node-red/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substitute:

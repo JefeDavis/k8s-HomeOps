@@ -11,11 +11,11 @@ spec:
     labels:
       app.kubernetes.io/name: &app maker-management-platform
       app.kubernetes.io/instance: *app
-  path: "./kubernetes/jsdyb-k8s-001/apps/print/maker-management-platform/app"
+  path: "./kubernetes/${CLUSTER}/apps/print/maker-management-platform/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m
@@ -28,3 +28,5 @@ spec:
     substituteFrom:
       - kind: Secret
         name: flux-volsync-secret
+  dependsOn:
+    - name: cluster-apps-volsync

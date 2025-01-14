@@ -7,11 +7,11 @@ metadata:
   namespace: flux-system
 spec:
   targetNamespace: media
-  path: "./kubernetes/jsdyb-k8s-001/apps/media/recyclarr/app"
+  path: "./kubernetes/${CLUSTER}/apps/media/recyclarr/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m

@@ -1,0 +1,82 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+helmDefaults:
+  wait: true
+  waitForJobs: true
+  timeout: 600
+  recreatePods: true
+  force: true
+
+repositories:
+  - name: postfinance
+    url: https://postfinance.github.io/kubelet-csr-approver
+  - name: cilium
+    url: https://helm.cilium.io
+
+releases:
+  - name: prometheus-operator-crds
+    namespace: monitor
+    chart: oci://ghcr.io/prometheus-community/charts/prometheus-operator-crds
+    version: 17.0.2
+
+  - name: cilium
+    namespace: network
+    chart: cilium/cilium
+    version: 1.16.5
+    values:
+      - ../../apps/network/cilium/app/values.yaml
+    set:
+      - name: cluster.name
+        value: {{ requiredEnv "CLUSTER" }}
+    needs:
+      - monitor/prometheus-operator-crds
+
+  - name: kubelet-csr-approver
+    namespace: system
+    chart: postfinance/kubelet-csr-approver
+    version: 1.2.5
+    values:
+      - ../../apps/system/kubelet-csr-approver/app/values.yaml
+    needs:
+      - network/cilium
+
+  - name: spegel
+    namespace: system
+    chart: oci://ghcr.io/spegel-org/helm-charts/spegel
+    version: v0.0.28
+    values:
+      - ../../apps/system/spegel/app/values.yaml
+    needs:
+      - network/cilium
+      - system/kubelet-csr-approver
+
+  - name: wipe-rook
+    namespace: kube-system
+    chart: oci://ghcr.io/bjw-s/helm/app-template
+    version: 3.6.1
+    values:
+      - ../templates/wipe-rook.yaml.gotmpl
+    needs:
+      - system/spegel
+
+  - name: flux-operator
+    namespace: flux-system
+    chart: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator
+    version: 0.12.0
+    values:
+      - ../../apps/flux-system/flux-operator/app/values.yaml
+    needs:
+      - kube-system/wipe-rook
+
+  - name: flux-instance
+    namespace: flux-system
+    chart: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
+    version: 0.12.0
+    wait: false
+    values:
+      - ../../apps/flux-system/flux-operator/instance/values.yaml
+    set:
+      - name: instance.sync.path
+        value: kubernetes/{{ requiredEnv "CLUSTER" }}/flux/config
+    needs:
+      - flux-system/flux-operator

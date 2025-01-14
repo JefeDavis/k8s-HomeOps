@@ -7,11 +7,11 @@ metadata:
   namespace: flux-system
 spec:
   targetNamespace: monitor
-  path: "./kubernetes/jsdyb-k8s-001/apps/monitor/metrics-server/app"
+  path: "./kubernetes/${CLUSTER}/apps/monitor/metrics-server/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   interval: 30m
   timeout: 5m

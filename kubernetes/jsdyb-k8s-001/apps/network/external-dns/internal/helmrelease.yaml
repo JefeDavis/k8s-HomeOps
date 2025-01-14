@@ -30,7 +30,7 @@ spec:
     interval: 10s
     policy: sync
     registry: txt
-    txtPrefix: "${CLUSTER_NAME}-"
+    txtPrefix: "${CLUSTER}-"
     provider: rfc2136
 
     extraArgs:

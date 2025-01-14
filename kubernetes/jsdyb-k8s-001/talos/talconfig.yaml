@@ -1,13 +1,13 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
-clusterName: ${CLUSTER_NAME}
+clusterName: ${CLUSTER}
 
 # renovate: depName=ghcr.io/siderolabs/installer datasource=docker extractVersion=^(?<version>.*)$
 talosVersion: v1.9.1
 # renovate: depName=ghcr.io/siderolabs/kubelet datasource=docker
 kubernetesVersion: v1.32.0
 
-endpoint: "https://${CLUSTER_NAME}.${INTERNAL_DOMAIN}:6443"
+endpoint: "https://${CLUSTER}.${INTERNAL_DOMAIN}:6443"
 
 allowSchedulingOnMasters: true
 allowSchedulingOnControlPlanes: true
@@ -20,32 +20,29 @@ clusterSvcNets:
 cniConfig:
   name: none
 
-additionalApiServerCertSans: &san
-  - ${CLUSTER_ENDPOINT_IP}
-  - ${CLUSTER_NAME}.${INTERNAL_DOMAIN}
+additionalApiServerCertSans: &sans
+  - &talosControlplaneVip ${CLUSTER_ENDPOINT_IP}
+  - ${CLUSTER}.${INTERNAL_DOMAIN}
   - ${EXTERNAL_CLUSTER_NAME}.${EXTERNAL_DOMAIN}
   - "127.0.0.1" # KubePrism
-additionalMachineCertSans: *san
+additionalMachineCertSans: *sans
 
 nodes:
   # intel nuc panther canyon / i7 / 256GB / 1TB SSD / 2TB Nvme
   - hostname: jsdyb-nuc-001.${INTERNAL_DOMAIN}
     controlPlane: true
     ipAddress: 10.77.0.11
-    installDisk: /dev/sda
+    installDiskSelector:
+      size: 1TB
+      model: CT1000MX500SSD1
     disableSearchDomain: true
     networkInterfaces:
-      - interface: eth0
-        dhcp: false
-        mtu: 1500
+      - deviceSelector:
+          hardwareAddr: 88:ae:dd:09:c5:ac
+        dhcp: true
+        vip:
+          ip: *talosControlplaneVip
         vlans:
-          - vlanId: 770
-            mtu: 1500
-            dhcp: true
-            dhcpOptions:
-              routeMetric: 1024
-            vip:
-              ip: ${CLUSTER_ENDPOINT_IP}
           - vlanId: 90
             mtu: 1500
             dhcp: true
@@ -69,19 +66,17 @@ nodes:
   - hostname: jsdyb-nuc-002.${INTERNAL_DOMAIN}
     controlPlane: true
     ipAddress: 10.77.0.12
-    installDisk: /dev/sda
+    installDiskSelector:
+      size: 1TB
+      model: CT1000MX500SSD1
     disableSearchDomain: true
     networkInterfaces:
-      - interface: eth0
-        dhcp: false
+      - deviceSelector:
+          hardwareAddr: 88:ae:dd:09:c9:33
+        dhcp: true
+        vip:
+          ip: *talosControlplaneVip
         vlans:
-          - vlanId: 770
-            mtu: 1500
-            dhcp: true
-            dhcpOptions:
-              routeMetric: 1024
-            vip:
-              ip: ${CLUSTER_ENDPOINT_IP}
           - vlanId: 90
             mtu: 1500
             dhcp: true
@@ -105,19 +100,17 @@ nodes:
   - hostname: jsdyb-nuc-003.${INTERNAL_DOMAIN}
     controlPlane: true
     ipAddress: 10.77.0.13
-    installDisk: /dev/sda
+    installDiskSelector:
+      size: 1TB
+      model: CT1000MX500SSD1
     disableSearchDomain: true
     networkInterfaces:
-      - interface: eth0
-        dhcp: false
+      - deviceSelector:
+          hardwareAddr: 88:ae:dd:07:a7:8c
+        dhcp: true
+        vip:
+          ip: *talosControlplaneVip
         vlans:
-          - vlanId: 770
-            mtu: 1500
-            dhcp: true
-            dhcpOptions:
-              routeMetric: 1024
-            vip:
-              ip: ${CLUSTER_ENDPOINT_IP}
           - vlanId: 90
             mtu: 1500
             dhcp: true
@@ -147,6 +140,7 @@ controlPlane:
           - siderolabs/intel-ucode
           - siderolabs/iscsi-tools
           - siderolabs/nut-client
+
   patches:
     # Configure containerd
     - |-
@@ -169,51 +163,12 @@ controlPlane:
         network:
           disableSearchDomain: true
 
-    # Enable cluster discovery
-    # - |-
-    #   cluster:
-    #     discovery:
-    #       registries:
-    #         kubernetes:
-    #           disabled: false
-    #         service:
-    #           disabled: true
-
-    # Configure kubelet
-    - |-
-      machine:
-        kubelet:
-          extraArgs:
-            feature-gates: GracefulNodeShutdown=true
-            rotate-server-certificates: true
-          extraConfig:
-            maxPods: 250
-          nodeIP:
-            validSubnets:
-              - 10.77.0.0/24
-
-      # Enable KubePrism
-    - |-
-      machine:
-        features:
-          kubePrism:
-            enabled: true
-            port: 7445
-
     # Force nameserver
     - |-
       machine:
         network:
           nameservers:
             - ${DNS_SERVER}
-    # Disable Host DNS
-    - |-
-      machine:
-        features:
-          hostDNS:
-            enabled: true
-            resolveMemberNames: true
-            forwardKubeDNSToHost: false
 
     # Configure NTP
     - |-
@@ -223,6 +178,73 @@ controlPlane:
           servers:
             - ${NTP_SERVER}
 
+    # Enable cluster discovery
+    - |-
+      cluster:
+        discovery:
+          registries:
+            kubernetes:
+              disabled: true
+            service:
+              disabled: false
+
+    # Disable Host DNS
+    - |-
+      machine:
+        features:
+          hostDNS:
+            enabled: true
+            resolveMemberNames: true
+            forwardKubeDNSToHost: false
+
+    # Configure kubelet
+    - |-
+      machine:
+        kubelet:
+          extraArgs:
+            rotate-server-certificates: true
+          extraConfig:
+            maxPods: 250
+          nodeIP:
+            validSubnets:
+              - 10.77.0.0/24
+
+    # Enable KubePrism
+    - |-
+      machine:
+        features:
+          kubePrism:
+            enabled: true
+            port: 7445
+
+    # Cluster configuration
+    - |-
+      cluster:
+        allowSchedulingOnMasters: true
+        proxy:
+          disabled: true
+        scheduler:
+          config:
+            apiVersion: kubescheduler.config.k8s.io/v1
+            kind: KubeSchedulerConfiguration
+            profiles:
+              - schedulerName: default-scheduler
+                pluginConfig:
+                  - name: PodTopologySpread
+                    args:
+                      defaultingType: List
+                      defaultConstraints:
+                        - maxSkew: 1
+                          topologyKey: kubernetes.io/hostname
+                          whenUnsatisfiable: ScheduleAnyway
+
+    # ETCD configuration
+    - |-
+      cluster:
+        etcd:
+          advertisedSubnets:
+            - 10.77.0.0/24
+
     # Static host entries
     - |-
       machine:
@@ -230,17 +252,17 @@ controlPlane:
           extraHostEntries:
             - ip: ${CLUSTER_ENDPOINT_IP}
               aliases:
-                - ${CLUSTER_NAME}.${INTERNAL_DOMAIN}
+                - ${CLUSTER}.${INTERNAL_DOMAIN}
             - ip: ${CLUSTER_ENDPOINT_IP}
               aliases:
                 - ${EXTERNAL_CLUSTER_NAME}.${EXTERNAL_DOMAIN}
 
-    # Custom sysctl settings
+     # Configure custom sysctls
     - |-
       machine:
         sysctls:
-          fs.inotify.max_user_watches: 1048576
-          fs.inotify.max_user_instances: 8192
+          fs.inotify.max_user_instances: 8192    # Watchdog
+          fs.inotify.max_user_watches: 1048576   # Watchdog
 
     # Various udev rules
     - |-
@@ -248,28 +270,6 @@ controlPlane:
         udev:
           rules:
             - KERNEL=="ttyUSB[0-9]", GROUP="20", MODE="0660"
-
-    # Cluster configuration
-    - |-
-      cluster:
-        allowSchedulingOnMasters: true
-        controllerManager:
-          extraArgs:
-            bind-address: 0.0.0.0
-        proxy:
-          disabled: true
-        scheduler:
-          extraArgs:
-            bind-address: 0.0.0.0
-
-    # ETCD configuration
-    - |-
-      cluster:
-        etcd:
-          extraArgs:
-            listen-metrics-urls: http://0.0.0.0:2381
-          advertisedSubnets:
-            - 10.77.0.0/24
 
     # Disable default API server admission plugins.
     - |-

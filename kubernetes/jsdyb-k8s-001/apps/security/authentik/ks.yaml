@@ -7,11 +7,11 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/jsdyb-k8s-001/apps/security/authentik/database"
+  path: "./kubernetes/${CLUSTER}/apps/security/authentik/database"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   healthChecks:
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster
@@ -33,11 +33,11 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/jsdyb-k8s-001/apps/security/authentik/app"
+  path: "./kubernetes/${CLUSTER}/apps/security/authentik/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom: []
@@ -57,11 +57,11 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/jsdyb-k8s-001/apps/security/authentik/provision"
+  path: "./kubernetes/${CLUSTER}/apps/security/authentik/provision"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: k8s-home-ops
+    name: flux-system
   wait: true
   postBuild:
     substituteFrom:
