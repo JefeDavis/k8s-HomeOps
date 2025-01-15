@@ -7,10 +7,4 @@ resources:
   - ./secret-authentik.sops.yaml
   - ./helmrelease.yaml
   - ./clusterpolicy.yaml
-configMapGenerator:
-  - name: authentik-branding
-    files:
-      - ./branding/davishaus-favicon.png
-      - ./branding/davishaus-logo.svg
-    options:
-      disableNameSuffixHash: true
+  - ./configmap-authentik-branding.yaml
