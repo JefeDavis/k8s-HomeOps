@@ -98,27 +98,48 @@ spec:
           http:
             port: &port 8080
 
-    ingress:
-      ui:
+    # ingress:
+    #   ui:
+    #     enabled: true
+    #     className: nginx-external
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #       auth.home.arpa/enabled: "true"
+    #       hajimari.io/appName: "Ollama"
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/group: "AI"
+    #     hosts:
+    #       - host: &host ollama.${EXTERNAL_DOMAIN}
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: ui
+    #               port: *port
+    #     tls:
+    #       - hosts:
+    #           - *host
+    #         secretName: ollama-tls-external
+
+    route:
+      *app :
         enabled: true
-        className: nginx-external
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          auth.home.arpa/enabled: "true"
-          hajimari.io/appName: "Ollama"
-          hajimari.io/enable: "true"
-          hajimari.io/group: "AI"
-        hosts:
-          - host: &host ollama.${EXTERNAL_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: ui
-                  port: *port
-        tls:
-          - hosts:
-              - *host
-            secretName: ollama-tls-external
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - &host ollama.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - name: ollama-ui
+                kind: Service
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
 
     persistence:
       backend-config:
