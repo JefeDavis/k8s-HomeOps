@@ -53,28 +53,49 @@ spec:
         controller: *app
         ports:
           http:
-            port: 6500
+            port: &port 6500
 
-    ingress:
-      main:
+    # ingress:
+    #   main:
+    #     enabled: true
+    #     className: nginx-internal
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #       theme.home.arpa/enabled: "true"
+    #       theme.home.arpa/theme: "nord"
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/icon: "mdi:download-circle-outline"
+    #     hosts:
+    #       - host: &host "rdt.${EXTERNAL_DOMAIN}"
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: *app
+    #     tls:
+    #       - hosts:
+    #           - *host
+    #         secretName: rdt-client-tls-external
+
+    route:
+      *app :
         enabled: true
-        className: nginx-internal
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          theme.home.arpa/enabled: "true"
-          theme.home.arpa/theme: "nord"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "mdi:download-circle-outline"
-        hosts:
-          - host: &host "rdt.${EXTERNAL_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: *app
-        tls:
-          - hosts:
-              - *host
-            secretName: rdt-client-tls-external
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - &host rdt.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - name: *app
+                kind: Service
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
 
     persistence:
       config:
