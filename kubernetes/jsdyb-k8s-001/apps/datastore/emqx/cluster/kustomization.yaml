@@ -5,7 +5,7 @@ kind: Kustomization
 resources:
   - ./secret-emqx.sops.yaml
   - ./cluster.yaml
-  - ./ingress.yaml
+  - ./httproute.yaml
   - ./podmonitor.yaml
 configMapGenerator:
   - name: emqx-init-mqtt-configmap
