@@ -1,0 +1,30 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  labels:
+    app.kubernetes.io/instance: hubble
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: hubble
+    app.kubernetes.io/part-of: cilium
+  name: hubble
+  namespace: network
+spec:
+  hostnames:
+  - hubble.${EXTERNAL_DOMAIN}
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: private-gateway
+    namespace: network
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: hubble-ui
+      namespace: network
+      port: 80
+      weight: 1
+    matches:
+    - path:
+        type: PathPrefix
+        value: /

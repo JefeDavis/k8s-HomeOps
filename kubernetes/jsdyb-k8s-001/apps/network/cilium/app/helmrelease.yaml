@@ -58,16 +58,7 @@ spec:
         enabled: true
         rollOutPods: true
         ingress:
-          enabled: true
-          className: nginx-internal
-          annotations:
-            cert-manager.io/cluster-issuer: letsencrypt-prod
-          hosts:
-            - &host hubble.${EXTERNAL_DOMAIN}
-          tls:
-            - hosts:
-                - *host
-              secretName: hubble-tls-external
+          enabled: false
 
     dashboards:
       enabled: true

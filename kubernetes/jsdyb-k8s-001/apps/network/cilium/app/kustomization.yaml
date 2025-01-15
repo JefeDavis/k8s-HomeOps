@@ -12,10 +12,6 @@ resources:
   - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
   - ./helmrelease.yaml
   - ./bgppeeringpolicy.yaml
-  - ./private-gateway.yaml
-  - ./public-gateway.yaml
-  - ./external-certificate.yaml
-  - ./internal-certificate.yaml
 configMapGenerator:
   - name: cilium-values
     files:
