@@ -101,22 +101,44 @@ spec:
             path: /metrics
             interval: 1m
             scrapeTimeout: 10s
-    ingress:
+
+    # ingress:
+    #   *app :
+    #     className: nginx-internal
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #     hosts:
+    #       - host: &fqdn sh.${EXTERNAL_DOMAIN}
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: *app
+    #               port: http
+    #     tls:
+    #       - hosts:
+    #           - *fqdn
+    #         secretName: atuin-tls-internal
+
+    route:
       *app :
-        className: nginx-internal
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-        hosts:
-          - host: &fqdn sh.${EXTERNAL_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: *app
-                  port: http
-        tls:
-          - hosts:
-              - *fqdn
-            secretName: atuin-tls-internal
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - &host sh.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - name: *app
+                kind: Service
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
 
     persistence:
       config:
