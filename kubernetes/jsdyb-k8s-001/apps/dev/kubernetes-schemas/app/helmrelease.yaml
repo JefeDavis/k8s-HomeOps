@@ -56,24 +56,44 @@ spec:
           http:
             port: &port 8080
 
-    ingress:
-      internal:
-        className: nginx-internal
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          hajimari.io/enable: "true"
-          hajimari.io/icon: mdi:code-json
-        hosts:
-          - host: &host kubernetes-schemas.${EXTERNAL_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: *app
-                  port: *port
-        tls:
-          - hosts:
-              - *host
-            secretName: kubernetes-schemas-tls-external
+    # ingress:
+    #   internal:
+    #     className: nginx-internal
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/icon: mdi:code-json
+    #     hosts:
+    #       - host: &host kubernetes-schemas.${EXTERNAL_DOMAIN}
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: *app
+    #               port: *port
+    #     tls:
+    #       - hosts:
+    #           - *host
+    #         secretName: kubernetes-schemas-tls-external
+
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - kubernetes-schemas.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                name: *app
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
 
     persistence:
       tmp:

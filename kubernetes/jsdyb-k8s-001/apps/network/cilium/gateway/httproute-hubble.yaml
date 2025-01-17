@@ -12,7 +12,8 @@ spec:
   hostnames:
   - hubble.${EXTERNAL_DOMAIN}
   parentRefs:
-  - name: private-gateway
+  - kind: Gateway
+    name: private-gateway
     namespace: network
   rules:
   - backendRefs:

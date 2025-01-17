@@ -12,16 +12,13 @@ spec:
   hostnames:
   - emqx.${EXTERNAL_DOMAIN}
   parentRefs:
-  - group: gateway.networking.k8s.io
-    kind: Gateway
+  - kind: Gateway
     name: private-gateway
     namespace: network
   rules:
   - backendRefs:
-    - group: ""
-      kind: Service
+    - kind: Service
       name: emqx-dashboard
-      namespace: datastore
       port: 18083
       weight: 1
     matches:

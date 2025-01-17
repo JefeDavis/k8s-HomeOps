@@ -81,6 +81,26 @@ spec:
               - *host
             secretName: theme-park-tls-external
       
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - kind: Gateway
+            name: public-gateway
+            namespace: network
+        hostnames:
+          - theme-park.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                name: *app
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
     persistence:
       rdt-config:
         type: configMap

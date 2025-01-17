@@ -126,16 +126,15 @@ spec:
         enabled: true
         kind: HTTPRoute
         parentRefs:
-          - group: gateway.networking.k8s.io
-            kind: Gateway
+          - kind: Gateway
             name: private-gateway
             namespace: network
         hostnames:
-          - &host ollama.${EXTERNAL_DOMAIN}
+          - ollama.${EXTERNAL_DOMAIN}
         rules:
           - backendRefs:
-              - name: ollama-ui
-                kind: Service
+              - kind: Service
+                name: ollama-ui
                 port: *port
             matches:
               - path:

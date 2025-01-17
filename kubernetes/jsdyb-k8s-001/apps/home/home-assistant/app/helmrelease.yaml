@@ -135,44 +135,83 @@ spec:
           code:
             port: &codePort 8080
 
-    ingress:
-      external:
-        annotations:
-          nginx.org/websocket-services: home-assistant
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "simple-icons:homeassistant"
-        className: nginx-external
-        hosts:
-          - host: home.${EXTERNAL_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: *app
-                  port: *port
-        tls:
-          - hosts:
-              - home.${EXTERNAL_DOMAIN}
-            secretName: home-assistant-tls-external
+    # ingress:
+    #   external:
+    #     annotations:
+    #       nginx.org/websocket-services: home-assistant
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/icon: "simple-icons:homeassistant"
+    #     className: nginx-external
+    #     hosts:
+    #       - host: home.${EXTERNAL_DOMAIN}
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: *app
+    #               port: *port
+    #     tls:
+    #       - hosts:
+    #           - home.${EXTERNAL_DOMAIN}
+    #         secretName: home-assistant-tls-external
+    #
+    #   code:
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/icon: "simple-icons:vscode"
+    #     className: nginx-internal
+    #     hosts:
+    #       - host: hass-code.${EXTERNAL_DOMAIN}
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: *app
+    #               port: *codePort
+    #     tls:
+    #       - hosts:
+    #           - hass-code.${EXTERNAL_DOMAIN}
+    #         secretName: hass-code-tls-external
+    #
 
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - kind: Gateway
+            name: public-gateway
+            namespace: network
+        hostnames:
+          - home.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                name: *app
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
       code:
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "simple-icons:vscode"
-        className: nginx-internal
-        hosts:
-          - host: hass-code.${EXTERNAL_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: *app
-                  port: *codePort
-        tls:
-          - hosts:
-              - hass-code.${EXTERNAL_DOMAIN}
-            secretName: hass-code-tls-external
-                  
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - hass-code.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                name: *app
+                port: *codePort
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
     serviceMonitors:
       *app :
         endpoints:

@@ -156,16 +156,15 @@ spec:
         enabled: true
         kind: HTTPRoute
         parentRefs:
-          - group: gateway.networking.k8s.io
-            kind: Gateway
+          - kind: Gateway
             name: public-gateway
             namespace: network
         hostnames:
-          - &host overseerr.${EXTERNAL_DOMAIN}
+          - overseerr.${EXTERNAL_DOMAIN}
         rules:
           - backendRefs:
-              - name: *app
-                kind: Service
+              - kind: Service
+                name: *app
                 port: *port
             matches:
               - path:

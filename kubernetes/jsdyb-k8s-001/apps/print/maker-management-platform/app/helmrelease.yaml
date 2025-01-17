@@ -74,23 +74,42 @@ spec:
           http:
             port: &port 8081
 
-    ingress:
-      internal:
-        className: nginx-internal
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-        hosts:
-          - host: &host mmp.${EXTERNAL_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: *app
-                  port: *port
-        tls:
-          - hosts:
-              - *host
-            secretName: mmp-tls-internal
+    # ingress:
+    #   internal:
+    #     className: nginx-internal
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #     hosts:
+    #       - host: &host mmp.${EXTERNAL_DOMAIN}
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: *app
+    #               port: *port
+    #     tls:
+    #       - hosts:
+    #           - *host
+    #         secretName: mmp-tls-internal
 
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - mmp.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                name: *app
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
 
     persistence:
       data:

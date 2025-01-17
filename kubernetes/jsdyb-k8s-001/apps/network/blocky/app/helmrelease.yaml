@@ -119,22 +119,43 @@ spec:
             port: *dnsPort
             protocol: UDP
 
-    ingress:
-      internal:
-        className: nginx-internal
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-        hosts:
-          - host: &host dns.${INTERNAL_DOMAIN}
-            paths:
-              - path: /dns-query
-                service:
-                  identifier: *app
-                  port: *port
-        tls:
-          - hosts:
-              - *host
-            secretName: dns-tls-internal
+    # ingress:
+    #   internal:
+    #     className: nginx-internal
+    #     annotations:
+    #       cert-manager.io/cluster-issuer: letsencrypt-prod
+    #     hosts:
+    #       - host: &host dns.${INTERNAL_DOMAIN}
+    #         paths:
+    #           - path: /dns-query
+    #             service:
+    #               identifier: *app
+    #               port: *port
+    #     tls:
+    #       - hosts:
+    #           - *host
+    #         secretName: dns-tls-internal
+
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - dns.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                name: *app
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /dns-query
+
     persistence:
       config-tpl:
         type: configMap
