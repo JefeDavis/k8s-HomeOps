@@ -54,8 +54,8 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      APP_UID: "0"
-      APP_GID: "0"
+      APP_UID: "568"
+      APP_GID: "568"
       VOLSYNC_CLAIM: baby-buddy-config
       VOLSYNC_CAPACITY: 5Gi
       LOCAL_URL: baby-buddy.home.svc.cluster.local
