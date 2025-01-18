@@ -10,6 +10,7 @@ resources:
   - bitnami.yaml
   - bjw-s.yaml
   - cilium.yaml
+  - controlplaneio.yaml
   - cloudnative-pg.yaml
   - dmahmalat.yaml
   - emqx.yaml
