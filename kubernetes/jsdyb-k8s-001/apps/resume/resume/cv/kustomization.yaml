@@ -5,6 +5,7 @@ kind: Kustomization
 namespace: resume
 resources:
   - ./overview.yaml
+  - ./httproute.yaml
   - ./certifications/certs.yaml
   - ./experience/20cs-usaf.yaml
   - ./experience/691cos-usaf.yaml
