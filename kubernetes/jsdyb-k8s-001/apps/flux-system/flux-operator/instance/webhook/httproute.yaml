@@ -1,0 +1,27 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  labels:
+    app.kubernetes.io/name: &app webhook-receiver
+    app.kubernetes.io/instance: *app
+    app.kubernetes.io/part-of: flux
+  name: *app
+  namespace: monitor
+spec:
+  hostnames:
+  - flux-webhook.${EXTERNAL_DOMAIN}
+  parentRefs:
+  - kind: Gateway
+    name: public-gateway
+    namespace: network
+  rules:
+  - backendRefs:
+    - kind: Service
+      name: *app
+      port: http
+      weight: 1
+    matches:
+    - path:
+        type: PathPrefix
+        value: /hook/
