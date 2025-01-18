@@ -5,3 +5,4 @@ metadata:
   name: monitor
   labels:
     kustomize.toolkit.fluxcd.io/prune: disabled
+    gateway.networking.k8s.io/shared-gateway-access: "true"
