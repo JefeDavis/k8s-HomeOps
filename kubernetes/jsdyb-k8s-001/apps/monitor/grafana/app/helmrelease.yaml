@@ -44,7 +44,7 @@ spec:
       auth:
         oauth_auto_login: true
       auth.generic_oauth:
-        enabled: true
+        enabled: false
         name: Authentik
         icon: signin
         scopes: openid profile email
@@ -57,7 +57,7 @@ spec:
       auth.basic:
         enabled: false
       auth.anonymous:
-        enabled: false
+        enabled: true
       paths:
         data: /var/lib/grafana/data
       server:
@@ -372,20 +372,7 @@ spec:
     serviceMonitor:
       enabled: true
     ingress:
-      enabled: true
-      ingressClassName: nginx-external
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-prod
-        hajimari.io/enable: "true"
-        hajimari.io/icon: "simple-icons:grafana"
-      hosts:
-        - &host grafana.${EXTERNAL_DOMAIN}
-        - monitor.${EXTERNAL_DOMAIN}
-      tls:
-        - hosts:
-            - *host
-            - monitor.${EXTERNAL_DOMAIN}
-          secretName: grafana-tls-external
+      enabled: false
     persistence:
       enabled: false
     testFramework:

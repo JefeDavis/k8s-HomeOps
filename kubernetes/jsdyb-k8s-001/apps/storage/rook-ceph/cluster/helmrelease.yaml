@@ -91,22 +91,6 @@ spec:
             devices:
               - name: "/dev/nvme0n1"
 
-    ingress:
-      dashboard:
-        ingressClassName: nginx-internal
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-          hajimari.io/icon: mdi:chess-rook
-          hajimari.io/enable: "true"
-        host:
-          name: &host rook.${INTERNAL_DOMAIN}
-          path: "/"
-        tls:
-          - hosts:
-              - *host
-            secretName: rook-ceph-tls-secret
-
     cephBlockPools:
       - name: ceph-blockpool
         spec:
