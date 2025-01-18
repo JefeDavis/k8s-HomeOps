@@ -132,7 +132,11 @@ spec:
             port: &port 8123
           sonos:
             port: 1400
-          code:
+
+      code:
+        controller: *app
+        ports:
+          http:
             port: &codePort 8080
 
     # ingress:
@@ -175,7 +179,7 @@ spec:
     #
 
     route:
-      *app :
+      home-assistant:
         enabled: true
         kind: HTTPRoute
         parentRefs:
@@ -193,24 +197,25 @@ spec:
               - path:
                   type: PathPrefix
                   value: /
-      # code:
-      #   enabled: true
-      #   kind: HTTPRoute
-      #   parentRefs:
-      #     - kind: Gateway
-      #       name: private-gateway
-      #       namespace: network
-      #   hostnames:
-      #     - hass-code.${EXTERNAL_DOMAIN}
-      #   rules:
-      #     - backendRefs:
-      #         - kind: Service
-      #           name: *app
-      #           port: *codePort
-      #       matches:
-      #         - path:
-      #             type: PathPrefix
-      #             value: /
+
+      code:
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - kind: Gateway
+            name: private-gateway
+            namespace: network
+        hostnames:
+          - hass-code.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                name: home-assistant-code
+                port: *codePort
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
 
     serviceMonitors:
       *app :
