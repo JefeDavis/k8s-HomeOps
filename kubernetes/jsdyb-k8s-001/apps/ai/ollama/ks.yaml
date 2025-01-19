@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-ollama-backend-pvc
+  name: ollama-backend-pvc
   namespace: flux-system
 spec:
   targetNamespace: ai
@@ -34,7 +34,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-ollama-ui-pvc
+  name: ollama-ui-pvc
   namespace: flux-system
 spec:
   targetNamespace: ai
@@ -65,7 +65,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-ollama
+  name: ollama
   namespace: flux-system
 spec:
   targetNamespace: ai
@@ -87,5 +87,5 @@ spec:
     provider: sops
   dependsOn:
     - name: cluster-apps-intel-device-plugins-gpu
-    - name: cluster-apps-ollama-backend-pvc
-    - name: cluster-apps-ollama-ui-pvc
+    - name: ollama-backend-pvc
+    - name: ollama-ui-pvc

@@ -15,11 +15,11 @@ spec:
     enablePodMonitor: true
   # configured according to below link to allow customizing of initdb via Flux
   # https://cloudnative-pg.io/documentation/1.20/bootstrap/#configure-the-application-database
-  # bootstrap:
-  #   initdb:
-  #     dataChecksums: true
-  #     database: vaultwarden
-  #     owner: vaultwarden
+  bootstrap:
+    initdb:
+      dataChecksums: true
+      database: vaultwarden
+      owner: vaultwarden
 
   backup:
     retentionPolicy: 30d
@@ -38,30 +38,30 @@ spec:
           name: cloudnative-pg-secret
           key: AWS_SECRET_ACCESS_KEY
 
-#  # RECOVERY
-  bootstrap:
-    recovery:
-      source: &previous-cluster pg-vaultwarden
-      recoveryTarget:
-        # Time base target for the recovery
-        targetTime: "2025-01-12 00:00:00.951464+00:00"
-      database: vaultwarden
-      owner: vaultwarden
-#  ## Note: externalClusters is needed when recovering from an existing cnpg cluster
-  externalClusters:
-    - name: *previous-cluster
-      barmanObjectStore:
-        wal:
-          compression: bzip2
-          maxParallel: 8
-        destinationPath: s3://cnpg/
-        endpointURL: http://minio.network.svc.cluster.local:9000
-        s3Credentials:
-          accessKeyId:
-            name: cloudnative-pg-secret
-            key: AWS_SECRET_ACCESS_KEY_ID
-          secretAccessKey:
-            name: cloudnative-pg-secret
-            key: AWS_SECRET_ACCESS_KEY
+# #  # RECOVERY
+#   bootstrap:
+#     recovery:
+#       source: &previous-cluster pg-vaultwarden
+#       recoveryTarget:
+#         # Time base target for the recovery
+#         targetTime: "2025-01-12 00:00:00.951464+00:00"
+#       database: vaultwarden
+#       owner: vaultwarden
+# #  ## Note: externalClusters is needed when recovering from an existing cnpg cluster
+#   externalClusters:
+#     - name: *previous-cluster
+#       barmanObjectStore:
+#         wal:
+#           compression: bzip2
+#           maxParallel: 8
+#         destinationPath: s3://cnpg/
+#         endpointURL: http://minio.network.svc.cluster.local:9000
+#         s3Credentials:
+#           accessKeyId:
+#             name: cloudnative-pg-secret
+#             key: AWS_SECRET_ACCESS_KEY_ID
+#           secretAccessKey:
+#             name: cloudnative-pg-secret
+#             key: AWS_SECRET_ACCESS_KEY
 
 
