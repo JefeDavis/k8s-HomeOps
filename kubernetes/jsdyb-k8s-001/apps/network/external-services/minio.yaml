@@ -29,33 +29,60 @@ spec:
      protocol: TCP
      targetPort: 9000
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    hajimari.io/enable: "true"
-    hajimari.io/icon: "simple-icons:minio"
   labels:
     app.kubernetes.io/instance: minio
     app.kubernetes.io/name: minio
+    app.kubernetes.io/part-of: minio
   name: minio
   namespace: network
 spec:
-  ingressClassName: nginx-internal
+  hostnames:
+  - minio.${EXTERNAL_DOMAIN}
+  parentRefs:
+  - kind: Gateway
+    name: private-gateway
+    namespace: network
   rules:
-  - host: minio.${INTERNAL_DOMAIN}
-    http:
-      paths:
-      - backend:
-          service:
-            name: minio
-            port:
-              number: 9090
-        path: /
-        pathType: Prefix
-  tls:
-  - hosts:
-    - minio.${INTERNAL_DOMAIN}
-    secretName: minio-tls-internal
+  - backendRefs:
+    - kind: Service
+      name: minio
+      port: 9090
+      weight: 1
+    matches:
+    - path:
+        type: PathPrefix
+        value: /
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   annotations:
+#     cert-manager.io/cluster-issuer: letsencrypt-prod
+#     hajimari.io/enable: "true"
+#     hajimari.io/icon: "simple-icons:minio"
+#   labels:
+#     app.kubernetes.io/instance: minio
+#     app.kubernetes.io/name: minio
+#   name: minio
+#   namespace: network
+# spec:
+#   ingressClassName: nginx-internal
+#   rules:
+#   - host: minio.${INTERNAL_DOMAIN}
+#     http:
+#       paths:
+#       - backend:
+#           service:
+#             name: minio
+#             port:
+#               number: 9090
+#         path: /
+#         pathType: Prefix
+#   tls:
+#   - hosts:
+#     - minio.${INTERNAL_DOMAIN}
+#     secretName: minio-tls-internal
 
