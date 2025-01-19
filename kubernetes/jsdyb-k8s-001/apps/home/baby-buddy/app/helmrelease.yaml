@@ -91,7 +91,7 @@ spec:
     #       auth.home.arpa/enabled: "true"
     #       hajimari.io/enable: "true"
     #       hajimari.io/icon: mdi:baby-face-outline
-    #       internal-dns.home.arpa/disable: "true"
+    #       private-dns.home.arpa/disable: "true"
     #     hosts:
     #       - host: &host "${EXTERNAL_URL}"
     #         paths:

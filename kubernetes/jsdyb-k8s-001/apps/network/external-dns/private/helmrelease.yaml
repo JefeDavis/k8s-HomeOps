@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app external-dns
+  name: &app internal-dns
   namespace: network
 spec:
   interval: 30m
@@ -24,30 +24,26 @@ spec:
       - ingress
       - service
       - gateway-httproute
-      - gateway-grpcroute
-      - gateway-tlsroute
-      - gateway-tcproute
-      - gateway-udproute
-
+      
     podAnnotations:
-      secret.reloader.stakater.com/reload: external-dns-secret
-      configmap.reloader.stakater.com/reload: dynamic-dns
+      secret.reloader.stakater.com/reload: internal-dns-secret
 
     interval: 10s
     policy: sync
     registry: txt
     txtPrefix: "${CLUSTER}-"
-    provider: cloudflare
+    provider: rfc2136
 
     extraArgs:
       - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
       - --crd-source-kind=DNSEndpoint
-      - --cloudflare-proxied
-      - --ingress-class=nginx-external
-      - --exclude-target-net=10.0.0.0/8
-      - --exclude-target-net=172.16.0.0/12
-      - --exclude-target-net=192.168.0.0/16
-      - --exclude-domains=${INTERNAL_DOMAIN}
+      - --rfc2136-host=${SYNOLOGY_ADDR}
+      - --rfc2136-port=53
+      - --rfc2136-zone=${INTERNAL_DOMAIN}
+      - --rfc2136-zone=${EXTERNAL_DOMAIN}
+      - --rfc2136-zone=${PROFESSIONAL_DOMAIN}
+      - --rfc2136-tsig-axfr
+      - --label-filter=private-dns.home.arpa/disabled!=true
 
     serviceMonitor:
       enabled: true
@@ -57,12 +53,10 @@ spec:
           - target:
               version: v1
               kind: Deployment
-              name: external-dns
+              name: internal-dns
             patch: |
               - op: add
                 path: /spec/template/spec/containers/0/envFrom
                 value:
                   - secretRef:
-                      name: external-dns-secret
-                  - configMapRef:
-                      name: dynamic-dns
+                      name: internal-dns-secret

@@ -5,6 +5,6 @@ metadata:
   name: download
   labels:
     kustomize.toolkit.fluxcd.io/prune: disabled
-    gateway.networking.k8s.io/shared-gateway-access: "true"
+    networking.kubernetes.io/shared-gateway-access: "true"
     vpn.home.arpa/routed-gateway: "true"
 

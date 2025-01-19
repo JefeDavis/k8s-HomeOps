@@ -3,6 +3,8 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: public-gateway
+  labels:
+    networking.kubernetes.io/public-gateway: "true"
 spec:
   gatewayClassName: cilium
   listeners:
@@ -15,11 +17,10 @@ spec:
         from: Selector
         selector:
           matchLabels:
-            gateway.networking.k8s.io/shared-gateway-access: "true"
+            networking.kubernetes.io/shared-gateway-access: "true"
     tls:
       certificateRefs:
       - kind: Secret
-        group: ""
         name: "wildcard-tls-external"
   - name: professional-https
     protocol: HTTPS
@@ -30,9 +31,8 @@ spec:
         from: Selector
         selector:
           matchLabels:
-            gateway.networking.k8s.io/shared-gateway-access: "true"
+            networking.kubernetes.io/shared-gateway-access: "true"
     tls:
       certificateRefs:
       - kind: Secret
-        group: ""
         name: "wildcard-tls-professional"
