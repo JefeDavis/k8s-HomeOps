@@ -39,7 +39,7 @@ spec:
   rules:
   - backendRefs:
     - kind: Service
-      name: *app
+      name: synology
       port: 5000
       weight: 1
     matches:

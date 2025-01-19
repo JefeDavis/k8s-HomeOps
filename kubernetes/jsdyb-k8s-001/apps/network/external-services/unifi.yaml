@@ -17,38 +17,66 @@ metadata:
   namespace: network
 spec:
  ports:
-   - name: http
-     port: 443
-     protocol: TCP
-     targetPort: 443
+  - name: http
+    port: 443
+    protocol: TCP
+    appProtocol: https
+    targetPort: 443
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
-  annotations:
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    hajimari.io/enable: "true"
-    hajimari.io/icon: "simple-icons:ubiquiti"
   labels:
-    app.kubernetes.io/instance: unifi
-    app.kubernetes.io/name: unifi
-  name: unifi
+    app.kubernetes.io/instance: &app unifi
+    app.kubernetes.io/name: *app
+    app.kubernetes.io/part-of: *app
+  name: *app
   namespace: network
 spec:
-  ingressClassName: nginx-external
+  hostnames:
+  - unifi.${EXTERNAL_DOMAIN}
+  parentRefs:
+  - kind: Gateway
+    name: private-gateway
+    namespace: network
   rules:
-  - host: unifi.${EXTERNAL_DOMAIN}
-    http:
-      paths:
-      - backend:
-          service:
-            name: unifi
-            port:
-              number: 443
-        path: /
-        pathType: Prefix
-  tls:
-  - hosts:
-    - unifi.${EXTERNAL_DOMAIN}
-    secretName: unifi-tls-external
+  - backendRefs:
+    - kind: Service
+      name: *app
+      port: 443
+      weight: 1
+    matches:
+    - path:
+        type: PathPrefix
+        value: /
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   annotations:
+#     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+#     cert-manager.io/cluster-issuer: letsencrypt-prod
+#     hajimari.io/enable: "true"
+#     hajimari.io/icon: "simple-icons:ubiquiti"
+#   labels:
+#     app.kubernetes.io/instance: unifi
+#     app.kubernetes.io/name: unifi
+#   name: unifi
+#   namespace: network
+# spec:
+#   ingressClassName: nginx-external
+#   rules:
+#   - host: unifi.${EXTERNAL_DOMAIN}
+#     http:
+#       paths:
+#       - backend:
+#           service:
+#             name: unifi
+#             port:
+#               number: 443
+#         path: /
+#         pathType: Prefix
+#   tls:
+#   - hosts:
+#     - unifi.${EXTERNAL_DOMAIN}
+#     secretName: unifi-tls-external
