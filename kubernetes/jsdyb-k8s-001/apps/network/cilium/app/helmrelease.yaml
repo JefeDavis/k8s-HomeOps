@@ -23,6 +23,7 @@ spec:
   values:
     gatewayAPI:
       enabled: true
+      enableAppProtocol: true
       secretsNamespace:
         name: network
         create: false
