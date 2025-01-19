@@ -27,7 +27,6 @@ spec:
       secretsNamespace:
         name: network
         create: false
-        sync: false
 
     hubble:
       enabled: true
