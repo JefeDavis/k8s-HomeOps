@@ -23,6 +23,11 @@ spec:
   values:
     gatewayAPI:
       enabled: true
+      secretsNamespace:
+        name: network
+        create: false
+        sync: false
+
     hubble:
       enabled: true
       metrics:
