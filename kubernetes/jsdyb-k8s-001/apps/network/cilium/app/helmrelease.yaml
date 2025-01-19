@@ -24,9 +24,6 @@ spec:
     gatewayAPI:
       enabled: true
       enableAppProtocol: true
-      secretsNamespace:
-        name: network
-        create: false
 
     hubble:
       enabled: true
