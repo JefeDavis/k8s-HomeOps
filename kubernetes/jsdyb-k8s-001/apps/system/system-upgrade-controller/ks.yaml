@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-system-upgrade-controller
+  name: system-upgrade-controller
   namespace: flux-system
 spec:
   targetNamespace: system
@@ -23,13 +23,13 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cluster-apps-kyverno
+    - name: kyverno
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-system-upgrade-controller-plans
+  name: system-upgrade-controller-plans
   namespace: flux-system
 spec:
   targetNamespace: system
@@ -48,4 +48,4 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cluster-apps-system-upgrade-controller
+    - name: system-upgrade-controller

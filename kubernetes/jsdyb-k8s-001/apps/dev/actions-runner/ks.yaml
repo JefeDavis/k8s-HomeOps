@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-actions-runner-controller
+  name: actions-runner-controller
   namespace: flux-system
 spec:
   path: ./kubernetes/${CLUSTER}/apps/dev/actions-runner/controller
@@ -22,11 +22,11 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-actions-runner-controller-runners
+  name: actions-runner-controller-runners
   namespace: flux-system
 spec:
   dependsOn:
-    - name: cluster-apps-actions-runner-controller
+    - name: actions-runner-controller
   path: ./kubernetes/${CLUSTER}/apps/dev/actions-runner/runners
   prune: true
   sourceRef:

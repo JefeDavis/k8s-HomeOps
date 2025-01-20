@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-grafana
+  name: grafana
   namespace: flux-system
 spec:
   path: ./kubernetes/${CLUSTER}/apps/monitor/grafana/app
@@ -18,5 +18,5 @@ spec:
   retryInterval: 1m
   timeout: 5m
   dependsOn:
-    - name: cluster-apps-cloudnative-pg
-    - name: cluster-apps-kube-prometheus-stack-crds
+    - name: cloudnative-pg
+    - name: kube-prometheus-stack-crds

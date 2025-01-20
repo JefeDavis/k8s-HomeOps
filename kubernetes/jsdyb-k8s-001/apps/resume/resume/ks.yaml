@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-resume-operator
+  name: resume-operator
   namespace: flux-system
 spec:
   path: "./kubernetes/${CLUSTER}/apps/resume/resume/operator"
@@ -16,13 +16,13 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cluster-apps-cert-manager
+    - name: cert-manager
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-resume-cv
+  name: resume-cv
   namespace: flux-system
 spec:
   path: "./kubernetes/${CLUSTER}/apps/resume/resume/cv"
@@ -35,5 +35,5 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cluster-apps-resume-operator
+    - name: resume-operator
 

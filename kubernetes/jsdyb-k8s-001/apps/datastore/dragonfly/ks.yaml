@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-dragonfly
+  name: dragonfly
   namespace: flux-system
 spec:
   targetNamespace: datastore
@@ -17,7 +17,7 @@ spec:
     name: flux-system
   wait: true
   dependsOn:
-    - name: cluster-apps-rook-ceph-cluster
+    - name: rook-ceph-cluster
   postBuild:
     substituteFrom: []
   interval: 30m
@@ -28,7 +28,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-dragonfly-cluster
+  name: dragonfly-cluster
   namespace: flux-system
 spec:
   targetNamespace: datastore
@@ -36,7 +36,7 @@ spec:
     labels:
       app.kubernetes.io/name: dragonfly-cluster
   dependsOn:
-    - name: cluster-apps-dragonfly
+    - name: dragonfly
   path: ./kubernetes/${CLUSTER}/apps/datastore/dragonfly/cluster
   prune: true
   sourceRef:

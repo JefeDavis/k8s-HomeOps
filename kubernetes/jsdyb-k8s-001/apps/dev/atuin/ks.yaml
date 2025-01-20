@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-atuin-database
+  name: atuin-database
   namespace: flux-system
 spec:
   targetNamespace: &ns dev
@@ -25,14 +25,14 @@ spec:
   decryption: 
     provider: sops
   dependsOn:
-    - name: cluster-apps-cloudnative-pg
-    - name: cluster-apps-rook-ceph-cluster
+    - name: cloudnative-pg
+    - name: rook-ceph-cluster
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-atuin
+  name: atuin
   namespace: flux-system
 spec:
   targetNamespace: dev
@@ -54,4 +54,4 @@ spec:
   decryption: 
     provider: sops
   dependsOn:
-    - name: cluster-apps-atuin-database
+    - name: atuin-database

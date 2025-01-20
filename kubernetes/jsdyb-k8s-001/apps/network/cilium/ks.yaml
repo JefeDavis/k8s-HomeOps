@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-cilium
+  name: cilium
   namespace: flux-system
 spec:
   interval: 10m
@@ -16,13 +16,13 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cluster-apps-kube-prometheus-stack-crds
+    - name: kube-prometheus-stack-crds
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-cilium-gateway
+  name: cilium-gateway
   namespace: flux-system
 spec:
   interval: 10m
@@ -35,7 +35,7 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cluster-apps-cilium
-    - name: cluster-apps-cert-manager-issuers
+    - name: cilium
+    - name: cert-manager-issuers
 
 

@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app cluster-apps-emqx-operator
+  name: &app emqx-operator
   namespace: flux-system
 spec:
   targetNamespace: datastore
@@ -24,13 +24,13 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cluster-apps-cert-manager
+    - name: cert-manager
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-emqx-cluster
+  name: emqx-cluster
   namespace: flux-system
 spec:
   targetNamespace: datastore
@@ -48,4 +48,4 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cluster-apps-emqx-operator
+    - name: emqx-operator

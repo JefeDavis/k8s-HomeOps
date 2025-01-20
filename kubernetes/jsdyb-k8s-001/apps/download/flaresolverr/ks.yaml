@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-flaresolverr
+  name: flaresolverr
   namespace: flux-system
 spec:
   targetNamespace: download
@@ -19,4 +19,4 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cluster-apps-pod-gateway
+    - name: pod-gateway

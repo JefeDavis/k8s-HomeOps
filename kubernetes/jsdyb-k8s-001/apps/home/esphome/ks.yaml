@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-esphome
+  name: esphome
   namespace: flux-system
 spec:
   targetNamespace: home
@@ -30,6 +30,6 @@ spec:
       - kind: Secret
         name: flux-volsync-secret
   dependsOn:
-    - name: cluster-apps-home-assistant
-    - name: cluster-apps-emqx-cluster
-    - name: cluster-apps-rook-ceph-cluster
+    - name: home-assistant
+    - name: emqx-cluster
+    - name: rook-ceph-cluster

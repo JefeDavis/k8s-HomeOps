@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-media-common-mounts
+  name: media-common-mounts
   namespace: flux-system
 spec:
   interval: 10m
@@ -20,7 +20,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-media-common
+  name: media-common
   namespace: flux-system
 spec:
   interval: 10m
@@ -35,4 +35,4 @@ spec:
   decryption:
     provider: sops
   dependsOn:
-    - name: cluster-apps-reflector
+    - name: reflector

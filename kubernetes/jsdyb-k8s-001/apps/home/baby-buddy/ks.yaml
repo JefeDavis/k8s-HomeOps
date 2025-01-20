@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-baby-buddy-database
+  name: baby-buddy-database
   namespace: flux-system
 spec:
   targetNamespace: &ns home
@@ -28,14 +28,14 @@ spec:
   decryption: 
     provider: sops
   dependsOn:
-    - name: cluster-apps-cloudnative-pg
-    - name: cluster-apps-rook-ceph-cluster
+    - name: cloudnative-pg
+    - name: rook-ceph-cluster
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-baby-buddy
+  name: baby-buddy
   namespace: flux-system
 spec:
   targetNamespace: home
@@ -64,5 +64,5 @@ spec:
       - kind: Secret
         name: flux-volsync-secret
   dependsOn:
-    - name: cluster-apps-baby-buddy-database
-    - name: cluster-apps-rook-ceph-cluster
+    - name: baby-buddy-database
+    - name: rook-ceph-cluster

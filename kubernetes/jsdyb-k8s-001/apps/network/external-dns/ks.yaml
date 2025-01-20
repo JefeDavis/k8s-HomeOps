@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-external-dns-crds
+  name: external-dns-crds
   namespace: flux-system
 spec:
   targetNamespace: network
@@ -25,7 +25,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-external-dns-private
+  name: external-dns-private
   namespace: flux-system
 spec:
   targetNamespace: network
@@ -43,14 +43,14 @@ spec:
   decryption:
     provider: sops
   dependsOn:
-    - name: cluster-apps-kube-prometheus-stack-crds
-    - name: cluster-apps-external-dns-crds
+    - name: kube-prometheus-stack-crds
+    - name: external-dns-crds
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-external-dns-public
+  name: external-dns-public
   namespace: flux-system
 spec:
   targetNamespace: network
@@ -68,8 +68,8 @@ spec:
   decryption:
     provider: sops
   dependsOn:
-    - name: cluster-apps-kube-prometheus-stack-crds
-    - name: cluster-apps-external-dns-crds
-    - name: cluster-apps-dynamic-dns
-    - name: cluster-apps-reflector
-    - name: cluster-apps-cert-manager
+    - name: kube-prometheus-stack-crds
+    - name: external-dns-crds
+    - name: dynamic-dns
+    - name: reflector
+    - name: cert-manager

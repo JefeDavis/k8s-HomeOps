@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-wyoming-services
+  name: wyoming-services
   namespace: flux-system
 spec:
   targetNamespace: home
@@ -25,4 +25,4 @@ spec:
   decryption:
     provider: sops
   dependsOn:
-    - name: cluster-apps-rook-ceph-cluster
+    - name: rook-ceph-cluster

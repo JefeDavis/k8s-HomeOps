@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-teddy-cloud-certs
+  name: teddy-cloud-certs
   namespace: flux-system
 spec:
   targetNamespace: media
@@ -28,14 +28,14 @@ spec:
       - kind: Secret
         name: flux-volsync-secret
   dependsOn:
-    - name: cluster-apps-rook-ceph-cluster
-    - name: cluster-apps-volsync
+    - name: rook-ceph-cluster
+    - name: volsync
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-teddy-cloud
+  name: teddy-cloud
   namespace: flux-system
 spec:
   targetNamespace: media
@@ -60,4 +60,4 @@ spec:
       - kind: Secret
         name: flux-volsync-secret
   dependsOn:
-    - name: cluster-apps-teddy-cloud-certs
+    - name: teddy-cloud-certs

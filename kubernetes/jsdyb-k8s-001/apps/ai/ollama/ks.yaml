@@ -27,8 +27,8 @@ spec:
   decryption: 
     provider: sops
   dependsOn:
-    - name: cluster-apps-volsync
-    - name: cluster-apps-rook-ceph-cluster
+    - name: volsync
+    - name: rook-ceph-cluster
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -58,8 +58,8 @@ spec:
   decryption: 
     provider: sops
   dependsOn:
-    - name: cluster-apps-volsync
-    - name: cluster-apps-rook-ceph-cluster
+    - name: volsync
+    - name: rook-ceph-cluster
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -86,6 +86,6 @@ spec:
   decryption: 
     provider: sops
   dependsOn:
-    - name: cluster-apps-intel-device-plugins-gpu
+    - name: intel-device-plugins-gpu
     - name: ollama-backend-pvc
     - name: ollama-ui-pvc

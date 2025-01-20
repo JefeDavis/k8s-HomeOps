@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-unpackerr
+  name: unpackerr
   namespace: flux-system
 spec:
   targetNamespace: media
@@ -25,7 +25,7 @@ spec:
   decryption:
     provider: sops
   dependsOn:
-    - name: cluster-apps-sonarr
-    - name: cluster-apps-radarr
-    - name: cluster-apps-lidarr
-    - name: cluster-apps-readarr
+    - name: sonarr
+    - name: radarr
+    - name: lidarr
+    - name: readarr

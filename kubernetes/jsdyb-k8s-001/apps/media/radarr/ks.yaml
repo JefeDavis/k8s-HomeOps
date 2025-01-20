@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-radarr
+  name: radarr
   namespace: flux-system
 spec:
   targetNamespace: media
@@ -31,18 +31,18 @@ spec:
   decryption:
     provider: sops
   dependsOn:
-    - name: cluster-apps-media-common
-    - name: cluster-apps-media-common-mounts
-    - name: cluster-apps-rook-ceph-cluster
-    - name: cluster-apps-kube-prometheus-stack-crds
-    - name: cluster-apps-volsync
+    - name: media-common
+    - name: media-common-mounts
+    - name: rook-ceph-cluster
+    - name: kube-prometheus-stack-crds
+    - name: volsync
 
 # ---
 # # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 # apiVersion: kustomize.toolkit.fluxcd.io/v1
 # kind: Kustomization
 # metadata:
-#   name: cluster-apps-radarr-provision
+#   name: radarr-provision
 #   namespace: flux-system
 # spec:
 #   targetNamespace: media
@@ -62,5 +62,5 @@ spec:
 #   postBuild:
 #     substituteFrom: []
 #   dependsOn:
-#     - name: cluster-apps-radarr
-#     - name: cluster-apps-tf-controller
+#     - name: radarr
+#     - name: tf-controller

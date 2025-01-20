@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-kyverno
+  name: kyverno
   namespace: flux-system
 spec:
   interval: 10m
@@ -18,13 +18,13 @@ spec:
   decryption: 
     provider: sops
   dependsOn:
-    - name: cluster-apps-kube-prometheus-stack-crds
+    - name: kube-prometheus-stack-crds
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-cluster-policies
+  name: cluster-policies
   namespace: flux-system
 spec:
   path: ./kubernetes/${CLUSTER}/apps/policy/kyverno/policies
@@ -39,4 +39,4 @@ spec:
   retryInterval: 1m
   timeout: 5m
   dependsOn:
-    - name: cluster-apps-kyverno
+    - name: kyverno

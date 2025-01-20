@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-pulumi-operator
+  name: pulumi-operator
   namespace: flux-system
 spec:
   path: ./kubernetes/${CLUSTER}/apps/dev/pulumi-kubernetes-operator/app

@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-authentik-database
+  name: authentik-database
   namespace: flux-system
 spec:
   interval: 10m
@@ -22,14 +22,14 @@ spec:
   decryption: 
     provider: sops
   dependsOn:
-    - name: cluster-apps-cloudnative-pg
-    - name: cluster-apps-rook-ceph-cluster
+    - name: cloudnative-pg
+    - name: rook-ceph-cluster
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-authentik
+  name: authentik
   namespace: flux-system
 spec:
   interval: 10m
@@ -44,16 +44,16 @@ spec:
   decryption: 
     provider: sops
   dependsOn:
-    - name: cluster-apps-authentik-database
-    - name: cluster-apps-kyverno
-    - name: cluster-apps-smtp-relay
-    - name: cluster-apps-grafana
+    - name: authentik-database
+    - name: kyverno
+    - name: smtp-relay
+    - name: grafana
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-authentik-provision
+  name: authentik-provision
   namespace: flux-system
 spec:
   interval: 10m
@@ -70,6 +70,6 @@ spec:
       - kind: Secret
         name: headscale-secret
   dependsOn:
-    - name: cluster-apps-authentik
-    - name: cluster-apps-plex
+    - name: authentik
+    - name: plex
  
