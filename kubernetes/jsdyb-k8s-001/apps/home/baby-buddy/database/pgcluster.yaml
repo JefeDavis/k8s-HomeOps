@@ -23,13 +23,13 @@ spec:
     #   database: *app
     #   owner: *app
     recovery:
-      source: &previous-cluster pg-baby-buddy
+      source: &previous-cluster pg-baby-buddy-v0
       database: *app
       owner: *app
   backup:
     retentionPolicy: 30d
     barmanObjectStore:
-      serverName: pg-baby-buddy-v0
+      serverName: pg-baby-buddy-v1
       wal:
         compression: bzip2
         maxParallel: 8

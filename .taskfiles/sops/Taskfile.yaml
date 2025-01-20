@@ -26,6 +26,7 @@ tasks:
         - CLUSTER
         - CLUSTER_DIR
     cmds:
+      - kubectl create ns flux-system || true
       - kubectl create secret generic sops-age -n flux-system --from-file=age.agekey={{ .CLUSTER_DIR }}/.age/keys.txt --dry-run=client -oyaml | kubectl apply --force -f -
 
   deploy-gcp-kms-key:
@@ -38,4 +39,5 @@ tasks:
         - CLUSTER
         - CLUSTER_DIR
     cmds:
+      - kubectl create ns flux-system || true
       - sops -d "{{ .CLUSTER_DIR }}/bootstrap/flux/secret-gcp-kms.sops.yaml" | kubectl apply --server-side --force-conflicts -f -

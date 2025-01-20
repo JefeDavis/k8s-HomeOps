@@ -23,13 +23,13 @@ spec:
     #   database: *app
     #   owner: *app
     recovery:
-      source: &previous-cluster pg-mealie
+      source: &previous-cluster pg-mealie-v0
       database: *app
       owner: *app
   backup:
     retentionPolicy: 30d
     barmanObjectStore:
-      serverName: pg-mealie-v0
+      serverName: pg-mealie-v1
       wal:
         compression: bzip2
         maxParallel: 8
