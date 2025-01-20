@@ -3,22 +3,25 @@ apiVersion: v1
 kind: Endpoints
 metadata:
   name: synology
+  namespace: network
 subsets:
   - addresses:
-    - ip: ${SYNOLOGY_ADDR}
+      - ip: ${SYNOLOGY_ADDR}
     ports:
-    - port: 5000
+      - name: http
+        port: 5000
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: synology
+  namespace: network
 spec:
- ports:
-   - name: http
-     port: 5000
-     protocol: TCP
-     targetPort: 5000
+  ports:
+    - name: http
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -39,42 +42,10 @@ spec:
   rules:
   - backendRefs:
     - kind: Service
-      name: synology
+      name: *app
       port: 5000
       weight: 1
     matches:
     - path:
         type: PathPrefix
         value: /
-# ---
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   annotations:
-#     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-#     cert-manager.io/cluster-issuer: letsencrypt-prod
-#     private-dns.home.arpa/disabled: "true"
-#     hajimari.io/enable: "true"
-#     hajimari.io/icon: "simple-icons:synology"
-#   labels:
-#     app.kubernetes.io/name: &app synology
-#     app.kubernetes.io/instance: *app
-#   name: synology-external
-#   namespace: network
-# spec:
-#   ingressClassName: nginx-external
-#   rules:
-#   - host: nas.${EXTERNAL_DOMAIN}
-#     http:
-#       paths:
-#       - backend:
-#           service:
-#             name: synology
-#             port:
-#               number: 5001
-#         path: /
-#         pathType: Prefix
-#   tls:
-#   - hosts:
-#     - nas.${EXTERNAL_DOMAIN}
-#     secretName: synology-tls-external
