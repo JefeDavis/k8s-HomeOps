@@ -4,6 +4,9 @@ kind: Gateway
 metadata:
   name: private-gateway
 spec:
+  addresses:
+    - type: IPAddress
+      value: ${SVC_PRIVATE_GATEWAY_ADDR}
   gatewayClassName: cilium
   listeners:
   - name: external-https
