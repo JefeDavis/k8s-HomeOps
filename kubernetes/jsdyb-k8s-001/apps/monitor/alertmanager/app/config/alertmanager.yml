@@ -4,10 +4,10 @@ global:
 
 route:
   group_by: ["alertname", "job"]
-  group_interval: 10m
-  group_wait: 1m
+  group_interval: 5m
+  group_wait: 30s
   receiver: pushover
-  repeat_interval: 12h
+  repeat_interval: 6h
   routes:
     - receiver: "null"
       matchers:
@@ -29,9 +29,9 @@ receivers:
   - name: pushover
     pushover_configs:
       - html: true
-        token_file: /etc/alertmanager/secrets/alertmanager-secret/PUSHOVER_TOKEN
-        url_title: View in Alertmanager
-        user_key_file: /etc/alertmanager/secrets/alertmanager-secret/PUSHOVER_USER_KEY
+        token_file: /etc/secrets/PUSHOVER_TOKEN
+        url_title: View in Alert Manager
+        user_key_file: /etc/secrets/PUSHOVER_USER_KEY
         sound: gamelan
         send_resolved: true
         priority: |-
@@ -40,6 +40,11 @@ receivers:
           [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
         message: |-
           {{- range .Alerts }}
+            {{- if ne .Labels.severity "" }}
+              <b>Severity:</b> <i>{{ .Labels.severity }}</i>
+            {{- else }}
+              <b>Severity:</b> <i>N/A</i>
+            {{- end }}
             {{- if ne .Annotations.description "" }}
               <b>Description:</b> <i>{{ .Annotations.description }}</i>
             {{- else if ne .Annotations.summary "" }}
@@ -50,10 +55,9 @@ receivers:
               <b>Description:</b> <i>N/A</i>
             {{- end }}
             {{- if gt (len .Labels.SortedPairs) 0 }}
-              <small>
+              <b>Details:</b>
               {{- range .Labels.SortedPairs }}
-                • <b>{{ .Name }}:</b> {{ .Value }}
+                • <b>{{ .Name }}:</b> <i>{{ .Value }}</i>
               {{- end }}
-              </small>
             {{- end }}
           {{- end }}

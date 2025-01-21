@@ -6,9 +6,9 @@ resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
   # Flux-Kustomizations
-  - ./alertmanager-silencer/ks.yaml
+  - ./alertmanager/ks.yaml
   - ./grafana/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
   - ./metrics-server/ks.yaml
-  - ./thanos/ks.yaml
+  # - ./thanos/ks.yaml
   - ./unpoller/ks.yaml
