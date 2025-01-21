@@ -20,6 +20,14 @@ instance:
       app.kubernetes.io/name: flux
   kustomize:
     patches:
+      - patch: |-
+          - op: add
+            path: /metadata/labels
+            value:
+              kustomize.toolkit.fluxcd.io/prune: disabled
+              networking.kubernetes.io/shared-gateway-access: "true"
+        target:
+          kind: Namespace
       # GCP KMS: https://github.com/fluxcd/kustomize-controller/blob/main/docs/spec/v1/kustomization.md#gcp-kms
       - patch: |
           - op: add
