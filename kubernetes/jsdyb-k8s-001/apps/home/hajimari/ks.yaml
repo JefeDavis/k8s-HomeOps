@@ -1,0 +1,45 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: hajimari
+  namespace: flux-system
+spec:
+  targetNamespace: home
+  path: ./kubernetes/${CLUSTER}/apps/home/hajimari/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+  postBuild:
+    substituteFrom: []
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  dependsOn:
+    - name: cilium-gateway
+    - name: kyverno
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: hajimari-policy
+  namespace: flux-system
+spec:
+  targetNamespace: home
+  path: ./kubernetes/${CLUSTER}/apps/home/hajimari/policy
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+  postBuild:
+    substituteFrom: []
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  dependsOn:
+    - name: hajimari

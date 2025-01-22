@@ -119,6 +119,9 @@ spec:
     route:
       *app :
         enabled: true
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "solar:subtitles-outline"
         kind: HTTPRoute
         parentRefs:
           - kind: Gateway

@@ -1,17 +1,16 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: hajimari
-  namespace: selfhosted
 spec:
   interval: 30m
   chart:
     spec:
-      chart: hajimari
-      version: 2.0.2
+      chart: ./charts/hajimari
       sourceRef:
-        kind: HelmRepository
+        kind: GitRepository
         name: hajimari
         namespace: flux-system
   maxHistory: 2
@@ -25,6 +24,8 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    image:
+      tag: main-f77fe68
     env:
       TZ: America/New_York
     hajimari:
@@ -56,20 +57,7 @@ spec:
           - storage
     ingress:
       main:
-        enabled: true
-        ingressClassName: nginx-internal
-        annotations:
-          cert-manager.io/cluster-issuer: "letsencrypt-prod"
-          hajimari.io/enable: "false"
-        hosts:
-          - host: &host portal.${EXTERNAL_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-        tls:
-          - hosts:
-              - *host
-            secretName: hajimari-tls-external
+        enabled: false
     podAnnotations:
       configmap.reloader.stakater.com/reload: "hajimari-settings"
     persistence:

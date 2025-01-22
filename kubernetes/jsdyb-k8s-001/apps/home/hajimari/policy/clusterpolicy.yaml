@@ -1,0 +1,74 @@
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: hajimari-httproute-application
+  annotations:
+    policies.kyverno.io/title: Hajimari Portal Entry
+    policies.kyverno.io/category: Hajimari
+    policies.kyverno.io/subject: Application
+    policies.kyverno.io/severity: low
+    policies.kyverno.io/minversion: 1.6.0
+    policies.kyverno.io/description: |
+      This policy creates an Hajimari Application resource for HTTPRoutes
+      You can apply optional annotations on the HTTPRoute to adjust the settings:
+      - "hajimari.io/icon": Icon name from MDI icons
+      - "hajimari.io/appName": A custom name for your application. Use if you don't want to use the name of the ingress
+      - "hajimari.io/group": A custom group name. Use if you want the application to show in a different group than the namespace it is running in
+      - "hajimari.io/instance": A comma separated list of name/s of the Hajimari instance/s where you want this application to appear. Use when you have multiple Hajimari instances
+      - "hajimari.io/url": A URL for the Hajimari app (This will override the HTTPRoute URL). It MUST not begin with a scheme i.e., http:// or https://
+      - "hajimari.io/targetBlank": Determines if links should open in new tabs/windows.
+      - "hajimari.io/info": A short description of the Hajimari app
+spec:
+  generateExisting: true
+  rules:
+    - name: app
+      context:
+        - name: icon
+          variable:
+            jmesPath: request.object.metadata.annotations."hajimari.io/icon"
+            default: mdi:application
+        - name: appName
+          variable:
+            jmesPath: request.object.metadata.annotations."hajimari.io/appName" || request.object.metadata.labels."app.kubernetes.io/name" || request.object.metadata.name
+        - name: appGroup
+          variable:
+            jmesPath: request.object.metadata.annotations."hajimari.io/group" || request.object.metadata.namespace
+        - name: instance
+          variable:
+            jmesPath: request.object.metadata.annotations."hajimari.io/instance" || ""
+        - name: hostname
+          variable:
+            jmesPath: request.object.metadata.annotations."hajimari.io/url" || request.object.spec.hostnames[0]
+        - name: targetBlank
+          variable:
+            jmesPath: request.object.metadata.annotations."hajimari.io/targetBlank" || "false"
+            default: "false"
+        - name: info
+          variable:
+            jmesPath: request.object.metadata.annotations."hajimari.io/info"
+            default: ""
+      match:
+        any:
+          - resources:
+              kinds: 
+                - HTTPRoute
+              annotations:
+                hajimari.io/enable: "true"
+      generate:
+        apiVersion: hajimari.io/v1alpha1
+        kind: Application
+        name: "{{ request.object.metadata.name }}"
+        namespace: "{{ request.object.metadata.namespace }}"
+        synchronize: true
+        data:
+          metadata:
+            annotations: "{{ request.object.metadata.annotations }}"
+          spec:
+            name: "{{ appName }}"
+            group: "{{ appGroup }}"
+            icon: "{{ icon }}"
+            url: "https://{{ hostname }}"
+            info: "{{ info }}"
+            targetBlank: "{{ to_boolean(targetBlank) }}"
+
