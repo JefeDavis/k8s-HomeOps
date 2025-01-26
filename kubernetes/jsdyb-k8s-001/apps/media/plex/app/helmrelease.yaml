@@ -137,7 +137,7 @@ spec:
         parentRefs:
           - kind: Gateway
             name: public-gateway
-            namespace: network
+            namespace: gateway
         hostnames:
           - plex.${EXTERNAL_DOMAIN}
         rules:

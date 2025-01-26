@@ -129,7 +129,7 @@ spec:
         parentRefs:
           - kind: Gateway
             name: private-gateway
-            namespace: network
+            namespace: gateway
         hostnames:
           - zigbee.${EXTERNAL_DOMAIN}
         rules:

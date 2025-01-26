@@ -113,6 +113,13 @@ spec:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/compute
+          - name: gateway
+            orgID: 1
+            folder: Gateway
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/gateway
           - name: media
             orgID: 1
             folder: Media
@@ -162,6 +169,31 @@ spec:
               implementation: prometheus
 
     dashboards:
+      gateway:
+        istio-mesh:
+          gnetId: 7639
+          revision: 239
+          datasource: Prometheus
+        istio-service:
+          gnetId: 7636
+          revision: 239
+          datasource: Prometheus
+        istio-workload:
+          gnetId: 7630
+          revision: 239
+          datasource: Prometheus
+        istio-performence:
+          gnetId: 11829
+          revision: 239
+          datasource: Prometheus
+        istio-control-plane:
+          gnetId: 7645
+          revision: 239
+          datasource: Prometheus
+        istio-wasm:
+          gnetId: 13277
+          revision: 239
+          datasource: Prometheus
       network:
         # renovate: depName="blocky"
         blocky:
@@ -347,33 +379,6 @@ spec:
           # renovate: depName="Prometheus"
           gnetId: 19106
           revision: 6
-          datasource: Prometheus
-        thanos-bucket-replicate:
-          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/thanos/dashboards/bucket-replicate.json
-          datasource: Prometheus
-        thanos-compact:
-          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/thanos/dashboards/compact.json
-          datasource: Prometheus
-        thanos-overview:
-          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/thanos/dashboards/overview.json
-          datasource: Prometheus
-        thanos-query:
-          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/thanos/dashboards/query.json
-          datasource: Prometheus
-        thanos-query-frontend:
-          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/thanos/dashboards/query-frontend.json
-          datasource: Prometheus
-        thanos-receieve:
-          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/thanos/dashboards/receive.json
-          datasource: Prometheus
-        thanos-rule:
-          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/thanos/dashboards/rule.json
-          datasource: Prometheus
-        thanos-sidecar:
-          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/thanos/dashboards/sidecar.json
-          datasource: Prometheus
-        thanos-store:
-          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/thanos/dashboards/store.json
           datasource: Prometheus
 
     plugins:

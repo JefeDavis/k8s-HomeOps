@@ -22,5 +22,5 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: cilium-gateway
+    - name: gateway-api-crds
     - name: kube-prometheus-stack

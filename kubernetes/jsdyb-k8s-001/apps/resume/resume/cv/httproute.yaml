@@ -17,7 +17,7 @@ spec:
   parentRefs:
   - kind: Gateway
     name: public-gateway
-    namespace: network
+    namespace: gateway
   rules:
   - backendRefs:
     - kind: Service

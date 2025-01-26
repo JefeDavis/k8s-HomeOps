@@ -141,7 +141,7 @@ spec:
         parentRefs:
           - kind: Gateway
             name: public-gateway
-            namespace: network
+            namespace: gateway
         hostnames:
           - overseerr.${EXTERNAL_DOMAIN}
         rules:

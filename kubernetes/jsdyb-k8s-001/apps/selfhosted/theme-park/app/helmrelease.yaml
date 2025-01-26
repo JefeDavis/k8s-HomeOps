@@ -88,7 +88,7 @@ spec:
         parentRefs:
           - kind: Gateway
             name: public-gateway
-            namespace: network
+            namespace: gateway
         hostnames:
           - theme-park.${EXTERNAL_DOMAIN}
         rules:

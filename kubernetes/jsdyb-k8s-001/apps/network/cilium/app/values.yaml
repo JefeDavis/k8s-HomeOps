@@ -11,7 +11,7 @@ bandwidthManager:
   bbr: true
 
 bpf:
-  masquerade: true
+  masquerade: false # disabled for istio
   tproxy: true
 
 cgroup:
@@ -62,6 +62,8 @@ operator:
 
 rollOutCiliumPods: true
 
+routingMode: native
+
 securityContext:
   capabilities:
     ciliumAgent:
@@ -83,5 +85,5 @@ securityContext:
       - SYS_ADMIN
       - SYS_RESOURCE
 
-routingMode: native
-
+socketLB:
+  hostNamespaceOnly: true #enabled for istio

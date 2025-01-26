@@ -93,7 +93,7 @@ spec:
         parentRefs:
           - kind: Gateway
             name: public-gateway
-            namespace: network
+            namespace: gateway
         hostnames:
           - vault.${EXTERNAL_DOMAIN}
         rules:

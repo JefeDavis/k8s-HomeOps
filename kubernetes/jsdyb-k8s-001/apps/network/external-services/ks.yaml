@@ -17,4 +17,4 @@ spec:
     name: flux-system
   wait: true
   dependsOn:
-    - name: cilium-gateway
+    - name: gateway-api-crds

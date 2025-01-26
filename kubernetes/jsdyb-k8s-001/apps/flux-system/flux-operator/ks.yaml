@@ -42,6 +42,6 @@ spec:
   wait: false
   dependsOn:
     - name: flux-operator
-    - name: cilium-gateway
+    - name: gateway-api-crds
   postBuild:
     substituteFrom: []

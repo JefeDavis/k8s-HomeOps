@@ -19,7 +19,7 @@ spec:
   retryInterval: 1m
   timeout: 5m
   dependsOn:
-    - name: cilium-gateway
+    - name: gateway-api-crds
     - name: kyverno
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json

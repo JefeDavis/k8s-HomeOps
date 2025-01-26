@@ -69,7 +69,7 @@ spec:
         parentRefs:
           - kind: Gateway
             name: private-gateway
-            namespace: network
+            namespace: gateway
         hostnames:
           - tonie.${EXTERNAL_DOMAIN}
         rules:

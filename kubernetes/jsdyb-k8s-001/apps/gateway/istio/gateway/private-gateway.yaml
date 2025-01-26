@@ -1,0 +1,39 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: private-gateway
+spec:
+  addresses:
+    - type: IPAddress
+      value: ${SVC_PRIVATE_GATEWAY_ADDR}
+  gatewayClassName: istio
+  listeners:
+  - name: external-https
+    protocol: HTTPS
+    port: 443
+    hostname: "*.${EXTERNAL_DOMAIN}"
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            networking.kubernetes.io/shared-gateway-access: "true"
+    tls:
+      certificateRefs:
+      - kind: Secret
+        name: "wildcard-tls-external"
+  - name: internal-https
+    protocol: HTTPS
+    port: 443
+    hostname: "*.${INTERNAL_DOMAIN}"
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            networking.kubernetes.io/shared-gateway-access: "true"
+    tls:
+      certificateRefs:
+      - kind: Secret
+        name: "wildcard-tls-internal"
