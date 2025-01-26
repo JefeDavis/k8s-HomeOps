@@ -24,6 +24,7 @@ resources:
   - intel.yaml
   - istio.yaml
   - jetstack.yaml
+  - kiali.yaml
   - kubereboot.yaml
   - kubernetes-sigs-descheduler.yaml
   - kubernetes-sigs-external-dns.yaml
