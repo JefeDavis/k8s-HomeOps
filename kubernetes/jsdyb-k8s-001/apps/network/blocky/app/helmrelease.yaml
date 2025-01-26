@@ -145,7 +145,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - dns.${EXTERNAL_DOMAIN}
+          - dns.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

@@ -164,23 +164,6 @@ spec:
           http:
             port: 10400
 
-    # ingress:
-    #   piper:
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #     className: nginx-internal
-    #     hosts:
-    #       - host: piper.${EXTERNAL_DOMAIN}
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: piper
-    #               port: http
-    #     tls:
-    #       - hosts:
-    #           - piper.${EXTERNAL_DOMAIN}
-    #         secretName: piper-tls-internal
-
     route:
       piper:
         enabled: true
@@ -190,7 +173,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - piper.${EXTERNAL_DOMAIN}
+          - piper.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

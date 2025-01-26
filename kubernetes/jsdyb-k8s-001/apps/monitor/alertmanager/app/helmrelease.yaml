@@ -108,7 +108,7 @@ spec:
           hajimari.io/enable: "true"
           hajimari.io/icon: mdi:bell
         hostnames:
-          - alerts.${EXTERNAL_DOMAIN}
+          - alerts.${INTERNAL_DOMAIN}
         parentRefs:
           - kind: Gateway
             name: private-gateway

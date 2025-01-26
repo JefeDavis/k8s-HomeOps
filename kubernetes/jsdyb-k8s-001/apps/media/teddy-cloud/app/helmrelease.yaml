@@ -53,7 +53,7 @@ spec:
         controller: *app
         type: LoadBalancer
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: "tonie-stream.${EXTERNAL_DOMAIN}"
+          external-dns.alpha.kubernetes.io/hostname: "tonie-stream.${INTERNAL_DOMAIN}"
         loadBalancerIP: ${SVC_TEDDYCLOUD_ADDR}
         ports:
           https:
@@ -71,7 +71,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - tonie.${EXTERNAL_DOMAIN}
+          - tonie.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

@@ -38,7 +38,7 @@ metadata:
   namespace: network
 spec:
   hostnames:
-  - unifi.${EXTERNAL_DOMAIN}
+  - unifi.${INTERNAL_DOMAIN}
   parentRefs:
   - kind: Gateway
     name: private-gateway

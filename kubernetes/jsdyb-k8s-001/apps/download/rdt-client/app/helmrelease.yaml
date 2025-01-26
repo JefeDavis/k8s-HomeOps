@@ -67,7 +67,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - rdt.${EXTERNAL_DOMAIN}
+          - rdt.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

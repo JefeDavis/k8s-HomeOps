@@ -10,7 +10,7 @@ metadata:
   namespace: home
 spec:
   hostnames:
-  - portal.${EXTERNAL_DOMAIN}
+  - portal.${INTERNAL_DOMAIN}
   parentRefs:
   - kind: Gateway
     name: private-gateway

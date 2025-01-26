@@ -29,7 +29,7 @@ spec:
               TZ: ${TIMEZONE}
               RADARR__INSTANCE_NAME: Radarr
               RADARR__PORT: &port 7878
-              RADARR__APPLICATION_URL: https://radarr.${EXTERNAL_DOMAIN}
+              RADARR__APPLICATION_URL: https://radarr.${INTERNAL_DOMAIN}
               RADARR__LOG_LEVEL: info
               RADARR__API_KEY:
                 valueFrom:
@@ -106,7 +106,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - radarr.${EXTERNAL_DOMAIN}
+          - radarr.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

@@ -30,7 +30,7 @@ spec:
               TZ: ${TIMEZONE}
               BAZARR__INSTANCE_NAME: *app
               BAZARR__PORT: &port 6767
-              BAZARR__APPLICATION_URL: https://bazarr.${EXTERNAL_DOMAIN}
+              BAZARR__APPLICATION_URL: https://bazarr.${INTERNAL_DOMAIN}
               BAZARR__LOG_LEVEL: info
               BAZARR__API_KEY:
                 valueFrom:
@@ -108,7 +108,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - bazarr.${EXTERNAL_DOMAIN}
+          - bazarr.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

@@ -27,7 +27,7 @@ spec:
               tag: v2.4.1@sha256:efd4001597fbcea58aa1e2ff54f5e5b5f8fe6237df6862a2e4576dcb5ff0d24e
             env:
               TZ: ${TIMEZONE}
-              BASE_URL: https://cookbook.${EXTERNAL_DOMAIN}
+              BASE_URL: https://cookbook.${INTERNAL_DOMAIN}
               PGID: ${APP_GID}
               PUID: ${APP_UID}
               AUTO_BACKUP_ENABLED: true
@@ -35,7 +35,7 @@ spec:
               SMTP_HOST: smtp-relay.network.svc.cluster.local.
               SMTP_PORT: 2525
               SMTP_FROM_NAME: Mealie
-              SMTP_FROM_EMAIL: cookbook@${EXTERNAL_DOMAIN}
+              SMTP_FROM_EMAIL: cookbook@${INTERNAL_DOMAIN}
               SMTP_AUTH_STRATEGY: NONE
               DB_ENGINE: postgres
               POSTGRES_URL_OVERRIDE:
@@ -89,7 +89,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - cookbook.${EXTERNAL_DOMAIN}
+          - cookbook.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

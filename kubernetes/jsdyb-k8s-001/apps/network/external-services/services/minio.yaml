@@ -44,7 +44,7 @@ metadata:
   namespace: network
 spec:
   hostnames:
-  - minio.${EXTERNAL_DOMAIN}
+  - minio.${INTERNAL_DOMAIN}
   parentRefs:
   - kind: Gateway
     name: private-gateway

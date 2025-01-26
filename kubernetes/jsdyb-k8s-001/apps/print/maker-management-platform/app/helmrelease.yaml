@@ -86,7 +86,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - mmp.${EXTERNAL_DOMAIN}
+          - mmp.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

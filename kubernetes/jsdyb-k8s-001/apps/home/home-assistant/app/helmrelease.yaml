@@ -173,7 +173,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - hass-code.${EXTERNAL_DOMAIN}
+          - hass-code.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

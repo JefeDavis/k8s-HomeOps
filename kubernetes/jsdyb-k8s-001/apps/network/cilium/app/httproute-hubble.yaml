@@ -13,7 +13,7 @@ metadata:
   namespace: network
 spec:
   hostnames:
-  - hubble.${EXTERNAL_DOMAIN}
+  - hubble.${INTERNAL_DOMAIN}
   parentRefs:
   - kind: Gateway
     name: private-gateway

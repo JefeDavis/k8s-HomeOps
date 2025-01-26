@@ -29,7 +29,7 @@ spec:
               TZ: ${TIMEZONE}
               SONARR__INSTANCE_NAME: Sonarr
               SONARR__PORT: &port 8989
-              SONARR__APPLICATION_URL: https://sonarr.${EXTERNAL_DOMAIN}
+              SONARR__APPLICATION_URL: https://sonarr.${INTERNAL_DOMAIN}
               SONARR__LOG_LEVEL: info
               SONARR__API_KEY:
                 valueFrom:
@@ -106,7 +106,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - sonarr.${EXTERNAL_DOMAIN}
+          - sonarr.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

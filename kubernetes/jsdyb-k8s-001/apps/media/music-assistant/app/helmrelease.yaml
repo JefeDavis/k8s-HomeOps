@@ -74,7 +74,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - music.${EXTERNAL_DOMAIN}
+          - music.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

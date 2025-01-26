@@ -39,7 +39,7 @@ spec:
           app_label_name: "app.kubernetes.io/name"
           version_label_name: "app.kubernetes.io/version"
         server:
-          web_fqdn: kiali.${EXTERNAL_DOMAIN}
+          web_fqdn: kiali.${INTERNAL_DOMAIN}
           web_port: 443
           web_root: /
           web_schema: https
@@ -58,4 +58,4 @@ spec:
           grafana:
             enabled: true
             in_cluster_url: http://grafana.monitor.svc.cluster.local/
-            url: https://grafana.${EXTERNAL_DOMAIN}
+            url: https://grafana.${INTERNAL_DOMAIN}

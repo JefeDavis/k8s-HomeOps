@@ -13,7 +13,7 @@ metadata:
   namespace: datastore
 spec:
   hostnames:
-  - emqx.${EXTERNAL_DOMAIN}
+  - emqx.${INTERNAL_DOMAIN}
   parentRefs:
   - kind: Gateway
     name: private-gateway

@@ -13,7 +13,7 @@ metadata:
   namespace: monitor
 spec:
   hostnames:
-  - prometheus.${EXTERNAL_DOMAIN}
+  - prometheus.${INTERNAL_DOMAIN}
   parentRefs:
   - kind: Gateway
     name: private-gateway

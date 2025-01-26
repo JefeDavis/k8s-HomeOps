@@ -37,7 +37,7 @@ metadata:
   namespace: network
 spec:
   hostnames:
-  - nas.${EXTERNAL_DOMAIN}
+  - nas.${INTERNAL_DOMAIN}
   parentRefs:
   - kind: Gateway
     name: private-gateway

@@ -94,7 +94,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - baby-buddy.${EXTERNAL_DOMAIN}
+          - baby-buddy.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

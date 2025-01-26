@@ -29,7 +29,7 @@ spec:
               TZ: ${TIMEZONE}
               READARR__INSTANCE_NAME: Readarr
               READARR__PORT: &port 8787
-              READARR__APPLICATION_URL: https://readarr.${EXTERNAL_DOMAIN}
+              READARR__APPLICATION_URL: https://readarr.${INTERNAL_DOMAIN}
               READARR__LOG_LEVEL: info
               READARR__API_KEY:
                 valueFrom:
@@ -106,7 +106,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - readarr.${EXTERNAL_DOMAIN}
+          - readarr.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

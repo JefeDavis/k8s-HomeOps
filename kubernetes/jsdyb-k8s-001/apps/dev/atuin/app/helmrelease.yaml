@@ -102,23 +102,6 @@ spec:
             interval: 1m
             scrapeTimeout: 10s
 
-    # ingress:
-    #   *app :
-    #     className: nginx-internal
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #     hosts:
-    #       - host: &fqdn sh.${EXTERNAL_DOMAIN}
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: *app
-    #               port: http
-    #     tls:
-    #       - hosts:
-    #           - *fqdn
-    #         secretName: atuin-tls-internal
-
     route:
       *app :
         enabled: true
@@ -128,7 +111,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - sh.${EXTERNAL_DOMAIN}
+          - sh.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

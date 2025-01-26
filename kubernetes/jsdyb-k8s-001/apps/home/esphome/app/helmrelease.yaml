@@ -74,7 +74,7 @@ spec:
             name: private-gateway
             namespace: gateway
         hostnames:
-          - esphome.${EXTERNAL_DOMAIN}
+          - esphome.${INTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service

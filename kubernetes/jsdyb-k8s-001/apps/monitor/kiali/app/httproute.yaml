@@ -13,7 +13,7 @@ metadata:
   namespace: monitor
 spec:
   hostnames:
-    - kiali.${EXTERNAL_DOMAIN}
+    - kiali.${INTERNAL_DOMAIN}
   parentRefs:
     - kind: Gateway
       name: private-gateway

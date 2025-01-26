@@ -13,7 +13,7 @@ metadata:
   namespace: storage
 spec:
   hostnames:
-  - rook.${EXTERNAL_DOMAIN}
+  - rook.${INTERNAL_DOMAIN}
   parentRefs:
   - kind: Gateway
     name: private-gateway
