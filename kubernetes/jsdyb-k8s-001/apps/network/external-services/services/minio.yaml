@@ -33,6 +33,9 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
+  annotations:
+    hajimari.io/enable: "true"
+    hajimari.io/icon: "simple-icons:minio"
   labels:
     app.kubernetes.io/instance: minio
     app.kubernetes.io/name: minio

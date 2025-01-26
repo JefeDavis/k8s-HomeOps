@@ -82,50 +82,13 @@ spec:
           http:
             port: &port 8000
 
-    # ingress:
-    #   external:
-    #     enabled: true
-    #     className: nginx-external
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #       auth.home.arpa/enabled: "true"
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: mdi:baby-face-outline
-    #       private-dns.home.arpa/disable: "true"
-    #     hosts:
-    #       - host: &host "${EXTERNAL_URL}"
-    #         paths:
-    #           - path: /
-    #             pathType: Prefix
-    #             service:
-    #               identifier: app
-    #               port: http
-    #     tls:
-    #       - hosts:
-    #           - *host
-    #         secretName: baby-buddy-tls-external
-    #   internal:
-    #     className: nginx-internal
-    #     annotations:
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: mdi:baby-face-outline
-    #     hosts:
-    #       - host: *host
-    #         paths:
-    #           - path: /
-    #             pathType: Prefix
-    #             service:
-    #               identifier: app
-    #               port: http
-    #     tls:
-    #       - hosts:
-    #           - *host
-    #         secretName: baby-buddy-tls-external
-
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: mdi:baby-face-outline
         parentRefs:
           - kind: Gateway
             name: private-gateway

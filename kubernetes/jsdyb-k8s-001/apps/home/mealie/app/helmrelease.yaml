@@ -77,30 +77,13 @@ spec:
           http:
             port: &port 9000
 
-    # ingress:
-    #   external:
-    #     className: nginx-external
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: mdi:chef-hat
-    #     hosts:
-    #       - host: &host "mealie.${EXTERNAL_DOMAIN}"
-    #         paths:
-    #           - path: /
-    #             pathType: Prefix
-    #             service:
-    #               identifier: *app
-    #               port: http
-    #     tls:
-    #       - hosts:
-    #           - *host
-    #         secretName: mealie-tls-external
-
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: mdi:chef-hat
         parentRefs:
           - kind: Gateway
             name: private-gateway

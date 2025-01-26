@@ -57,29 +57,13 @@ spec:
           http:
             port: *port
 
-    # ingress:
-    #   external:
-    #     className: nginx-internal
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #       theme.home.arpa/enabled: "true"
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: "mdi:chart-bar"
-    #     hosts:
-    #       - host: &host tautulli.${EXTERNAL_DOMAIN}
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: *app
-    #     tls:
-    #       - hosts:
-    #           - *host
-    #         secretName: tautulli-tls-external
-      
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:chart-bar"
         parentRefs:
           - kind: Gateway
             name: private-gateway

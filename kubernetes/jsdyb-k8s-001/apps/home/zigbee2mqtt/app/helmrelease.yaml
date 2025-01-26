@@ -119,29 +119,13 @@ spec:
           http:
             port: *port
 
-    # ingress:
-    #   external:
-    #     className: nginx-internal
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: "simple-icons:zigbee"
-    #     hosts:
-    #       - host: &host zigbee.${EXTERNAL_DOMAIN}
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: *app
-    #               port: *port
-    #     tls:
-    #       - hosts:
-    #           - *host
-    #         secretName: zigbee2mqtt-tls-external
-
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "simple-icons:zigbee"
         parentRefs:
           - kind: Gateway
             name: private-gateway

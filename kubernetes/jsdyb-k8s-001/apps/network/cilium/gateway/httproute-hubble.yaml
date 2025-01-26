@@ -2,6 +2,9 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
+  annotations:
+    hajimari.io/enable: "true"
+    hajimari.io/icon: "simple-icons:cilium"
   labels:
     app.kubernetes.io/instance: hubble
     app.kubernetes.io/name: hubble

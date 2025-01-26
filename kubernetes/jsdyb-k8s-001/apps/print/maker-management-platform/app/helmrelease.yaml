@@ -74,27 +74,13 @@ spec:
           http:
             port: &port 8081
 
-    # ingress:
-    #   internal:
-    #     className: nginx-internal
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #     hosts:
-    #       - host: &host mmp.${EXTERNAL_DOMAIN}
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: *app
-    #               port: *port
-    #     tls:
-    #       - hosts:
-    #           - *host
-    #         secretName: mmp-tls-internal
-
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:printer-3d-nozzle"
         parentRefs:
           - kind: Gateway
             name: private-gateway

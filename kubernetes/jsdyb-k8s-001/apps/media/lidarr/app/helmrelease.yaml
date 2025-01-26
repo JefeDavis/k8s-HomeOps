@@ -120,6 +120,9 @@ spec:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:headphones"
         parentRefs:
           - kind: Gateway
             name: private-gateway

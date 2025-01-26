@@ -78,6 +78,9 @@ spec:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:invite"
         parentRefs:
           - kind: Gateway
             name: private-gateway

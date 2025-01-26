@@ -104,6 +104,9 @@ spec:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: mdi:bell
         hostnames:
           - alerts.${EXTERNAL_DOMAIN}
         parentRefs:

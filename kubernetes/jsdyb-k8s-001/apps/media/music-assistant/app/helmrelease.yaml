@@ -62,30 +62,13 @@ spec:
           http:
             port: &port 8095
 
-    # ingress:
-    #   internal:
-    #     enabled: true
-    #     className: nginx-internal
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: "mdi:headphones"
-    #     hosts:
-    #     - host: &host "music.${EXTERNAL_DOMAIN}"
-    #       paths:
-    #       - path: /
-    #         service:
-    #           identifier: *app
-    #           port: *port
-    #     tls:
-    #     - hosts:
-    #       - *host
-    #       secretName: music-assistant-tls-external
-
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "simple-icons:musicbrainz"
         parentRefs:
           - kind: Gateway
             name: private-gateway

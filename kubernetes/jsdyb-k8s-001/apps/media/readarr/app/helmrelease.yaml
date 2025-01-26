@@ -94,30 +94,13 @@ spec:
           metrics:
             port: *metricsPort
 
-    # ingress:
-    #   external:
-    #     className: nginx-internal
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #       theme.home.arpa/enabled: "true"
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: "material-symbols:book-outline-rounded"
-    #     hosts:
-    #       - host: &host readarr.${EXTERNAL_DOMAIN}
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: *app
-    #               port: *port
-    #     tls:
-    #       - hosts:
-    #           - *host
-    #         secretName: readarr-tls-external
-
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "material-symbols:book-outline-rounded"
         parentRefs:
           - kind: Gateway
             name: private-gateway

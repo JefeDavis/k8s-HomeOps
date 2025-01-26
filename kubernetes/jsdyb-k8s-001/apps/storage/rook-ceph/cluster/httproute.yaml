@@ -2,6 +2,9 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
+  annotations:
+    hajimari.io/enable: "true"
+    hajimari.io/icon: "simple-icons:rook"
   labels:
     app.kubernetes.io/name: &app rook-ceph
     app.kubernetes.io/instance: *app

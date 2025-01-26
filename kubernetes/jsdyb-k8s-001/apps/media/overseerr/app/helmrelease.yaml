@@ -131,30 +131,13 @@ spec:
           metrics:
             port: 9850
 
-    # ingress:
-    #   external:
-    #     className: nginx-external
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #       theme.home.arpa/enabled: "true"
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: "mdi:eye-circle-outline"
-    #     hosts:
-    #       - host: &host "request.${EXTERNAL_DOMAIN}"
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: *app
-    #               port: *port
-    #     tls:
-    #       - hosts:
-    #           - *host
-    #         secretName: overseerr-tls-external
-
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:eye-circle-outline"
         parentRefs:
           - kind: Gateway
             name: public-gateway

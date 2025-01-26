@@ -39,22 +39,14 @@ spec:
       alwaysTargetBlank: true
       showGreeting: false
       showAppGroups: true
-      showAppStatus: false
+      showAppStatus: true
+      showAppInfo: true
       showBookmarkGroups: false
       showGlobalBookmarks: false
       showAppUrls: false
       defaultEnable: false
       namespaceSelector:
-        matchNames:
-          - download
-          - flux-system
-          - home
-          - media
-          - monitor
-          - network
-          - security
-          - self-hosted
-          - storage
+        any: true
     ingress:
       main:
         enabled: false

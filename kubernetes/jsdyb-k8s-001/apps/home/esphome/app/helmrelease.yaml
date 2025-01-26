@@ -62,30 +62,13 @@ spec:
           http:
             port: &port 6052
 
-    # ingress:
-    #   *app :
-    #     className: nginx-internal
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: "chip"
-    #     hosts:
-    #       - host: &hostname esphome.${EXTERNAL_DOMAIN}
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: *app
-    #               port: *port
-                  
-    #     tls:
-    #       - hosts:
-    #           - *hostname
-    #         secretName: esphome-tls-internal
-
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "chip"
         parentRefs:
           - kind: Gateway
             name: private-gateway

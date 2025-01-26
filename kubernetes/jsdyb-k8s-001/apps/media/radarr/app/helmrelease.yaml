@@ -94,30 +94,13 @@ spec:
           metrics:
             port: *metricsPort
 
-    # ingress:
-    #   external:
-    #     className: nginx-internal
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #       theme.home.arpa/enabled: "true"
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: "mdi:movie-open-outline"
-    #     hosts:
-    #       - host: &host radarr.${EXTERNAL_DOMAIN}
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: *app
-    #               port: *port
-    #     tls:
-    #       - hosts:
-    #           - *host
-    #         secretName: radarr-tls-external
-      
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:movie-open-outline"
         parentRefs:
           - kind: Gateway
             name: private-gateway

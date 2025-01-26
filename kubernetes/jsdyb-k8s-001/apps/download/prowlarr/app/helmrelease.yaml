@@ -107,31 +107,13 @@ spec:
           metrics:
             port: *metricsPort
 
-    # ingress:
-    #   *app :
-    #     enabled: true
-    #     className: nginx-internal
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #       theme.home.arpa/enabled: "true"
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: "mdi:movie-search"
-    #     hosts:
-    #       - host: &host prowlarr.${EXTERNAL_DOMAIN}
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: *app
-    #             pathType: Prefix
-    #     tls:
-    #       - hosts:
-    #           - *host
-    #         secretName: prowlarr-tls-external
-
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:movie-search"
         parentRefs:
           - kind: Gateway
             name: private-gateway

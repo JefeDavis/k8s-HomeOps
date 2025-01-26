@@ -83,41 +83,13 @@ spec:
           http:
             port: *port 
 
-    # ingress:
-    #   external:
-    #     className: nginx-external
-    #     annotations:
-    #       cert-manager.io/cluster-issuer: letsencrypt-prod
-    #       theme.home.arpa/enabled: "true"
-    #       theme.home.arpa/app: "bitwarden"
-    #       hajimari.io/enable: "true"
-    #       hajimari.io/icon: "ph:password-fill"
-    #     hosts: &hosts
-    #       - host: vault.${EXTERNAL_DOMAIN}
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: *app
-    #               port: *port
-    #     tls: &tls
-    #       - hosts:
-    #           - vault.${EXTERNAL_DOMAIN}
-    #         secretName: "vaultwarden-tls-external"
-    #   external-admin:
-    #     className: nginx-internal
-    #     hosts:
-    #       - host: vault.${EXTERNAL_DOMAIN}
-    #         paths:
-    #           - path: /admin
-    #             service:
-    #               identifier: *app
-    #               port: *port
-    #     tls: *tls
-
     route:
       *app :
         enabled: true
         kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "ph:password-fill"
         parentRefs:
           - kind: Gateway
             name: public-gateway
