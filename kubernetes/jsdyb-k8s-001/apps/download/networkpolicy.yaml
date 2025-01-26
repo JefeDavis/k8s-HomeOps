@@ -11,6 +11,8 @@ spec:
     # Only allow ingress from K8S
     - ipBlock:
         cidr: 172.22.0.0/15
+    - ipBlock:
+        cidr: 169.254.7.127/32
   egress:
   - to:
     # Only allow egress to K8S

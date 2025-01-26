@@ -26,6 +26,7 @@ instance:
             value:
               kustomize.toolkit.fluxcd.io/prune: disabled
               networking.kubernetes.io/shared-gateway-access: "true"
+              istio.io/dataplane-mode: ambient
         target:
           kind: Namespace
       # GCP KMS: https://github.com/fluxcd/kustomize-controller/blob/main/docs/spec/v1/kustomization.md#gcp-kms

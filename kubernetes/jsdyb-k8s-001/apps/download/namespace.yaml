@@ -7,4 +7,5 @@ metadata:
     kustomize.toolkit.fluxcd.io/prune: disabled
     networking.kubernetes.io/shared-gateway-access: "true"
     vpn.home.arpa/routed-gateway: "true"
+    istio.io/dataplane-mode: ambient
 
