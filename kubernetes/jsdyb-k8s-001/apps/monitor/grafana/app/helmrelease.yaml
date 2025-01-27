@@ -406,6 +406,8 @@ spec:
             app.kubernetes.io/name: grafana
     imageRenderer:
       enabled: true
+      networkPolicy:
+        limitIngress: false
 
     podAnnotations:
       configmap.reloader.stakater.com/reload: grafana
