@@ -1,72 +1,72 @@
 ---
-name: "HelmRepository Sync"
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: "Helm Repository Sync"
 
 on:
   workflow_dispatch:
     inputs:
-      repoName:
-        description: "Flux HelmRepository Name"
+      helmRepoNamespace:
+        description: Helm Repository Namespace
+        default: flux-system
         required: true
-      repoNamespace:
-        description: "Flux HelmRepository Namespace"
-        default: "flux-system"
+      helmRepoName:
+        description: Helm Repository Name
         required: true
   pull_request:
     branches: ["main"]
     paths: ["kubernetes/**/helmrelease.yaml"]
 
+env:
+  HOMEBREW_NO_ANALYTICS: "1"
+
 jobs:
   sync:
-    name: Flux HelmRepository Sync
-    runs-on: ["arc-home-ops"]
+    name: Helm Repository Sync
+    runs-on: ["home-ops-runner"]
     steps:
+      - name: Generate Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: "${{ secrets.BOT_APP_ID }}"
+          private-key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
+
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          token: "${{ steps.app-token.outputs.token }}"
 
-      - name: Setup Kube Tools
-        uses: yokawasa/action-setup-kube-tools@9e25a4277af127b60011c95b6ed2da7e3b3613b1 # v0.11.2
-        with:
-          setup-tools: |
-            yq
+      - name: Setup Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
 
-      - name: Setup Flux
-        uses: fluxcd/flux2/action@5350425cdcd5fa015337e09fa502153c0275bd4b # v2.4.0
+      - name: Setup Workflow Tools
+        run: brew install fluxcd/tap/flux
 
-      - name: Write kubeconfig
-        id: kubeconfig
-        uses: timheuer/base64-to-file@adaa40c0c581f276132199d4cf60afa07ce60eac # v1.2
-        with:
-          encodedString: ${{ secrets.KUBECONFIG }}
-          fileName: kubeconfig
-
-      - name: Get changed files
+      - if: ${{ github.event.inputs.helmRepoNamespace == '' && github.event.inputs.helmRepoName == '' }}
+        name: Get Changed Files
         id: changed-files
-        uses: tj-actions/changed-files@d6e91a2266cdb9d62096cebf1e8546899c6aa18f # v45.0.6
+        uses: tj-actions/changed-files@v45
         with:
-          files: |
-            kubernetes/**/helmrelease.yaml
+          files: kubernetes/**/helmrelease.yaml
+          safe_output: false
 
-      - name: Sync HelmRepository
-        env:
-          KUBECONFIG: ${{ steps.kubeconfig.outputs.filePath }}
+      - if: ${{ github.event.inputs.helmRepoNamespace == '' && github.event.inputs.helmRepoName == '' }}
+        name: Sync Helm Repository
         run: |
-          declare -a repos=()
-          for file in ${{ steps.changed-files.outputs.all_changed_and_modified_files }}; do
-            repoName="$(yq eval '.spec.chart.spec.sourceRef.name' "${file}")"
-            repoNamespace="$(yq eval '.spec.chart.spec.sourceRef.namespace' "${file}")"
-            repos+=("${repoName}:${repoNamespace}")
+          declare -A repos=()
+          for f in ${{ steps.changed-files.outputs.all_changed_and_modified_files }}; do
+              repo_namespace="$(yq -r '.spec.chart.spec.sourceRef.namespace' "${f}")"
+              repo_name="$(yq -r '.spec.chart.spec.sourceRef.name' "${f}")"
+              repos["${repo_namespace}:${repo_name}"]=1
           done
-          repos=($(for r in ${repos[@]}; do echo $r; done | sort -u))
-          for repo in ${repos[@]}; do
-            flux --namespace "${repo##*:}" reconcile source helm "${repo%%:*}"
+          for r in "${!repos[@]}"; do
+              IFS=':' read -r repo_namespace repo_name <<< "${r}"
+              flux --namespace ${repo_namespace} \
+                  reconcile source helm ${repo_name} || true
           done
 
-      - name: Sync HelmRepository
-        if: ${{ github.event.inputs.repoName != '' }}
-        env:
-          KUBECONFIG: ${{ steps.kubeconfig.outputs.filePath }}
+      - if: ${{ github.event.inputs.helmRepoNamespace != '' && github.event.inputs.helmRepoName != '' }}
+        name: Sync Helm Repository
         run: |
-          flux --namespace ${{ github.event.inputs.repoNamespace }} reconcile \
-            source helm ${{ github.event.inputs.repoName }}
+          flux --namespace ${{ github.event.inputs.helmRepoNamespace }} \
+              reconcile source helm ${{ github.event.inputs.helmRepoName }} || true

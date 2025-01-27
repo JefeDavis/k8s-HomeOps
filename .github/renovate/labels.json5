@@ -18,20 +18,12 @@
       "labels": ["type/digest"]
     },
     {
-      "matchDatasources": ["helm"],
-      "addLabels": ["renovate/helm"]
-    },
-    {
       "matchDatasources": ["docker"],
       "addLabels": ["renovate/container"]
     },
     {
-      "matchDatasources": ["galaxy", "galaxy-collection"],
-      "addLabels": ["renovate/ansible"]
-    },
-    {
-      "matchDatasources": ["terraform-provider"],
-      "addLabels": ["renovate/terraform"]
+      "matchDatasources": ["helm"],
+      "addLabels": ["renovate/helm"]
     },
     {
       "matchDatasources": ["github-releases", "github-tags"],

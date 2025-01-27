@@ -1,13 +1,21 @@
 ---
+# Areas
+area/docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**/*"
+          - "README.md"
 area/github:
   - changed-files:
-      - any-glob-to-any-file: .github/**/*
+      - any-glob-to-any-file: ".github/**/*"
 area/kubernetes:
   - changed-files:
-      - any-glob-to-any-file: kubernetes/**/*
-area/talos:
+      - any-glob-to-any-file: "kubernetes/**/*"
+area/infrastructure:
   - changed-files:
-      - any-glob-to-any-file: talos/**/*
-area/terraform:
+      - any-glob-to-any-file: "infrastructure/**/*"
+area/taskfile:
   - changed-files:
-      - any-glob-to-any-file: terraform/**/*
+      - any-glob-to-any-file:
+          - ".taskfiles/**/*"
+          - "Taskfile.yaml"
