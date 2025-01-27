@@ -20,38 +20,6 @@ spec:
         type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          setup:
-            image:
-              repository: ghcr.io/dmfrey/bash
-              tag: 5.2.26-alpine3.20
-            command:
-              - "/usr/local/bin/bash"
-              - -c
-              - |
-                envsubst < /tmp/config-template/settings.json > /tmp/settings-resolved.json
-                if ! [ -f /app/config/settings.json ]
-                then
-                  cp /tmp/settings-resolved.json /app/config/settings.json
-                fi
-            env:
-              - name: ORGANIZATION
-                value: ${ORGANIZATION}
-              - name: EXTERNAL_DOMAIN
-                value: ${EXTERNAL_DOMAIN}
-            envFrom:
-              - secretRef:
-                  name: overseerr-secret
-              - secretRef:
-                  name: starr-apps-secret
-              - secretRef:
-                  name: plex-secret
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - ALL
         containers:
           *app :
             image:
@@ -143,7 +111,7 @@ spec:
             name: public-gateway
             namespace: gateway
         hostnames:
-          - overseerr.${EXTERNAL_DOMAIN}
+          - request.${EXTERNAL_DOMAIN}
         rules:
           - backendRefs:
               - kind: Service
