@@ -58,9 +58,11 @@ spec:
               - bazarr
               - --enable-additional-metrics
             env:
-              URL: "http://localhost"
-              PORT: &metricsPort 9710
-              APIKEY:
+              - name: URL
+                value: "http://localhost:6767"
+              - name: PORT
+                value: &metricsPort 9710
+              - name: APIKEY
                 valueFrom:
                   secretKeyRef:
                     name: starr-apps-secret
