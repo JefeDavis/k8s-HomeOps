@@ -24,7 +24,7 @@ spec:
           app:
             image:
               repository: ghcr.io/mealie-recipes/mealie
-              tag: v2.4.1@sha256:efd4001597fbcea58aa1e2ff54f5e5b5f8fe6237df6862a2e4576dcb5ff0d24e
+              tag: v2.5.0@sha256:0a9839f19e74d5c4a818161a5850b16d9608b240381691c317d3c23cd62e0c0f
             env:
               TZ: ${TIMEZONE}
               BASE_URL: https://cookbook.${INTERNAL_DOMAIN}
