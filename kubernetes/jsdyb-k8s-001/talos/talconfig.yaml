@@ -3,7 +3,7 @@
 clusterName: ${CLUSTER}
 
 # renovate: depName=ghcr.io/siderolabs/installer datasource=docker extractVersion=^(?<version>.*)$
-talosVersion: v1.9.1
+talosVersion: v1.9.2
 # renovate: depName=ghcr.io/siderolabs/kubelet datasource=docker
 kubernetesVersion: v1.32.0
 
