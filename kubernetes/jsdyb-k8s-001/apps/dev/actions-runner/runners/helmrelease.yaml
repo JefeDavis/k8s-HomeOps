@@ -38,7 +38,7 @@ spec:
       spec:
         containers:
           - name: runner
-            image: ghcr.io/onedr0p/actions-runner:2.321.0
+            image: ghcr.io/onedr0p/actions-runner:2.322.0
             command: ["/home/runner/run.sh"]
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
@@ -80,5 +80,5 @@ spec:
       spec:
         containers:
           - name: runner
-            image: ghcr.io/onedr0p/actions-runner:2.321.0
+            image: ghcr.io/onedr0p/actions-runner:2.322.0
             command: ["/home/runner/run.sh"]
