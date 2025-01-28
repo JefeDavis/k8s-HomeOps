@@ -23,7 +23,7 @@ spec:
           *app :
             image:
               repository: ghcr.io/jefedavis/kubernetes-schemas
-              tag: latest@sha256:afb40507bc93dc481d066577ebe0b1004b16ff62f1cdbf960c60a6c2eaf9b32b
+              tag: latest@sha256:1c214ddef9c982143b5a29a51ed13bcadf82a7cb8e349ffc3f3b8957a3bc5dfe
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
