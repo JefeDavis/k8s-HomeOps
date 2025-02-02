@@ -38,6 +38,7 @@ nodes:
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: 88:ae:dd:09:c5:ac
+          driver: igc
         dhcp: true
         vip:
           ip: *talosControlplaneVip
@@ -71,6 +72,7 @@ nodes:
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: 88:ae:dd:09:c9:33
+          driver: igc
         dhcp: true
         vip:
           ip: *talosControlplaneVip
@@ -104,6 +106,7 @@ nodes:
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: 88:ae:dd:07:a7:8c
+          driver: igc
         dhcp: true
         vip:
           ip: *talosControlplaneVip
