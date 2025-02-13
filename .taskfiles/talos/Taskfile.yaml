@@ -110,7 +110,7 @@ tasks:
       - which talosctl test
       - talosctl --nodes {{ .NODE }} get machineconfig
       - talosctl config info
-      - test -f {{ .CLUSTER_DIR }/talos/talconfig.yaml
+      - test -f {{ .CLUSTER_DIR }}/talos/talconfig.yaml
       - test -f "${TALOSCONFIG}"
     requires:
       vars: 
