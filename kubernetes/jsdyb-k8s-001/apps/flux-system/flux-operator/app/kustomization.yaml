@@ -8,5 +8,6 @@ configMapGenerator:
   - name: flux-operator-helm-values
     files:
       - values.yaml=./values.yaml
-    options:
-      disableNameSuffixHash: true
+
+configurations:
+  - ./kustomizeconfig.yaml
