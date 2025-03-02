@@ -25,7 +25,7 @@ spec:
           app:
             image:
               repository: lscr.io/linuxserver/babybuddy
-              tag: 2.7.0@sha256:c335d95e4e801689aac7ea922935f0a1e7279a6052b8234565f520e448886ba2
+              tag: 2.7.1@sha256:d9a40415e215c9cd29bdba236c764e1eafc5e3ac11f50a95a8a48524c541f504
             env:
               - name: TZ
                 value: ${TIMEZONE}
