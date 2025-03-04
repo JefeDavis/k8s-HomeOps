@@ -24,7 +24,7 @@ spec:
           *app :
             image:
               repository: ghcr.io/sct/overseerr
-              tag: develop@sha256:cedb7e82509ff30d06e84a53f9eebedad622c18c2f3ac4293965135d902be1ef
+              tag: develop@sha256:fa8cb17bc162ce5c6d76b1af142dea4b6cd8e6e518ac342af36b42b3dc684d36
             env:
               LOG_LEVEL: info
               PORT: &port 5055
