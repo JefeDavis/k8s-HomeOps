@@ -14,7 +14,7 @@ spec:
         kind: HelmRepository
         name: istio
         namespace: flux-system
-      version: 1.25.0
+      version: 1.25.1
   interval: 30m
   values:
     global:
