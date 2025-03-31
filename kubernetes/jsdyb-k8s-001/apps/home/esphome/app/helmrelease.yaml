@@ -37,7 +37,7 @@ spec:
           main:
             image:
               repository: ghcr.io/esphome/esphome
-              tag: 2025.2.2
+              tag: 2025.3.3
             env:
               - name: ESPHOME_DASHBOARD_USE_PING
                 value: "true"
