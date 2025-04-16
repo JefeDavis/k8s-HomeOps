@@ -1,34 +1,69 @@
 ---
 apiVersion: cilium.io/v2alpha1
-kind: CiliumBGPPeeringPolicy
+kind: CiliumBGPClusterConfig
 metadata:
-  name: bgp-unifi-peering
-  namespace: network
+  name: cilium-bgp
 spec:
   nodeSelector:
     matchLabels:
-      kubernetes.io/os: "linux" # match all Linux nodes, change this to match more granularly if more than 1 PeeringPolicy is to be used throughout cluster
-  virtualRouters:
-    - localASN: 64511
-      exportPodCIDR: false
-      serviceSelector: # this replaces address-pools, instead of defining the range of IPs that can be assigned to LoadBalancer services, now services have to match below selectors for their LB IPs to be announced
+      kubernetes.io/os: "linux" # match all Linux nodes, change this to match more granularly if needed
+  bgpInstances:
+    - name: "64511"
+      localASN: 64511
+      peers:
+        - name: "udm-pro"
+          peerASN: 64510
+          peerAddress: 10.77.0.1
+          peerConfigRef:
+            name: "cilium-peer"
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeerConfig
+metadata:
+  name: cilium-peer
+spec:
+  gracefulRestart:
+    enabled: true
+    restartTimeSeconds: 15
+  families:
+    - afi: ipv4
+      safi: unicast
+      advertisements:
+        matchLabels:
+          advertise: "bgp"
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPAdvertisement
+metadata:
+  name: bgp-advertisements
+  labels:
+    advertise: bgp
+spec:
+  advertisements:
+    - advertisementType: "Service"
+      service:
+        addresses:
+          - LoadBalancerIP
+      selector:
         matchExpressions:
           - {
               key: thisFakeSelector,
               operator: NotIn,
               values: ["will-match-and-announce-all-services"],
             }
-      neighbors:
-        - peerAddress: "10.77.0.1/32" # unlike bgp-config ConfigMap, peerAddress needs to be in CIDR notation
-          peerASN: 64510
-
 ---
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumLoadBalancerIPPool
 metadata:
-  name: ip-pool
+  name: dev-core-lb-ip-pool
 spec:
   blocks:
-    # - cidr: 192.168.77.1/24
-    - start: 10.77.0.21
-    - stop: 10.77.0.90
+    - start: "10.77.0.21"
+      stop: "10.77.0.90"
+  serviceSelector:
+    matchExpressions:
+      - {
+          key: thisFakeSelector,
+          operator: NotIn,
+          values: ["will-match-and-announce-all-services"],
+        }
