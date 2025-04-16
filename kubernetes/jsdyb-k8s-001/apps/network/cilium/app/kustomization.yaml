@@ -5,7 +5,7 @@ kind: Kustomization
 namespace: network
 resources:
   - ./helmrelease.yaml
-  - ./bgppeeringpolicy.yaml
+  - ./bgpconfig.yaml
   - ./httproute-hubble.yaml
 
 configMapGenerator:
