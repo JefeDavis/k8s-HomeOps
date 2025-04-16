@@ -117,3 +117,8 @@ spec:
 
       tmp:
         type: emptyDir
+
+      nltkdata:
+        type: emptyDir
+        globalMounts:
+          - path: /nltk_data
