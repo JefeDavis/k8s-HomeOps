@@ -29,4 +29,6 @@ metadata:
   name: ip-pool
 spec:
   blocks:
-    - cidr: 192.168.77.1/24
+    # - cidr: 192.168.77.1/24
+    - start: 10.77.0.21
+    - stop: 10.77.0.90
