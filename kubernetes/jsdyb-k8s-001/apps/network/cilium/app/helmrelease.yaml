@@ -22,8 +22,8 @@ spec:
 
   values:
     gatewayAPI:
-      enabled: true
-      enableAppProtocol: true
+      enabled: false
+      enableAppProtocol: false
 
     hubble:
       enabled: true

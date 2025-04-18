@@ -49,7 +49,7 @@ hubble:
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 
-l7Proxy: true
+l7Proxy: false
 
 loadBalancer:
   algorithm: maglev
