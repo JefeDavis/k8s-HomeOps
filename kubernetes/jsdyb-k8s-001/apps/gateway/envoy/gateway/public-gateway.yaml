@@ -2,11 +2,14 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: public-gateway-envoy
+  name: public-gateway
   labels:
     networking.kubernetes.io/public-gateway: "true"
 spec:
   gatewayClassName: envoy
+  addresses:
+    - type: IPAddress
+      value: ${SVC_PUBLIC_GATEWAY_ADDR}
   listeners:
     - name: external-https
       protocol: HTTPS

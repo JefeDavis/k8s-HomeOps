@@ -2,9 +2,12 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: private-gateway-envoy
+  name: private-gateway
 spec:
   gatewayClassName: envoy
+  addresses:
+    - type: IPAddress
+      value: ${SVC_PRIVATE_GATEWAY_ADDR}
   listeners:
     - name: internal-http
       protocol: HTTP

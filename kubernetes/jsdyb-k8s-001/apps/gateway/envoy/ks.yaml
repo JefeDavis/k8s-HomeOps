@@ -21,7 +21,6 @@ spec:
   dependsOn:
     - name: cilium
     - name: gateway-api-crds
-    - name: cert-manager-issuers
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
