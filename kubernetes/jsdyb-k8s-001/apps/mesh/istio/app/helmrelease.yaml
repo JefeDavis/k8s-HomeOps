@@ -18,8 +18,8 @@ spec:
   interval: 30m
   values:
     global:
-      istioNamespace: gateway
+      istioNamespace: mesh
     base:
-      istioNamespace: gateway
+      istioNamespace: mesh
     ztunnel:
-      istioNamespace: gateway
+      istioNamespace: mesh

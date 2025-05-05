@@ -5,4 +5,3 @@ metadata:
   name: policy
   labels:
     kustomize.toolkit.fluxcd.io/prune: disabled
-    istio.io/dataplane-mode: ambient

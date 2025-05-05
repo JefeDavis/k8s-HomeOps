@@ -5,12 +5,9 @@ metadata:
   name: https-redirect
 spec:
   parentRefs:
-    - name: internal-gateway-envoy
+    - name: internal-gateway
       namespace: gateway
-      sectionName: http
-    - name: external-gateway-envoy
-      namespace: gateway
-      sectionName: http
+      sectionName: internal-http
   rules:
     - filters:
         - requestRedirect:
