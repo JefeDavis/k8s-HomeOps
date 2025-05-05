@@ -5,9 +5,9 @@ metadata:
   name: private-gateway
 spec:
   gatewayClassName: envoy
-  addresses:
-    - type: IPAddress
-      value: ${SVC_PRIVATE_GATEWAY_ADDR}
+  infrastructure:
+    annotations:
+      lbipam.cilium.io/ips: ${SVC_PRIVATE_GATEWAY_ADDR}
   listeners:
     - name: internal-http
       protocol: HTTP
