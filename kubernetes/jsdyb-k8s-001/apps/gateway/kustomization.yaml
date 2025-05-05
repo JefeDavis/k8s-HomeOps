@@ -8,3 +8,4 @@ resources:
   # Flux-Kustomizations
   - ./gateway-api/ks.yaml
   - ./istio/ks.yaml
+  - ./envoy/ks.yaml
