@@ -18,7 +18,7 @@ jobs:
         uses: fluxcd/flux2/action@8d5f40dca5aa5d3c0fc3414457dda15a0ac92fa4 # v2.5.1
 
       - name: Setup Kube Tools
-        uses: yokawasa/action-setup-kube-tools@ebd6f098e4d66281876e21f576a024a3b97ed968 # v0.13.0
+        uses: yokawasa/action-setup-kube-tools@3e3886c11bfa25fe33f8eb90f59542dd151da442 # v0.13.1
         with:
           setup-tools: |
             kubectl
