@@ -16,6 +16,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: k8s-homeops
+    namespace: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m
@@ -30,6 +31,8 @@ spec:
         name: flux-volsync-secret
   decryption:
     provider: sops
+    secretRef:
+      name: sops-age
   dependsOn:
     - name: rook-ceph-cluster
       namespace: rook-ceph

@@ -7,5 +7,5 @@ resources:
   - ./namespace.yaml
   # Flux-Kustomizations
   - ./intel-device-plugins/ks.yaml
-  - ./generic-device-plugin/ks.yaml
+  # - ./generic-device-plugin/ks.yaml
   # - ./system-upgrade-controller/ks.yaml

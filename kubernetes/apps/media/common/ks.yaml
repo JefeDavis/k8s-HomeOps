@@ -37,7 +37,7 @@ spec:
   decryption:
     provider: sops
     secretRef:
-      name: flux-gcp-kms-secret
+      name: sops-age
   dependsOn:
     - name: kubernetes-replicator
       namespace: system
