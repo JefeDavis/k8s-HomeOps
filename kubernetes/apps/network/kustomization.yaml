@@ -6,13 +6,10 @@ resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
   # Flux-Kustomizations
-  - ./cilium/ks.yaml
-  - ./blocky/ks.yaml
-  - ./dynamic-dns/ks.yaml
-  - ./external-dns/ks.yaml
-  - ./pod-gateway/ks.yaml
-  - ./smtp-relay/ks.yaml
-  - ./tetragon/ks.yaml
-  - ./multus/ks.yaml
+  # - ./blocky/ks.yaml
+  # - ./dynamic-dns/ks.yaml
+  # - ./external-dns/ks.yaml
+  # - ./pod-gateway/ks.yaml
+  # - ./smtp-relay/ks.yaml
+  # - ./multus/ks.yaml
   - ./external-services/ks.yaml
-
