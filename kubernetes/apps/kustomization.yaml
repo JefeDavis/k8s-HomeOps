@@ -6,3 +6,4 @@ resources:
   - ./media/
   - ./network/
   - ./gpu-system/
+  - ./gateway/

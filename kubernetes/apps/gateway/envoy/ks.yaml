@@ -3,8 +3,8 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: envoy-gateways
-  namespace: gateway-system
+  name: public-gateway
+  namespace: gateway
 spec:
   targetNamespace: gateway
   interval: 10m
@@ -13,6 +13,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: k8s-homeops
+    namespace: flux-system
   decryption:
     provider: sops
   wait: true
@@ -21,4 +22,4 @@ spec:
   dependsOn:
     - name: envoy
       namespace: gateway-system
-    - name: cert-manager-issuers
+    - name: gateway-cert-issuers

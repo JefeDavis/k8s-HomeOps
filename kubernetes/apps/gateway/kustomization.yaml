@@ -6,4 +6,7 @@ resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
   # Flux-Kustomizations
+  - ./certs/ks.yaml
+  - ./dynamic-dns/ks.yaml
+  - ./external-dns/ks.yaml
   - ./envoy/ks.yaml
