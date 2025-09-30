@@ -22,7 +22,7 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: media-common
-  namespace: flux-system
+  namespace: media
 spec:
   interval: 10m
   path: "./kubernetes/apps/media/common/resource"
