@@ -19,7 +19,7 @@ spec:
           from: Selector
           selector:
             matchLabels:
-              gateway.kubernetes.io/shared-gateway-access: "true"
+              gateway.networking.k8s.io/shared-gateway-access: "true"
       tls:
         certificateRefs:
           - kind: Secret
