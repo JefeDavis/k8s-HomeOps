@@ -3,22 +3,13 @@
 clusterName: ${CLUSTER}
 
 # renovate: depName=ghcr.io/siderolabs/installer datasource=docker extractVersion=^(?<version>.*)$
-talosVersion: v1.9.2
+talosVersion: v1.10.6
 # renovate: depName=ghcr.io/siderolabs/kubelet datasource=docker
 kubernetesVersion: v1.32.0
 
 endpoint: "https://${CLUSTER}.${INTERNAL_DOMAIN}:6443"
 
-allowSchedulingOnMasters: true
 allowSchedulingOnControlPlanes: true
-
-clusterPodNets:
-  - 172.22.0.0/16
-clusterSvcNets:
-  - 172.23.0.0/16
-
-cniConfig:
-  name: none
 
 additionalApiServerCertSans: &sans
   - &talosControlplaneVip ${CLUSTER_ENDPOINT_IP}
@@ -48,12 +39,9 @@ nodes:
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
-    nodeLabels: 
+    nodeLabels:
       topology.kubernetes.io/region: jsdyb
       topology.kubernetes.io/zone: jsdyb-u
-      # Needed because Labels are limited to 63 Characters
-      factory.talos.dev/schematic-prefix: 18658a59d33fe7e5006c2695b33ea9bd
-      factory.talos.dev/schematic-suffix: 20e95d4554729529c63ad705872441b6
     extensionServices:
       - name: nut-client
         configFiles:
@@ -82,12 +70,9 @@ nodes:
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
-    nodeLabels: 
+    nodeLabels:
       topology.kubernetes.io/region: jsdyb
       topology.kubernetes.io/zone: jsdyb-u
-      # Needed because Labels are limited to 63 Characters
-      factory.talos.dev/schematic-prefix: 18658a59d33fe7e5006c2695b33ea9bd
-      factory.talos.dev/schematic-suffix: 20e95d4554729529c63ad705872441b6
     extensionServices:
       - name: nut-client
         configFiles:
@@ -116,12 +101,9 @@ nodes:
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
-    nodeLabels: 
+    nodeLabels:
       topology.kubernetes.io/region: jsdyb
       topology.kubernetes.io/zone: jsdyb-u
-      # Needed because Labels are limited to 63 Characters
-      factory.talos.dev/schematic-prefix: 18658a59d33fe7e5006c2695b33ea9bd
-      factory.talos.dev/schematic-suffix: 20e95d4554729529c63ad705872441b6
     extensionServices:
       - name: nut-client
         configFiles:
@@ -142,20 +124,96 @@ controlPlane:
           - siderolabs/nut-client
 
   patches:
-    # Configure containerd
+    # cluster patches
+    - |-
+      machine:
+        features:
+          apidCheckExtKeyUsage: true
+          diskQuotaSupport: true
+          hostDNS:
+            enabled: true
+            resolveMemberNames: true
+          rbac: true
+          stableHostname: true
+        kubelet:
+          extraArgs:
+            rotate-server-certificates: "true"
+          extraConfig:
+            maxPods: 250
+          nodeIP:
+            validSubnets:
+              - 10.77.0.0/24
+        sysctls:
+          fs.inotify.max_user_instances: "8192"
+          fs.inotify.max_user_watches: "1048576"
+
+    # Core DNS
+    - |-
+      cluster:
+        coreDNS:
+          disabled: true
+      machine:
+        kubelet:
+          clusterDNS:
+            - 10.96.0.10
+
+    # Spegel Config
     - |-
       machine:
         files:
-          - op: create
-            path: /etc/cri/conf.d/20-customization.part
-            content: |-
+          - path: /etc/cri/conf.d/20-customization.part
+            op: create
+            content: |
+              [plugins."io.containerd.cri.v1.images"]
+                discard_unpacked_layers = false
               [plugins."io.containerd.grpc.v1.cri"]
                 enable_unprivileged_ports = true
                 enable_unprivileged_icmp = true
-              [plugins."io.containerd.grpc.v1.cri".containerd]
-                discard_unpacked_layers = false
-              [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-                discard_unpacked_layers = false
+
+    # Cilium Config
+    - |-
+      cluster:
+        network:
+          cni:
+            name: none
+        proxy:
+          disabled: true
+      machine:
+        features:
+          hostDNS:
+            forwardKubeDNSToHost: false
+
+    # addmission control
+    - |-
+      cluster:
+        apiServer:
+          admissionControl:
+            - configuration:
+                exemptions:
+                  namespaces:
+                    - rook-ceph
+                    - system
+                    - spegel-system
+              name: PodSecurity
+          auditPolicy:
+            apiVersion: audit.k8s.io/v1
+            kind: Policy
+            rules:
+              - level: Metadata
+          disablePodSecurityPolicy: true
+
+    # metrics config
+    - |-
+      cluster:
+        controllerManager:
+          extraArgs:
+            bind-address: 0.0.0.0
+        scheduler:
+          extraArgs:
+            bind-address: 0.0.0.0
+        etcd:
+          extraArgs:
+            listen-metrics-urls: http://0.0.0.0:2381
 
     # Disable search domain everywhere
     - |-
@@ -178,51 +236,9 @@ controlPlane:
           servers:
             - ${NTP_SERVER}
 
-    # Enable cluster discovery
-    - |-
-      cluster:
-        discovery:
-          registries:
-            kubernetes:
-              disabled: true
-            service:
-              disabled: false
-
-    # Disable Host DNS
-    - |-
-      machine:
-        features:
-          hostDNS:
-            enabled: true
-            resolveMemberNames: true
-            forwardKubeDNSToHost: false
-
-    # Configure kubelet
-    - |-
-      machine:
-        kubelet:
-          extraArgs:
-            rotate-server-certificates: true
-          extraConfig:
-            maxPods: 250
-          nodeIP:
-            validSubnets:
-              - 10.77.0.0/24
-
-    # Enable KubePrism
-    - |-
-      machine:
-        features:
-          kubePrism:
-            enabled: true
-            port: 7445
-
     # Cluster configuration
     - |-
       cluster:
-        allowSchedulingOnMasters: true
-        proxy:
-          disabled: true
         scheduler:
           config:
             apiVersion: kubescheduler.config.k8s.io/v1
@@ -256,25 +272,6 @@ controlPlane:
             - ip: ${CLUSTER_ENDPOINT_IP}
               aliases:
                 - ${EXTERNAL_CLUSTER_NAME}.${EXTERNAL_DOMAIN}
-
-     # Configure custom sysctls
-    - |-
-      machine:
-        sysctls:
-          fs.inotify.max_user_instances: 8192    # Watchdog
-          fs.inotify.max_user_watches: 1048576   # Watchdog
-
-    # Various udev rules
-    - |-
-      machine:
-        udev:
-          rules:
-            - KERNEL=="ttyUSB[0-9]", GROUP="20", MODE="0660"
-
-    # Disable default API server admission plugins.
-    - |-
-      - op: remove
-        path: /cluster/apiServer/admissionControl
 
     # Enable K8s Talos API Access
     - |-

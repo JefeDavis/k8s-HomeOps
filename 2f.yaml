@@ -1,0 +1,21 @@
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: JobExperience
+metadata:
+  labels:
+    kustomize.toolkit.fluxcd.io/name: resume-cv
+    kustomize.toolkit.fluxcd.io/namespace: flux-system
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/employer: secondfront
+  name: 2f-jobs
+  namespace: resume
+  resourceVersion: "31499208"
+  uid: 8204ec89-6596-429f-8d9b-5f72ac92f54e
+spec:
+  endDate: Present
+  employer: Second Front Systems
+  startDate: "2023-11-01T00:00:00Z"
+  location: Remote
+  positions:
+    - endDate: Present
+      startDate: "2023-11-01T00:00:00Z"
+      title: Senior Staff Platform Engineer

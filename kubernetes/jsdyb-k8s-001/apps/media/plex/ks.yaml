@@ -4,14 +4,14 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: plex
-  namespace: flux-system
+  namespace: media
 spec:
   targetNamespace: media
   commonMetadata:
     labels:
       app.kubernetes.io/name: &app plex
       app.kubernetes.io/instance: *app
-  path: "./kubernetes/${CLUSTER}/apps/media/plex/app"
+  path: "./kubernetes/${CLUSTER_NAME}/apps/media/plex/app"
   prune: true
   sourceRef:
     kind: GitRepository
@@ -32,5 +32,8 @@ spec:
     provider: sops
   dependsOn:
     - name: rook-ceph-cluster
+      namespace: rook-ceph
     - name: media-common-mounts
+      namespace: media
     - name: volsync
+      namespace: volsync-system

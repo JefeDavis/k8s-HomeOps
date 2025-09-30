@@ -7,7 +7,5 @@ resources:
   - ./external-certificate.yaml
   - ./internal-certificate.yaml
   - ./professional-certificate.yaml
-  - ./gatewayclass.yaml
   - ./private-gateway.yaml
   - ./public-gateway.yaml
-  - ./httproute.yaml

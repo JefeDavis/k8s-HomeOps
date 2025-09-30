@@ -1,15 +1,15 @@
 ---
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
-version: '3'
+version: "3"
 
 vars:
-  BOOTSTRAP_RESOURCES_DIR: '{{ .ROOT_DIR }}/.taskfiles/bootstrap/resources'
+  BOOTSTRAP_RESOURCES_DIR: "{{ .ROOT_DIR }}/.taskfiles/bootstrap/resources"
 
 tasks:
   all:
     desc: Bootstrap everything
     requires:
-      vars: 
+      vars:
         - CLUSTER
         - CLUSTER_DIR
     cmds:
@@ -22,13 +22,13 @@ tasks:
     desc: Bootstrap SOPS with age [CLUSTER={{ .CLUSTER }}]
     prompt: Are you sure you want to generate a new AGE key and talos secret?
     requires:
-      vars: 
+      vars:
         - CLUSTER
         - CLUSTER_DIR
     cmds:
       - task: :sops:generate-age-key
       - task: :talos:_generate-secrets
-  
+
   talos:
     desc: Bootstrap Talos [CLUSTER={{ .CLUSTER }}]
     preconditions:
@@ -36,7 +36,7 @@ tasks:
       - talosctl config info
       - test -f "${TALOSCONFIG}"
     requires:
-      vars: 
+      vars:
         - CLUSTER
         - CLUSTER_DIR
     cmds:
@@ -46,33 +46,6 @@ tasks:
           INSECURE: true
       - task: :talos:_bootstrap
       - task: :talos:kubeconfig
-
-  regcred:
-    desc: Bootstrap regcred [CLUSTER={{ .CLUSTER }}]
-    preconditions:
-      - which kubectl
-    requires:
-      vars:
-        - IMAGE_REGISTRY
-        - IMAGE_REGISTRY_USER
-        - IMAGE_REGISTRY_PASS
-        - CLUSTER
-        - CLUSTER_DIR
-    vars:
-      namespaces:
-        - kube-system
-        - flux-system
-        - system
-    cmds:
-      - until kubectl get nodes; do sleep 5; done
-      - for:
-          var: namespaces
-        cmd: kubectl get ns {{ .ITEM }} || kubectl create ns {{ .ITEM }}
-        
-      - for:
-          var: namespaces
-        cmd: kubectl create secret docker-registry 2f-regcred --docker-username=${IMAGE_REGISTRY_USER} --docker-password=${IMAGE_REGISTRY_PASS} --docker-server=${IMAGE_REGISTRY} --dry-run=client -oyaml | kubectl apply --force -n {{ .ITEM }} -f -
-      - cmd: kubectl annotate -n kube-system secret 2f-regcred replicator.v1.mittwald.de/replicate-to=".*" || true
 
   secrets:
     desc: Bootstrap Secrets [CLUSTER={{ .CLUSTER }}]
@@ -84,7 +57,7 @@ tasks:
         - CLUSTER_DIR
     cmds:
       - until kubectl get nodes; do sleep 5; done
-      # - task: regcred
+      - task: regcred
       # - task: git-auth
       - task: :sops:deploy-gcp-kms-key
       - task: cluster-settings
@@ -108,7 +81,7 @@ tasks:
       - helmfile --quiet --file {{ .CLUSTER_DIR }}/bootstrap/apps/helmfile.yaml apply --skip-diff-on-install --suppress-diff
       - until kubectl wait nodes --for=condition=Ready --all --timeout=10m; do sleep 5; done
       - helmfile --quiet --file {{ .CLUSTER_DIR }}/bootstrap/apps/helmfile.yaml destroy --selector name=wipe-rook
-  
+
   git-auth:
     desc: Bootstrap Git Auth Secret [CLUSTER={{ .CLUSTER }}]
     preconditions:
@@ -142,3 +115,148 @@ tasks:
       - kubectl get ns flux-system || kubectl create ns flux-system
       - sops -d {{ .CLUSTER_DIR }}/flux/settings/secret-cluster-secrets.sops.yaml | kubectl apply --server-side --force-conflicts -f -
       - flux envsubst < {{ .CLUSTER_DIR }}/flux/settings/configmap-cluster-settings.yaml | kubectl apply --server-side --force-conflicts -f -
+
+  wipe-disk:
+    desc: wipe non os disks for cluster machines [CLUSTER_NAME={{ .CLUSTER_NAME }}]
+    preconditions:
+      - which jq talosctl
+    requires:
+      vars:
+        - TALOSCONFIG
+        - CLUSTER_NAME
+        - CLUSTER_DIR
+    silent: false
+    cmds:
+      - cmd: |
+          for ID in $(k get nodes -oname); do
+            echo "🔍 Processing $ID"
+
+            # Get all disks and collect into array, excluding loop devices
+            # Using jq -s to slurp all JSON objects into an array
+            ALL_DISKS_JSON=$(talosctl -n "$ID" get disks -o json | jq -s '.')
+
+            # Get OS disk from STATE volume status
+            OS_DISKS_JSON=$(talosctl -n "$ID" get volumestatus -o json | jq -s '[.[] | select(.metadata.id == "STATE") | .spec.parentLocation]')
+
+            # Debug: Show raw structure (comment out after debugging)
+            # echo "  🔍 Raw disk structure sample:"
+            # echo "$ALL_DISKS_JSON" | jq '.[0]' | head -20
+
+            # Extract disk paths, filtering out loop devices
+            ALL_DISK_PATHS=$(echo "$ALL_DISKS_JSON" | jq -r '.[] | .spec.dev_path | select(. != null) | select(startswith("/dev/loop") or startswith("/dev/sr") | not)')
+
+            echo "  📀 All non-loop disks:"
+            echo "$ALL_DISK_PATHS"
+
+            echo "  💾 OS disk(s):"
+            echo "$OS_DISKS_JSON" | jq -r '.[]'
+
+            # Convert OS disks to a format we can check against
+            OS_DISK_LIST=$(echo "$OS_DISKS_JSON" | jq -r '.[]')
+
+            # Filter out OS disks from all disks
+            NON_OS_DISKS=""
+            for DISK in $ALL_DISK_PATHS; do
+              IS_OS_DISK=false
+              for OS_DISK in $OS_DISK_LIST; do
+                if [ "$DISK" = "$OS_DISK" ]; then
+                  IS_OS_DISK=true
+                  break
+                fi
+              done
+
+              if [ "$IS_OS_DISK" = false ]; then
+                NON_OS_DISKS="$NON_OS_DISKS$DISK"$'\n'
+              fi
+            done
+
+            # Trim trailing newline
+            NON_OS_DISKS=$(echo "$NON_OS_DISKS" | sed '/^$/d')
+
+            # Process each non-OS disk
+            if [ -z "$NON_OS_DISKS" ]; then
+              echo "  ✅ No non-OS disks found on $ID"
+            else
+              echo "$NON_OS_DISKS" | while IFS= read -r DISK; do
+                echo "  ⚠️  Wiping non-OS disk: $DISK on $ID"
+                # Uncomment the following line to actually wipe the disk
+                talosctl -n "$ID" wipe disk "${DISK##/dev/}"
+              done
+            fi
+
+            echo ""
+          done
+
+  regcred:
+    desc: Bootstrap regcred
+    preconditions:
+      - which kubectl
+    requires:
+      vars:
+        - IMAGE_REGISTRY
+        - IMAGE_REGISTRY_USER
+        - IMAGE_REGISTRY_PASS
+        - KUBECONFIG
+    vars:
+      namespaces:
+        - kube-system
+        - cert-manager
+        - system
+        - flux-system
+        - secrets-system
+        - spegel-system
+    cmds:
+      - until kubectl get nodes; do sleep 5; done
+      - for:
+          var: namespaces
+        cmd: kubectl get ns {{ .ITEM }} || kubectl create ns {{ .ITEM }}
+
+      - for:
+          var: namespaces
+        cmd: kubectl create secret docker-registry private-registry --docker-username=${IMAGE_REGISTRY_USER} --docker-password=${IMAGE_REGISTRY_PASS} --docker-server=${IMAGE_REGISTRY} --dry-run=client -oyaml | kubectl apply --force -n {{ .ITEM }} -f -
+      - cmd: kubectl annotate -n kube-system secret private-registry replicator.v1.mittwald.de/replicate-to=".*" || true
+
+  config:
+    desc: Bootstrap cluster settings
+    preconditions:
+      - which kubectl envsubst
+    requires:
+      vars:
+        - KUBECONFIG
+        - IMAGE_REGISTRY
+        - CLUSTER_NAME
+        - RUNTIME_IMAGE
+        - RUNTIME_VERSION
+        - RUNTIME_FLAVOR
+        - RUNTIME_PROFILE
+        - RUNTIME_SIZE
+        - DOMAIN
+        - VAULT_URL
+    cmds:
+      - cat {{ .ROOT_DIR }}/bootstrap/templates/configmap-cluster-settings.yaml | envsubst | kubectl -n flux-system apply -f -
+
+  vault:
+    desc: Bootstrap vault token
+    preconditions:
+      - which kubectl
+    requires:
+      vars:
+        - VAULT_TOKEN
+        - KUBECONFIG
+    cmds:
+      - until kubectl get nodes; do sleep 5; done
+      - cmd: kubectl create secret -n secrets-system generic vault-token-runtime --from-literal=token=${VAULT_TOKEN} --dry-run=client -oyaml | kubectl apply --force -n secrets-system -f -
+
+  lb-config:
+    desc: Bootstrap LoadBalancer Config
+    preconditions:
+      - which kubectl
+      - test -f {{ .CLUSTER_DIR }}/loadbalancerConfig.yaml
+    requires:
+      vars:
+        - KUBECONFIG
+        - CLUSTER_NAME
+        - CLUSTER_DIR
+    cmds:
+      - until kubectl wait nodes --for=condition=Ready --all --timeout=10m; do sleep 5; done
+      - kubectl apply -f {{ .CLUSTER_DIR }}/loadbalancerConfig.yaml

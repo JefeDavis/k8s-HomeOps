@@ -1,9 +1,0 @@
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: print
-  labels:
-    kustomize.toolkit.fluxcd.io/prune: disabled
-    networking.kubernetes.io/shared-gateway-access: "true"
-    istio.io/dataplane-mode: ambient

@@ -7,9 +7,5 @@ resources:
   - ./namespace.yaml
   # Flux-Kustomizations
   - ./alertmanager/ks.yaml
-  - ./grafana/ks.yaml
   - ./kiali/ks.yaml
-  - ./kube-prometheus-stack/ks.yaml
-  - ./metrics-server/ks.yaml
-  # - ./thanos/ks.yaml
   - ./unpoller/ks.yaml
