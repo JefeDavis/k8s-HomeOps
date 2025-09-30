@@ -2,9 +2,9 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "wildcard-internal"
+  name: "wildcard-private"
 spec:
-  secretName: "wildcard-tls-internal"
+  secretName: "wildcard-tls-private"
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer

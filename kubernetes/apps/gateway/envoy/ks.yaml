@@ -20,4 +20,5 @@ spec:
     substituteFrom: []
   dependsOn:
     - name: envoy
+      namespace: gateway-system
     - name: cert-manager-issuers

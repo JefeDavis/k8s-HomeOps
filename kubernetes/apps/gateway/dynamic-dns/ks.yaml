@@ -3,18 +3,18 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cert-manager-issuers
-  namespace: flux-system
+  name: dynamic-dns
+  namespace: gateway
 spec:
+  targetNamespace: gateway
   interval: 10m
-  path: "./kubernetes/apps/security/cert-manager/issuers"
+  path: "./kubernetes/apps/gateway/dynamic-dns/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: k8s-homeops
+  decryption:
+    provider: sops
   wait: true
   postBuild:
     substituteFrom: []
-  dependsOn:
-    - name: cert-manager
-      namespace: cert-manager

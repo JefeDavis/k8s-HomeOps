@@ -1,9 +1,0 @@
----
-# yaml-language-server: $schema=https://json.schemastore.org/kustomization
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-namespace: security
-resources:
-  - ./secret-cloudflare-api-token.sops.yaml
-  - ./clusterissuer-letsencrypt.yaml
-  - ./clusterissuer-local.yaml

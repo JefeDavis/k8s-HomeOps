@@ -5,7 +5,7 @@ kind: Kustomization
 namespace: network
 resources:
   - ./external-certificate.yaml
-  - ./internal-certificate.yaml
-  - ./professional-certificate.yaml
-  - ./private-gateway.yaml
+  # - ./internal-certificate.yaml
+  # - ./professional-certificate.yaml
+  # - ./private-gateway.yaml
   - ./public-gateway.yaml

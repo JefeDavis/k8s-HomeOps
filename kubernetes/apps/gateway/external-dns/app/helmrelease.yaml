@@ -32,7 +32,7 @@ spec:
     interval: 10s
     policy: sync
     registry: txt
-    txtPrefix: "${CLUSTER}-"
+    txtOwnerId: ${CLUSTER_NAME}
     provider: cloudflare
 
     extraArgs:

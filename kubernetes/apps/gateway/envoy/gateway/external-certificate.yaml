@@ -9,4 +9,6 @@ spec:
     name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
-    - "*.${EXTERNAL_DOMAIN}"
+    - "*.${DOMAIN}"
+    - "*.${INTERNAL_DOMAIN}"
+    - "*.${PROFESSIONAL_DOMAIN}"
