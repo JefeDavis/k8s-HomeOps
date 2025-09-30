@@ -10,7 +10,7 @@ resources:
   # - ./bazarr/ks.yaml
   # - ./music-assistant/ks.yaml
   # - ./overseerr/ks.yaml
-  # - ./plex/ks.yaml
+  - ./plex/ks.yaml
   # - ./recyclarr/ks.yaml
   # - ./radarr/ks.yaml
   # - ./sonarr/ks.yaml
