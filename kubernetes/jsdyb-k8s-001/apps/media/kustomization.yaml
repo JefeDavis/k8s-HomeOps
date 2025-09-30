@@ -7,13 +7,13 @@ resources:
   - ./namespace.yaml
   # # Flux-Kustomizations
   - ./common/ks.yaml
-  - ./bazarr/ks.yaml
-  - ./music-assistant/ks.yaml
-  - ./overseerr/ks.yaml
+  # - ./bazarr/ks.yaml
+  # - ./music-assistant/ks.yaml
+  # - ./overseerr/ks.yaml
   - ./plex/ks.yaml
-  - ./recyclarr/ks.yaml
-  - ./radarr/ks.yaml
-  - ./sonarr/ks.yaml
-  - ./teddy-cloud/ks.yaml
-  - ./tautulli/ks.yaml
-  - ./unpackerr/ks.yaml
+  # - ./recyclarr/ks.yaml
+  # - ./radarr/ks.yaml
+  # - ./sonarr/ks.yaml
+  # - ./teddy-cloud/ks.yaml
+  # - ./tautulli/ks.yaml
+  # - ./unpackerr/ks.yaml
