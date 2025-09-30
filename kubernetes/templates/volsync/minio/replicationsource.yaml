@@ -11,10 +11,10 @@ spec:
   restic:
     copyMethod: Snapshot
     repository: ${APP}-volsync-minio
-    cacheStorageClassName: "${VOLSYNC_CACHE_STORAGECLASS:-ceph-block}"
+    cacheStorageClassName: "${VOLSYNC_CACHE_STORAGECLASS:-metal-block}"
     cacheCapacity: "${VOLSYNC_CACHE_CAPACITY:-4Gi}"
-    storageClassName: "${VOLSYNC_STORAGECLASS:-ceph-block}"
-    volumeSnapshotClassName: "${VOLSYNC_SNAPSHOTCLASS:-csi-ceph-blockpool}"
+    storageClassName: "${VOLSYNC_STORAGECLASS:-metal-block}"
+    volumeSnapshotClassName: "${VOLSYNC_SNAPSHOTCLASS:-metal-block}"
     moverPodLabels:
       vpn.home.arpa/enabled: "false"
     moverSecurityContext:
