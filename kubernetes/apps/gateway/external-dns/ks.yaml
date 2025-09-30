@@ -24,7 +24,7 @@ spec:
     secretRef:
       name: sops-age
   dependsOn:
-    - name: prometheus-stack-crds
+    - name: prometheus-operator-crds
       namespace: observability
     - name: dynamic-dns
       namespace: gateway
