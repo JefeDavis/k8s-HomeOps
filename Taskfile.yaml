@@ -9,7 +9,7 @@ shopt:
 
 vars:
   CLUSTER: '{{.CLUSTER | default "jsdyb-k8s-001"}}'
-  CLUSTER_DIR: "{{.ROOT_DIR}}/kubernetes/{{.CLUSTER}}"
+  CLUSTER_DIR: "{{.ROOT_DIR}}/kubernetes"
 
 env:
   KUBECONFIG: "{{.CLUSTER_DIR}}/kubeconfig"
