@@ -5,4 +5,4 @@ kind: Kustomization
 namespace: security
 resources:
   - ./secret-cloudflare-api-token.sops.yaml
-  - ./clusterissuer-letsencrypt.yaml
+  - ./issuer-letsencrypt.yaml
