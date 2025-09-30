@@ -6,19 +6,10 @@ metadata:
   namespace: system
 spec:
   interval: 30m
-  chart:
-    spec:
-      # renovate: registryUrl=https://intel.github.io/helm-charts
-      chart: intel-device-plugins-operator
-      version: 0.32.0
-      interval: 30m
-      sourceRef:
-        kind: HelmRepository
-        name: intel
-        namespace: flux-system
+  chartRef:
+    kind: OCIRepository
+    name: intel-device-plugins-operator
   install:
     crds: CreateReplace
   upgrade:
     crds: CreateReplace
-
-

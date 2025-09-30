@@ -6,16 +6,9 @@ metadata:
   namespace: system
 spec:
   interval: 30m
-  chart:
-    # renovate: registryUrl=https://intel.github.io/helm-charts
-    spec:
-      chart: intel-device-plugins-gpu
-      version: 0.32.0
-      interval: 30m
-      sourceRef:
-        kind: HelmRepository
-        name: intel
-        namespace: flux-system
+  chartRef:
+    kind: OCIRepository
+    name: intel-device-plugins-gpu
   values:
     name: intel-gpu-plugin
     sharedDevNum: 2
