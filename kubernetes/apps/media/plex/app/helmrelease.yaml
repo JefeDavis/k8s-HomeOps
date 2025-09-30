@@ -131,8 +131,8 @@ spec:
           hajimari.io/url: "https://plex.${DOMAIN}/web"
         parentRefs:
           - kind: Gateway
-            name: public-gateway
-            namespace: gateway
+            name: main-gateway
+            namespace: gateway-system
         hostnames:
           - plex.${DOMAIN}
         rules:
