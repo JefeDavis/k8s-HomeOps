@@ -4,7 +4,7 @@ kind: CronJob
 metadata:
   name: dynamic-dns
   namespace: network
-  annotations: 
+  annotations:
     kustomize.toolkit.fluxcd.io/substitute: disabled
 spec:
   schedule: "@hourly"
@@ -14,19 +14,19 @@ spec:
         spec:
           serviceAccountName: dynamic-dns
           containers:
-          - name: dynamic-dns
-            image: alpine/k8s:1.32.3
-            command:
-            - /bin/sh
-            - -c
-            - |
-              PUBLIC_IP=$(curl --silent ifconfig.me) && cat << EOF > /tmp/configmap.yaml && kubectl apply -f /tmp/configmap.yaml
-              apiVersion: v1
-              kind: ConfigMap
-              metadata:
-                name: dynamic-dns
-                namespace: $(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
-              data:
-                EXTERNAL_DNS_DEFAULT_TARGETS: '${PUBLIC_IP}'
-              EOF
+            - name: dynamic-dns
+              image: alpine/k8s:1.32.3
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  PUBLIC_IP=$(curl --silent ifconfig.me) && cat << EOF > /tmp/configmap.yaml && kubectl apply -f /tmp/configmap.yaml
+                  apiVersion: v1
+                  kind: ConfigMap
+                  metadata:
+                    name: dynamic-dns
+                    namespace: $(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+                  data:
+                    EXTERNAL_DNS_DEFAULT_TARGETS: '${PUBLIC_IP}'
+                  EOF
           restartPolicy: OnFailure
