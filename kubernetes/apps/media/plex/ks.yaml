@@ -11,11 +11,11 @@ spec:
     labels:
       app.kubernetes.io/name: &app plex
       app.kubernetes.io/instance: *app
-  path: "./kubernetes/${CLUSTER_NAME}/apps/media/plex/app"
+  path: "./kubernetes/apps/media/plex/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: k8s-homeops
   wait: true
   interval: 30m
   retryInterval: 1m

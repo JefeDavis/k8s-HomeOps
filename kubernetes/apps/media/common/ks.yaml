@@ -7,7 +7,7 @@ metadata:
   namespace: media
 spec:
   interval: 10m
-  path: "./kubernetes/${CLUSTER_NAME}/apps/media/common/mount"
+  path: "./kubernetes/apps/media/common/mount"
   prune: true
   sourceRef:
     kind: GitRepository
@@ -25,7 +25,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/${CLUSTER_NAME}/apps/media/common/resource"
+  path: "./kubernetes/apps/media/common/resource"
   prune: true
   sourceRef:
     kind: GitRepository
