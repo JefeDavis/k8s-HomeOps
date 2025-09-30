@@ -38,18 +38,18 @@ metadata:
   namespace: network
 spec:
   hostnames:
-  - unifi.${INTERNAL_DOMAIN}
+    - unifi.${INTERNAL_DOMAIN}
   parentRefs:
-  - kind: Gateway
-    name: private-gateway
-    namespace: gateway
+    - kind: Gateway
+      name: main-gateway
+      namespace: gateway-system
   rules:
-  - backendRefs:
-    - kind: Service
-      name: *app
-      port: 443
-      weight: 1
-    matches:
-    - path:
-        type: PathPrefix
-        value: /
+    - backendRefs:
+        - kind: Service
+          name: *app
+          port: 443
+          weight: 1
+      matches:
+        - path:
+            type: PathPrefix
+            value: /

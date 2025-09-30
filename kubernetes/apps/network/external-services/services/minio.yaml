@@ -6,12 +6,12 @@ metadata:
   namespace: network
 subsets:
   - addresses:
-    - ip: ${SYNOLOGY_ADDR}
+      - ip: ${SYNOLOGY_ADDR}
     ports:
-    - name: http
-      port: 9090
-    - name: minio
-      port: 9000
+      - name: http
+        port: 9090
+      - name: minio
+        port: 9000
 ---
 apiVersion: v1
 kind: Service
@@ -19,16 +19,16 @@ metadata:
   name: minio
   namespace: network
 spec:
- ports:
-  - name: http
-    port: 9090
-    protocol: TCP
-    targetPort: 9090
-    appProtocol: https
-  - name: minio
-    port: 9000
-    protocol: TCP
-    targetPort: 9000
+  ports:
+    - name: http
+      port: 9090
+      protocol: TCP
+      targetPort: 9090
+      appProtocol: https
+    - name: minio
+      port: 9000
+      protocol: TCP
+      targetPort: 9000
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -44,18 +44,18 @@ metadata:
   namespace: network
 spec:
   hostnames:
-  - minio.${INTERNAL_DOMAIN}
+    - minio.${INTERNAL_DOMAIN}
   parentRefs:
-  - kind: Gateway
-    name: private-gateway
-    namespace: gateway
+    - kind: Gateway
+      name: main-gateway
+      namespace: gateway-system
   rules:
-  - backendRefs:
-    - kind: Service
-      name: minio
-      port: 9090
-      weight: 1
-    matches:
-    - path:
-        type: PathPrefix
-        value: /
+    - backendRefs:
+        - kind: Service
+          name: minio
+          port: 9090
+          weight: 1
+      matches:
+        - path:
+            type: PathPrefix
+            value: /

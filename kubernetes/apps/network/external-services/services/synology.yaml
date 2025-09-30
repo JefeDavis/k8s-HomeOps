@@ -37,18 +37,18 @@ metadata:
   namespace: network
 spec:
   hostnames:
-  - nas.${INTERNAL_DOMAIN}
+    - nas.${INTERNAL_DOMAIN}
   parentRefs:
-  - kind: Gateway
-    name: private-gateway
-    namespace: gateway
+    - kind: Gateway
+      name: main-gateway
+      namespace: gateway-system
   rules:
-  - backendRefs:
-    - kind: Service
-      name: *app
-      port: 5000
-      weight: 1
-    matches:
-    - path:
-        type: PathPrefix
-        value: /
+    - backendRefs:
+        - kind: Service
+          name: *app
+          port: 5000
+          weight: 1
+      matches:
+        - path:
+            type: PathPrefix
+            value: /

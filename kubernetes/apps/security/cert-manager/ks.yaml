@@ -3,30 +3,11 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cert-manager
-  namespace: flux-system
-spec:
-  interval: 10m
-  path: "./kubernetes/${CLUSTER}/apps/security/cert-manager/app"
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  wait: true
-  postBuild:
-    substituteFrom: []
-  dependsOn:
-    - name: kube-prometheus-stack-crds
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
   name: cert-manager-issuers
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/${CLUSTER}/apps/security/cert-manager/issuers"
+  path: "./kubernetes/apps/security/cert-manager/issuers"
   prune: true
   sourceRef:
     kind: GitRepository
@@ -36,3 +17,4 @@ spec:
     substituteFrom: []
   dependsOn:
     - name: cert-manager
+      namespace: cert-manager
