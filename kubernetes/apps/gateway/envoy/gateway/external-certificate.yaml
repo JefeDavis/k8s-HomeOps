@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: "wildcard-tls-external"
   issuerRef:
-    name: letsencrypt-staging
+    name: letsencrypt-prod
     kind: Issuer
   dnsNames:
     - "*.${DOMAIN}"
