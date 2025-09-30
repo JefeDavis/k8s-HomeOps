@@ -15,6 +15,10 @@ spec:
     name: k8s-homeops
     namespace: flux-system
   wait: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   postBuild:
     substituteFrom:
       - kind: Secret

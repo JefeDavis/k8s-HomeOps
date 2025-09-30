@@ -6,16 +6,9 @@ metadata:
   namespace: network
 spec:
   interval: 30m
-  chart:
-    spec:
-      # renovate: registryUrl=https://kubernetes-sigs.github.io/external-dns/
-      chart: external-dns
-      version: 1.16.1
-      sourceRef:
-        kind: HelmRepository
-        name: kubernetes-sigs-external-dns
-        namespace: flux-system
-      interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: external-dns
   values:
     fullnameOverride: *app
 
@@ -60,6 +53,6 @@ spec:
                 path: /spec/template/spec/containers/0/envFrom
                 value:
                   - secretRef:
-                      name: external-dns-secret
+                      name: cloudflare-api-token-secret
                   - configMapRef:
                       name: dynamic-dns
