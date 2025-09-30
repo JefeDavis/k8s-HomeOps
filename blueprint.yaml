@@ -28,4 +28,4 @@ spec:
     name: k8s-homeops
     namespace: flux-system
   timeout: 5m
-  wait: true
+  wait: false

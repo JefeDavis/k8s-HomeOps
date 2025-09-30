@@ -36,6 +36,8 @@ spec:
     substituteFrom: []
   decryption:
     provider: sops
+    secretRef:
+      name: flux-gcp-kms-secret
   dependsOn:
     - name: kubernetes-replicator
       namespace: system
