@@ -7,3 +7,4 @@ resources:
   - ./network/
   - ./gpu-system/
   - ./gateway/
+  - ./resume/
