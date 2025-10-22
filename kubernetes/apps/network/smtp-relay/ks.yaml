@@ -28,5 +28,5 @@ spec:
   postBuild:
     substituteFrom: []
   dependsOn:
-    - name: kube-prometheus-stack-crds
+    - name: prometheus-operator-crds
       namespace: observability
