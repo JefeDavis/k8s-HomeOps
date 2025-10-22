@@ -20,7 +20,7 @@ spec:
           *app :
             image:
               repository: vaultwarden/server
-              tag: 1.33.2
+              tag: 1.34.3
             env:
               TZ: ${TIMEZONE}
               DATA_FOLDER: "data"
