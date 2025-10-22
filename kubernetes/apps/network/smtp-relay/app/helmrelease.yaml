@@ -9,7 +9,7 @@ spec:
   chartRef:
     kind: OCIRepository
     name: smtp-relay
-    namespace: smtp-relay
+    namespace: network
   values:
     controllers:
       *app :
