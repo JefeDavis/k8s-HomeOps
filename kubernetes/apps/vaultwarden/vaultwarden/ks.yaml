@@ -10,11 +10,12 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/part-of: vaultwarden
-  path: "./kubernetes/${CLUSTER}/apps/security/vaultwarden/database"
+  path: "./kubernetes/apps/vaultwarden/vaultwarden/database"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: k8s-homeops
+    namespace: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m
@@ -23,9 +24,14 @@ spec:
     substituteFrom: []
   decryption:
     provider: sops
+    secretRef:
+      name: sops-age
   dependsOn:
     - name: cloudnative-pg
+      namespace: cnpg-system
     - name: rook-ceph-cluster
+      namespace: rook-ceph
+
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -34,16 +40,17 @@ metadata:
   name: vaultwarden
   namespace: flux-system
 spec:
-  targetNamespace: security
+  targetNamespace: vaultwarden
   commonMetadata:
     labels:
       app.kubernetes.io/name: &app vaultwarden
       app.kubernetes.io/instance: *app
-  path: "./kubernetes/${CLUSTER}/apps/security/vaultwarden/app"
+  path: "./kubernetes/apps/vaultwarden/vaultwarden/app"
   prune: true
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: k8s-homeops
+    namespace: flux-system
   wait: true
   interval: 30m
   retryInterval: 1m
@@ -58,7 +65,10 @@ spec:
         name: flux-volsync-secret
   decryption:
     provider: sops
+    secretRef:
+      name: sops-age
   dependsOn:
     - name: vaultwarden-database
-    - name: smtp-relay
+      namespace: vaultwarden
     - name: volsync
+      namespace: volsync-system

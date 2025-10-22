@@ -8,3 +8,4 @@ resources:
   - ./gpu-system/
   - ./gateway/
   - ./resume/
+  - ./vaultwarden/

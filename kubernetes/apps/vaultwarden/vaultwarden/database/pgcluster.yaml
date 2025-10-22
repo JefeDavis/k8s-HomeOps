@@ -24,7 +24,7 @@ spec:
   backup:
     retentionPolicy: 30d
     barmanObjectStore:
-      serverName: pg-vaultwarden-v1
+      serverName: pg-vaultwarden-v2
       wal:
         compression: bzip2
         maxParallel: 8
@@ -38,13 +38,13 @@ spec:
           name: cloudnative-pg-secret
           key: AWS_SECRET_ACCESS_KEY
 
-#  # RECOVERY
+  #  # RECOVERY
   bootstrap:
     recovery:
-      source: &previous-cluster pg-vaultwarden-v0
+      source: &previous-cluster pg-vaultwarden-v1
       database: vaultwarden
       owner: vaultwarden
-#  ## Note: externalClusters is needed when recovering from an existing cnpg cluster
+  #  ## Note: externalClusters is needed when recovering from an existing cnpg cluster
   externalClusters:
     - name: *previous-cluster
       barmanObjectStore:
@@ -60,5 +60,3 @@ spec:
           secretAccessKey:
             name: cloudnative-pg-secret
             key: AWS_SECRET_ACCESS_KEY
-
-
