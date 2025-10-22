@@ -3,24 +3,93 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: pg-vaultwarden
+  annotations:
+    cnpg.io/podPatch: |
+      [
+        {
+          "op": "add",
+          "path": "/spec/automountServiceAccountToken",
+          "value": false
+        },
+        {
+          "op": "add",
+          "path": "/spec/volumes/-",
+          "value": {
+            "name": "serviceaccount-token",
+              "projected": {
+                "defaultMode": 444,
+                "sources": [
+                  {
+                    "serviceAccountToken": {
+                      "expirationSeconds": 3607,
+                      "path": "token"
+                    }
+                  },
+                  {
+                    "configMap": {
+                      "name": "kube-root-ca.crt",
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "downwardAPI": {
+                      "items": [
+                        {
+                          "path": "namespace",
+                          "fieldRef": {
+                            "apiVersion": "v1",
+                            "fieldPath": "metadata.namespace"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "add",
+            "path": "/spec/initContainers/0/volumeMounts/-",
+            "value": {
+              "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+              "name": "serviceaccount-token",
+              "readOnly": true
+            }
+          },
+          {
+            "op": "add",
+            "path": "/spec/containers/0/volumeMounts/-",
+            "value": {
+              "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+              "name": "serviceaccount-token",
+              "readOnly": true
+            }
+          }
+        ]
 spec:
+  inheritedMetadata:
+    labels:
+      app.kubernetes.io/managed-by: cloudnative-pg
+      app.kubernetes.io/part-of: &app vaultwarden
+  imagePullSecrets:
+    - name: private-registry
   instances: 3
-  imageName: ghcr.io/cloudnative-pg/postgresql:15.5-15
-  primaryUpdateStrategy: unsupervised # let k8s handle upgrades
-  primaryUpdateMethod: restart # prefer downtime of image download from registry instead of switching primary instance (promote a standby instance to primary) when current primary pod is updated
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 15
   storage:
     size: 8Gi
-    storageClass: ceph-block
+    storageClass: ${RUNTIME_FLAVOR}-block
   monitoring:
     enablePodMonitor: true
-  # configured according to below link to allow customizing of initdb via Flux
-  # https://cloudnative-pg.io/documentation/1.20/bootstrap/#configure-the-application-database
-  # bootstrap:
-  #   initdb:
-  #     dataChecksums: true
-  #     database: vaultwarden
-  #     owner: vaultwarden
-
   backup:
     retentionPolicy: 30d
     barmanObjectStore:
