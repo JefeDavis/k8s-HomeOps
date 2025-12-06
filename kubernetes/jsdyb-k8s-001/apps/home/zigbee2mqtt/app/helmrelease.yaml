@@ -33,7 +33,7 @@ spec:
           *app :
             image:
               repository: ghcr.io/koenkk/zigbee2mqtt
-              tag: 2.2.1@sha256:5c1f0ca9669292b1bdabc7b6d9927642049bc2c1ee53f42b7299181e93dd7d8f
+              tag: 2.7.1@sha256:163e7351430a95d550d5b1bb958527edc1eff115eb013ca627f3545a192e853f
             env:
               TZ: ${TIMEZONE}
               Z2M_WATCHDOG: default
