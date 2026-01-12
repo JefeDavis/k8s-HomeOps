@@ -12,5 +12,17 @@ spec:
   startDate: 2023-11-01
   endDate: Present
   positions:
+    - title: Senior Staff Platform Engineer
+      highlights:
+        - Architected and delivered an edge compute platform deployment framework, enabling secure, repeatable deployments across air-gapped, edge, and multi-cloud environments, significantly expanding portability and mission readiness.
+        - Designed a centralized platform distribution model, establishing OCI-based packaging, versioning, and GitOps delivery patterns that reduced configuration drift and standardized operations across environments.
+        - Led the organization-wide adoption of Crossplane, defining schemas, compositions, and standards that enabled cloud services to be provisioned directly from application configuration, eliminating separate infrastructure stacks and reducing operational overhead.
+        - Drove a strategic partnership with Chainguard, influencing upstream publishing changes that significantly improved image consumption, security, and operational usability.
+        - Authored comprehensive platform documentation and delivered training across engineering and customer-facing teams, covering platform architecture, application authoring standards, rollout and upgrade strategies, Kubernetes, GitOps, and cloud provisioning, while mentoring engineers in modern platform practices—scaling organizational knowledge, improving onboarding, and reducing reliance on single-point expertise.
+        - Led mission-critical platform and application deployments for government, defense, and regulated-industry customers under timelines ranging from weeks to days, consistently delivering under extreme operational pressure.
+        - Developed new Infrastructure-as-Code patterns, standardizing/modernizing how platform infrastructure is authored, reviewed, and maintained across cloud environments.
+      startDate: 2024-04-01
     - title: Federal Solutions Architect
       highlights: []
+      startDate: 2023-11-01
+      endDate: 2024-04-01
