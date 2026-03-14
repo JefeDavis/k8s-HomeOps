@@ -13,7 +13,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: emqx
-        namespace: emqx
+        namespace: emqx-operator
   install:
     remediation:
       retries: 3
