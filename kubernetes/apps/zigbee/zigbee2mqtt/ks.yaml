@@ -34,7 +34,7 @@ spec:
         name: flux-volsync-secret
   dependsOn:
     - name: zigbee-emqx-cluster
-      namespace: zigbee-system
+      namespace: zigbee
     - name: volsync
       namespace: volsync-system
 ---
