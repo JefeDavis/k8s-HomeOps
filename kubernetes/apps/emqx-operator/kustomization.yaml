@@ -6,9 +6,4 @@ resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
   # Flux-Kustomizations
-  # - ./baby-buddy/ks.yaml
-  # - ./esphome/ks.yaml
-  # - ./hajimari/ks.yaml
-  # - ./home-assistant/ks.yaml
-  # - ./mealie/ks.yaml
-  # - ./wyoming-services/ks.yaml
+  - ./emqx-operator/ks.yaml

@@ -4,9 +4,11 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./cnpg-system/
+  - ./emqx/
   - ./media/
   - ./network/
   - ./gpu-system/
   - ./gateway/
   - ./resume/
   - ./vaultwarden/
+  - ./zigbee/

@@ -10,21 +10,21 @@ metadata:
     app.kubernetes.io/instance: *app
     app.kubernetes.io/part-of: *app
   name: *app
-  namespace: datastore
+  namespace: zigbee
 spec:
   hostnames:
-  - emqx.${INTERNAL_DOMAIN}
+    - emqx.${INTERNAL_DOMAIN}
   parentRefs:
-  - kind: Gateway
-    name: private-gateway
-    namespace: gateway
+    - kind: Gateway
+      name: main-gateway
+      namespace: gateway-system
   rules:
-  - backendRefs:
-    - kind: Service
-      name: emqx-dashboard
-      port: 18083
-      weight: 1
-    matches:
-    - path:
-        type: PathPrefix
-        value: /
+    - backendRefs:
+        - kind: Service
+          name: emqx-dashboard
+          port: 18083
+          weight: 1
+      matches:
+        - path:
+            type: PathPrefix
+            value: /

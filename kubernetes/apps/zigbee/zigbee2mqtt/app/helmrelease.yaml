@@ -4,7 +4,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: &app zigbee2mqtt
-  namespace: home
+  namespace: zigbee
 spec:
   interval: 30m
   chart:
@@ -61,10 +61,10 @@ spec:
               ZIGBEE2MQTT_CONFIG_MQTT_INCLUDE_DEVICE_INFORMATION: true
               ZIGBEE2MQTT_CONFIG_MQTT_KEEPALIVE: 60
               ZIGBEE2MQTT_CONFIG_MQTT_REJECT_UNAUTHORIZED: true
-              ZIGBEE2MQTT_CONFIG_MQTT_SERVER: mqtt://emqx-listeners.datastore.svc.cluster.local
+              ZIGBEE2MQTT_CONFIG_MQTT_SERVER: mqtt://emqx-listeners.zigbee.svc.cluster.local
               ZIGBEE2MQTT_CONFIG_MQTT_VERSION: 5
-              ZIGBEE2MQTT_CONFIG_DEVICES: 'devices.yaml'
-              ZIGBEE2MQTT_CONFIG_GROUPS: 'groups.yaml'
+              ZIGBEE2MQTT_CONFIG_DEVICES: "devices.yaml"
+              ZIGBEE2MQTT_CONFIG_GROUPS: "groups.yaml"
               ZIGBEE2MQTT_CONFIG_PERMIT_JOIN: false
               ZIGBEE2MQTT_CONFIG_SERIAL_PORT: tcp://${ZIGBEE_COORDINATOR_ADDR}:6638
               ZIGBEE2MQTT_CONFIG_SERIAL_BAUDRATE: 115200
@@ -102,7 +102,7 @@ spec:
                   - ALL
                 add:
                   - NET_BIND_SERVICE
-          
+
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -111,7 +111,7 @@ spec:
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile: { type: RuntimeDefault }
-      
+
     service:
       *app :
         controller: *app
@@ -128,8 +128,8 @@ spec:
           hajimari.io/icon: "simple-icons:zigbee"
         parentRefs:
           - kind: Gateway
-            name: private-gateway
-            namespace: gateway
+            name: main-gateway
+            namespace: gateway-system
         hostnames:
           - zigbee.${INTERNAL_DOMAIN}
         rules:
