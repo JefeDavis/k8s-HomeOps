@@ -4,6 +4,6 @@ kind: Namespace
 metadata:
   name: zigbee
   labels:
+    gateway.networking.k8s.io/shared-gateway-access: "true"
     kustomize.toolkit.fluxcd.io/prune: disabled
-    networking.kubernetes.io/shared-gateway-access: "true"
     istio.io/dataplane-mode: ambient

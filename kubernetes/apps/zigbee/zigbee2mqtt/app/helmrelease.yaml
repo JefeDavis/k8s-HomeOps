@@ -127,7 +127,7 @@ spec:
             name: main-gateway
             namespace: gateway-system
         hostnames:
-          - zigbee.${INTERNAL_DOMAIN}
+          - zigbee.${DOMAIN}
         rules:
           - backendRefs:
               - kind: Service
