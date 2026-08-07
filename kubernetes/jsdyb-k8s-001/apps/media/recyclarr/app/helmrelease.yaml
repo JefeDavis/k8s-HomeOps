@@ -26,7 +26,7 @@ spec:
           *app :
             image:
               repository: ghcr.io/recyclarr/recyclarr
-              tag: edge@sha256:90373441afc04f67dff71e3a2c30a50b7f7f4a1e2046cc3c0f3a6aa1866cb0fc
+              tag: edge@sha256:62c555c07562fa1251773f2fef056cde305e675ff1cf2b919068f2b46163a1df
             command: ["/app/recyclarr/recyclarr"]
             args: 
               - "sync"
