@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: ghcr.io/atuinsh/atuin
-              tag: v18.5.0@sha256:80b3aed8b82ba9974c614cf54071f05424e2b9937172c493079d67d7d647e4b1
+              tag: 18.23.0@sha256:f232feeead54a0a13132b9cd477e312c3380e9dc90f1db24c4f79ce6c8e034ea
             env:
               ATUIN_HOST: 0.0.0.0
               ATUIN_PORT: &port 80
