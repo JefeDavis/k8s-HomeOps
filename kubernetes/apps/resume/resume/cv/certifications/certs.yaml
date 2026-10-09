@@ -2,10 +2,39 @@
 apiVersion: resumes.jefedavis.dev/v1alpha1
 kind: Certification
 metadata:
+  name: golden-kubestronaut
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: Golden Kubestronaut
+  issuer: The Linux Foundation
+  earnedDate: 2026-06-08
+  validationURL: https://www.credly.com/badges/b6a7f45e-3b7f-4e2a-9ec6-4d95acf3ee51
+  imageURL: https://images.credly.com/size/340x340/images/1dba0197-1013-4f23-8918-9479f77172d6/blob
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: cnpe
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: Certified Cloud Native Platform Engineer
+  issuer: The Linux Foundation
+  earnedDate: 2026-06-02
+  alias: cnpe
+  validationURL: https://www.credly.com/badges/3e87619f-2546-453d-96df-65494b5e69d0
+  imageURL: https://images.credly.com/size/340x340/images/93609502-0c3a-4d80-8570-5548e8116ead/blob
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
   name: cks
   labels:
     resume.jefedavis.dev/candidate: jeffdavis
-    resume.jefedavis.dev/vendor: vmware
+    resume.jefedavis.dev/vendor: cncf
 spec:
   title: Certified Kubernetes Security Specialist
   issuer: The Linux Foundation
@@ -20,7 +49,7 @@ metadata:
   name: cka
   labels:
     resume.jefedavis.dev/candidate: jeffdavis
-    resume.jefedavis.dev/vendor: vmware
+    resume.jefedavis.dev/vendor: cncf
 spec:
   title: Certified Kubernetes Administrator
   issuer: The Linux Foundation
@@ -35,7 +64,7 @@ metadata:
   name: ckad
   labels:
     resume.jefedavis.dev/candidate: jeffdavis
-    resume.jefedavis.dev/vendor: vmware
+    resume.jefedavis.dev/vendor: cncf
 spec:
   title: Certified Kubernetes Application Developer
   issuer: The Linux Foundation
@@ -47,10 +76,40 @@ spec:
 apiVersion: resumes.jefedavis.dev/v1alpha1
 kind: Certification
 metadata:
+  name: ica
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: Istio Certified Associate
+  issuer: The Linux Foundation
+  earnedDate: 2026-05-16
+  alias: ica
+  validationURL: https://www.credly.com/badges/80427671-4cae-4536-bc70-3a527a833843
+  imageURL: https://images.credly.com/size/340x340/images/d7d4ddc8-7df8-4c03-9343-507b51e0ef99/image.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: lfcs
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: Linus Foundation Certified Systems Administrator
+  issuer: The Linux Foundation
+  earnedDate: 2026-05-29
+  alias: lfcs
+  validationURL: https://www.credly.com/badges/ced10e46-5c4c-4f66-9b2d-59aac2b98119
+  imageURL: https://images.credly.com/size/340x340/images/1e6611ca-8afe-4ecc-ad4d-305fba52ee7e/1_LFCS-600x600.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
   name: kcsa
   labels:
     resume.jefedavis.dev/candidate: jeffdavis
-    resume.jefedavis.dev/vendor: vmware
+    resume.jefedavis.dev/vendor: cncf
 spec:
   title: Kubernetes and Cloud Native Security Associate
   issuer: The Linux Foundation
@@ -65,7 +124,7 @@ metadata:
   name: kcna
   labels:
     resume.jefedavis.dev/candidate: jeffdavis
-    resume.jefedavis.dev/vendor: vmware
+    resume.jefedavis.dev/vendor: cncf
 spec:
   title: Kubernetes and Cloud Native Associate
   issuer: The Linux Foundation
@@ -77,10 +136,130 @@ spec:
 apiVersion: resumes.jefedavis.dev/v1alpha1
 kind: Certification
 metadata:
+  name: otca
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: OpenTelemetry Certified Associate
+  issuer: The Linux Foundation
+  earnedDate: 2026-05-26
+  alias: otca
+  validationURL: https://www.credly.com/badges/76eca9fb-4917-4904-bdf0-110d0db0a42a
+  imageURL: https://images.credly.com/size/340x340/images/3d3f7131-83a4-4427-8a68-150ca90bcc23/blob
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: cba
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: Certified Backstage Associate
+  issuer: The Linux Foundation
+  earnedDate: 2026-05-23
+  alias: cba
+  validationURL: https://www.credly.com/badges/b2da10a7-ff51-4db6-ac32-14fb918fd467
+  imageURL: https://images.credly.com/size/340x340/images/d84e4fb0-dc7f-4d79-b1eb-a8a973da4965/image.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: pca
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: Prometheus Certified Associate
+  issuer: The Linux Foundation
+  earnedDate: 2026-05-20
+  alias: pca
+  validationURL: https://www.credly.com/badges/765c62a8-cefb-4d19-85b4-59f17205eea6
+  imageURL: https://images.credly.com/size/340x340/images/c34436dc-1cfd-4125-a862-35f9c86ca17f/image.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: capa
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: Certified Argo Project Associate
+  issuer: The Linux Foundation
+  earnedDate: 2026-05-14
+  alias: capa
+  validationURL: https://www.credly.com/badges/02e61aac-7f46-4179-bee0-ed6b72f26493
+  imageURL: https://images.credly.com/size/340x340/images/12624f9e-6b4a-43f0-b7a2-afb2c6cf8059/image.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: kca
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: Kyverno Certified Associate
+  issuer: The Linux Foundation
+  earnedDate: 2026-05-14
+  alias: kca
+  validationURL: https://www.credly.com/badges/dd516eb7-f8f5-4eaa-919b-b1087ddf7fb8
+  imageURL: https://images.credly.com/size/340x340/images/2592935a-d8fa-405d-b40a-711a75454fc2/image.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: cnpa
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: Certified Cloud Native Platform Engineering Associate
+  issuer: The Linux Foundation
+  earnedDate: 2026-05-12
+  alias: cnpa
+  validationURL: https://www.credly.com/badges/9554fd5e-f2e5-45e2-954f-e086ccf36498
+  imageURL: https://images.credly.com/size/340x340/images/bf3fc97e-a12c-4567-86ea-01639b9b15fb/blob
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: cgo
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: Certified Gitops Associate
+  issuer: The Linux Foundation
+  earnedDate: 2026-05-11
+  alias: cgo
+  validationURL: https://www.credly.com/badges/98748861-ddba-4943-8d71-f3cd3b10afef
+  imageURL: https://images.credly.com/size/340x340/images/7219d055-4e97-439c-b244-8fbe885fa06b/image.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
+  name: cca
+  labels:
+    resume.jefedavis.dev/candidate: jeffdavis
+    resume.jefedavis.dev/vendor: cncf
+spec:
+  title: Cilium Certified Associate
+  issuer: The Linux Foundation
+  earnedDate: 2026-05-09
+  alias: cca
+  validationURL: https://www.credly.com/badges/42acf2b2-8aac-4125-b462-87432f2e8f22
+  imageURL: https://images.credly.com/size/340x340/images/729367b3-0344-4b00-a6da-53e1807f808a/image.png
+---
+apiVersion: resumes.jefedavis.dev/v1alpha1
+kind: Certification
+metadata:
   name: vcix6-dcv
   labels:
     resume.jefedavis.dev/candidate: jeffdavis
-    resume.jefedavis.dev/vendor: vmware
+    resume.jefedavis.dev/vendor: cncf
 spec:
   title: VMware Certified Implementation Expert 6 – Data Center Virtualization
   issuer: VMware
@@ -132,4 +311,4 @@ spec:
   earnedDate: 2020-12-18
   alias: VCP-DCV
   validationURL: https://www.credly.com/badges/9a0d11be-1a60-4ca9-9e58-77ed2dedd7d1
-  imageURL: https://images.credly.com/size/680x680/images/6eaada2e-87dc-44ec-96c2-2d8e84ed6796/Vmware_Cert_Prof_DCV20.png 
+  imageURL: https://images.credly.com/size/680x680/images/6eaada2e-87dc-44ec-96c2-2d8e84ed6796/Vmware_Cert_Prof_DCV20.png
