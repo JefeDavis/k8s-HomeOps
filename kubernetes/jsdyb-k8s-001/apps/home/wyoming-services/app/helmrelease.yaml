@@ -109,7 +109,7 @@ spec:
           main:
             image:
               repository: rhasspy/wyoming-openwakeword
-              tag: 1.10.0
+              tag: 2.1.0
             args:
               - --preload-model
               - "ok_nabu"
