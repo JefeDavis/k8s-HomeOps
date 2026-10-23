@@ -29,7 +29,7 @@ spec:
               GITSYNC_ROOT: /config
             image:
               repository: registry.k8s.io/git-sync/git-sync
-              tag: v4.4.0@sha256:0330739a707a2969d617e859f096659ab6d149212658ac0ad7e550b59482ebf0
+              tag: v4.8.0@sha256:a20644562fba94773e594885cb001aadb5a3172175f13ac1215e5b2033c9200e
             restartPolicy: Always
             resources:
               requests:
