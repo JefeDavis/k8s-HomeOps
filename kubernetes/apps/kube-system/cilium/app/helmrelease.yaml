@@ -230,7 +230,14 @@ spec:
         name: kube-system
     ipam:
       mode: kubernetes
-    tunnelProtocol: geneve
+    # Native routing (no overlay). Every node sits on one L2 segment (10.77.0.0/24), so
+    # autoDirectNodeRoutes lets each node install a direct L3 route to every other node's pod CIDR;
+    # this replaces the Geneve tunnel for cross-node pod traffic. BGP here only advertises
+    # LoadBalancer service IPs, not pod CIDRs, so pod egress to the LAN/internet is still
+    # masqueraded to the node IP; ipv4NativeRoutingCIDR keeps pod-to-pod traffic out of masquerade.
+    routingMode: native
+    autoDirectNodeRoutes: true
+    ipv4NativeRoutingCIDR: 172.22.0.0/16
     kubeProxyReplacement: "true"
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
     k8sServiceHost: localhost
@@ -241,17 +248,19 @@ spec:
       enabled: true
     loadBalancer:
       algorithm: maglev
+      mode: dsr
       serviceTopology: true # spegel-registry relies on trafficDistribution: PreferSameNode
     localRedirectPolicies:
       enabled: true
+    enableIPv4BIGTCP: true
+    bpfClockProbe: true
     bpf:
       datapathMode: veth
-      masquerade: false
+      masquerade: true
       preallocateMaps: true
-      hostLegacyRouting: true # needed for istio
     bandwidthManager:
       enabled: true
-      bbr: false
+      bbr: true
     endpointRoutes:
       enabled: true
     cgroup:

@@ -67,6 +67,12 @@ spec:
                           - name: serviceaccount-token
                             mountPath: /var/run/secrets/kubernetes.io/serviceaccount
                             readOnly: true
+                        env:
+                        - name: HOST_PROBE_SNAT_IP
+                          valueFrom:
+                            fieldRef:
+                              apiVersion: v1
+                              fieldPath: status.hostIP
           - target:
               kind: ServiceAccount
             patch: |
