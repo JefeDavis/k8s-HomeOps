@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: flux-kustomize-controller-egress-gcp-kms
+  namespace: flux-system
+spec:
+  description: Allows the flux kustomize controller to reach gcp kms for sops decryption.
+  egress:
+    - toFQDNs:
+        - matchName: cloudkms.googleapis.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/part-of: flux
+      k8s:app.kubernetes.io/component: kustomize-controller

@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: same-namespace
+  namespace: flux-system
+spec:
+  description:
+    "Allows intra-flux-system pod-to-pod traffic: the controller<->notification-controller
+    event bus (:9090) and source-controller serving artifacts to the helm/kustomize
+    controllers. A self-sufficient copy of the same-namespace baseline so flux keeps
+    reconciling in the window before the network-policy baseline lands (network-policy
+    dependsOn flux-security)."
+  egress:
+    - toEndpoints:
+        - {}
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - {}

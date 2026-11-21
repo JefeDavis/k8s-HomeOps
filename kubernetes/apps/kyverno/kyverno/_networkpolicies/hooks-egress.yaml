@@ -1,0 +1,26 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: hooks-egress
+  namespace: kyverno
+spec:
+  description: >-
+    Allows the kyverno pre-delete/post-upgrade hook Jobs to reach the API server; hook pods
+    are selected by their auto-injected job-name label because they are not reliably labeled
+    with the kyverno component.
+  endpointSelector:
+    matchExpressions:
+      - key: k8s:batch.kubernetes.io/job-name
+        operator: In
+        values:
+          - kyverno-scale-to-zero
+          - kyverno-migrate-resources
+          - kyverno-rm-webhooks
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

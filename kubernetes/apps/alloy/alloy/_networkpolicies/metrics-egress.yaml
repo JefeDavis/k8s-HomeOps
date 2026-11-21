@@ -1,0 +1,43 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: metrics-egress
+  namespace: alloy
+spec:
+  description: >-
+    Allows alloy-metrics to reach the API server for discovery and ServiceMonitor/PodMonitor
+    watches, each node's kubelet/cAdvisor, every in-cluster scrape target, and the
+    kube-prometheus-stack Prometheus receiver (:9090) for remote_write. (kube-dns egress comes
+    from the cluster default.)
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: alloy-metrics
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+    # Kubelet + cAdvisor metrics on each node.
+    - toEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP
+    # Scrape targets anywhere in the cluster. Intentionally broad: a cluster-wide scraper must
+    # reach every workload's metrics port, which is not known ahead of time.
+    - toEntities:
+        - cluster
+    # remote_write to the kube-prometheus-stack Prometheus receiver.
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+            k8s:app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP

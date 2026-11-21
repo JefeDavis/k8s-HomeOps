@@ -1,0 +1,157 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: rook-ceph-cluster
+  namespace: rook-ceph
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: rook-ceph-cluster
+  interval: 1h
+  timeout: 10m
+  values:
+    cephClusterSpec:
+      cephConfig:
+        mon:
+          mon_cluster_log_level: info
+      cleanupPolicy:
+        wipeDevicesFromOtherClusters: true
+      csi:
+        cephfs:
+          kernelMountOptions: ms_mode=prefer-crc
+      dashboard:
+        urlPrefix: /
+        ssl: false
+        prometheusEndpoint: http://prometheus-operated.o11y.svc.cluster.local:9090
+      resources:
+        osd:
+          limits:
+            memory: 8Gi # Required for bootstrap
+      security:
+        cephx:
+          allowedCiphers: [aes256k]
+          daemon:
+            keyRotationPolicy: KeyGeneration
+            keyGeneration: 2
+          csi:
+            keyRotationPolicy: KeyGeneration
+            keyGeneration: 2
+            keepPriorKeyCountMax: 0
+            keyType: aes256k # Talos 1.14+ backports the kernel 7.0 aes256k support
+          rbdMirrorPeer:
+            keyRotationPolicy: KeyGeneration
+            keyGeneration: 2
+            keyType: aes256k
+      storage:
+        devicePathFilter: /dev/disk/by-id/nvme-nvme.c0a9-.*
+        useAllDevices: false
+    monitoring:
+      enabled: true
+      createPrometheusRules: true
+    toolbox:
+      enabled: true
+    cephBlockPools:
+      - name: ceph-blockpool
+        spec:
+          failureDomain: host
+          replicated:
+            size: 3
+        storageClass:
+          enabled: true
+          name: ceph-block
+          isDefault: true
+          mountOptions:
+            - discard
+          parameters:
+            compression_algorithm: zstd
+            compression_mode: passive
+            csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+            csi.storage.k8s.io/controller-expand-secret-namespace: "{{ .Release.Namespace }}"
+            csi.storage.k8s.io/controller-publish-secret-name: rook-csi-rbd-provisioner
+            csi.storage.k8s.io/controller-publish-secret-namespace: "{{ .Release.Namespace }}"
+            csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+            csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
+            csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+            csi.storage.k8s.io/provisioner-secret-namespace: "{{ .Release.Namespace }}"
+            imageFeatures: deep-flatten,exclusive-lock,fast-diff,layering,object-map
+            imageFormat: "2"
+    cephBlockPoolsVolumeSnapshotClass:
+      enabled: true
+      name: csi-ceph-blockpool
+      isDefault: true
+    cephFileSystems:
+      - name: ceph-filesystem
+        spec:
+          metadataPool:
+            replicated:
+              size: 3
+          dataPools:
+            - name: data0
+              failureDomain: host
+              replicated:
+                size: 3
+          metadataServer:
+            activeCount: 1
+            activeStandby: true
+            placement:
+              topologySpreadConstraints:
+                - maxSkew: 1
+                  topologyKey: kubernetes.io/hostname
+                  whenUnsatisfiable: DoNotSchedule
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: ceph-mds
+                      app.kubernetes.io/part-of: ceph-filesystem
+            priorityClassName: system-cluster-critical
+            resources:
+              requests:
+                cpu: 100m
+                memory: 1Gi
+              limits:
+                memory: 4Gi
+        storageClass:
+          enabled: true
+          name: ceph-filesystem
+          parameters:
+            csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+            csi.storage.k8s.io/controller-expand-secret-namespace: "{{ .Release.Namespace }}"
+            csi.storage.k8s.io/controller-publish-secret-name: rook-csi-cephfs-provisioner
+            csi.storage.k8s.io/controller-publish-secret-namespace: "{{ .Release.Namespace }}"
+            csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
+            csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
+            csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
+            csi.storage.k8s.io/provisioner-secret-namespace: "{{ .Release.Namespace }}"
+    cephFileSystemVolumeSnapshotClass:
+      enabled: true
+      name: csi-ceph-filesystem
+      isDefault: false
+    cephObjectStores:
+      - name: ceph-objectstore
+        spec:
+          defaultRealm: true
+          metadataPool:
+            failureDomain: host
+            replicated:
+              size: 3
+          dataPool:
+            failureDomain: host
+            replicated:
+              size: 3
+            quotas:
+              maxSize: 100Gi
+          preservePoolsOnDelete: true
+          gateway:
+            port: 80
+            resources:
+              requests:
+                cpu: 100m
+                memory: 1Gi
+              limits:
+                memory: 2Gi
+            instances: 2
+            priorityClassName: system-cluster-critical
+        storageClass:
+          enabled: true
+          name: ceph-bucket

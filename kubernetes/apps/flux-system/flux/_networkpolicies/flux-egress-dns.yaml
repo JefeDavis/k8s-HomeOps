@@ -1,0 +1,26 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: flux-egress-dns
+  namespace: flux-system
+spec:
+  description:
+    "Grants every flux-system pod egress to cluster DNS (kube-dns:53, with
+    L7 DNS visibility so source-controller's toFQDNs rules resolve). Flux is the
+    reconciler that brings up the network-policy baseline, so it must NOT rely on
+    the cluster-wide homestead-default-dns being in place: this self-sufficient copy
+    keeps DNS working in the window before the baseline lands."
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+  endpointSelector: {}

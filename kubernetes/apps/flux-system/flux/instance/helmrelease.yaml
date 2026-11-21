@@ -1,0 +1,272 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: flux-instance
+  namespace: flux-system
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: flux-instance
+    namespace: flux-system
+  interval: 1h
+  values:
+    instance:
+      cluster:
+        networkPolicy: false
+      components:
+        - source-controller
+        - kustomize-controller
+        - helm-controller
+        - notification-controller
+      sync:
+        kind: GitRepository
+        name: k8s-homeops
+        url: https://github.com/JefeDavis/k8s-homeops.git
+        ref: refs/heads/v3.0.0
+        path: kubernetes/apps
+      commonMetadata:
+        labels:
+          app.kubernetes.io/name: flux
+      kustomize:
+        patches:
+          # Add Kustomization defaults for all child Kustomizations
+          - patch: |-
+              - op: add
+                path: /spec/patches
+                value:
+                  - patch: |-
+                      apiVersion: kustomize.toolkit.fluxcd.io/v1
+                      kind: Kustomization
+                      metadata:
+                        name: _
+                      spec:
+                        decryption:
+                          provider: sops
+                        patches:
+                          - patch: |-
+                              apiVersion: helm.toolkit.fluxcd.io/v2
+                              kind: HelmRelease
+                              metadata:
+                                name: _
+                              spec:
+                                install:
+                                  crds: CreateReplace
+                                rollback:
+                                  cleanupOnFail: true
+                                upgrade:
+                                  cleanupOnFail: true
+                                  crds: CreateReplace
+                                  strategy:
+                                    name: RemediateOnFailure
+                                  remediation:
+                                    remediateLastFailure: true
+                                    retries: 2
+                            target:
+                              group: helm.toolkit.fluxcd.io
+                              kind: HelmRelease
+                    target:
+                      group: kustomize.toolkit.fluxcd.io
+                      kind: Kustomization
+            target:
+              group: kustomize.toolkit.fluxcd.io
+              kind: Kustomization
+              name: k8s-homeops
+
+          # Namespace scope label + Pod Security enforce (flux-system's labels are owned by the
+          # FluxInstance, not the homestead namespace lib; both flux-system modules declare
+          # pss: restricted, so enforce it here to satisfy require-ns-pod-security-labels).
+          - patch: |
+              apiVersion: v1
+              kind: Namespace
+              metadata:
+                name: flux-system
+                annotations:
+                  kustomize.toolkit.fluxcd.io/prune: Disabled
+                labels:
+                  pod-security.kubernetes.io/enforce: restricted
+                  pod-security.kubernetes.io/warn: restricted
+                  pod-security.kubernetes.io/audit: restricted
+            target:
+              kind: Namespace
+
+          # GCP KMS: https://github.com/fluxcd/kustomize-controller/blob/main/docs/spec/v1/kustomization.md#gcp-kms
+          - patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/env/-
+                value:
+                  name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: /var/gcp/flux-gcp-kms-sa-credential.json
+              - op: add
+                path: /spec/template/spec/containers/0/volumeMounts/-
+                value:
+                  mountPath: /var/gcp/flux-gcp-kms-sa-credential.json
+                  name: flux-gcp-kms-secret
+                  subPath: flux-gcp-kms-sa-credential.json
+                  readOnly: true
+              - op: add
+                path: /spec/template/spec/volumes/-
+                value:
+                  name: flux-gcp-kms-secret
+                  secret:
+                    secretName: flux-gcp-kms-secret
+            target:
+              kind: Deployment
+              name: kustomize-controller
+
+          # Increase the number of workers and limits
+          # Ref: https://fluxcd.io/flux/installation/configuration/vertical-scaling/#increase-the-number-of-workers-and-limits
+          - patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --concurrent=10
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --requeue-dependency=5s
+            target:
+              kind: Deployment
+              name: (kustomize-controller|helm-controller|source-controller)
+
+          - patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: all
+              spec:
+                template:
+                  spec:
+                    containers:
+                      - name: manager
+                        resources:
+                          limits:
+                            memory: 2Gi
+            target:
+              kind: Deployment
+              name: (kustomize-controller|helm-controller|source-controller)
+
+          # Drop the flux default CPU limit on the controllers (memory-only limits).
+          - patch: |
+              - op: remove
+                path: /spec/template/spec/containers/0/resources/limits/cpu
+            target:
+              kind: Deployment
+              name: (kustomize-controller|helm-controller|source-controller|notification-controller)
+
+          # Enable in-memory kustomize builds
+          # Ref: https://fluxcd.io/flux/installation/configuration/vertical-scaling/#enable-in-memory-kustomize-builds
+          - patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --concurrent=20
+              - op: replace
+                path: /spec/template/spec/volumes/0
+                value:
+                  name: temp
+                  emptyDir:
+                    medium: Memory
+            target:
+              kind: Deployment
+              name: kustomize-controller
+
+          # Enable Helm repositories caching
+          # Ref: https://fluxcd.io/flux/installation/configuration/vertical-scaling/#enable-helm-repositories-caching
+          - patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --helm-cache-max-size=10
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --helm-cache-ttl=60m
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --helm-cache-purge-interval=5m
+            target:
+              kind: Deployment
+              name: source-controller
+
+          # Kustomize feature gates.
+          - patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --feature-gates=CancelHealthCheckOnNewRevision=true,AdditiveCELDependencyCheck=true
+            target:
+              kind: Deployment
+              name: kustomize-controller
+
+          # Flux near OOM detection for Helm
+          # Ref: https://fluxcd.io/flux/installation/configuration/helm-oom-detection/
+          - patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --feature-gates=OOMWatch=true,CancelHealthCheckOnNewRevision=true,AdditiveCELDependencyCheck=true,DefaultToRetryOnFailure=true
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --oom-watch-memory-threshold=95
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --oom-watch-interval=500ms
+            target:
+              kind: Deployment
+              name: helm-controller
+
+          # Disable the auto-mounted service-account token on the controllers...
+          - patch: |
+              - op: add
+                path: /automountServiceAccountToken
+                value: false
+            target:
+              kind: ServiceAccount
+          # ...and mount a short-TTL projected token instead.
+          - patch: |
+              - op: add
+                path: /spec/template/spec/automountServiceAccountToken
+                value: false
+              - op: add
+                path: /spec/template/spec/volumes/-
+                value:
+                  name: serviceaccount-token
+                  projected:
+                    defaultMode: 0444
+                    sources:
+                      - serviceAccountToken:
+                          expirationSeconds: 3607
+                          path: token
+                      - configMap:
+                          name: kube-root-ca.crt
+                          items:
+                            - key: ca.crt
+                              path: ca.crt
+                      - downwardAPI:
+                          items:
+                            - path: namespace
+                              fieldRef:
+                                apiVersion: v1
+                                fieldPath: metadata.namespace
+              - op: add
+                path: /spec/template/spec/containers/0/volumeMounts/-
+                value:
+                  mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+                  name: serviceaccount-token
+                  readOnly: true
+            target:
+              kind: Deployment
+              name: (kustomize-controller|helm-controller|source-controller|notification-controller)
+
+          # Owner label on the controller Deployments AND their pod templates (require-owner-labels).
+          # Shared value; app.kubernetes.io/component (set by flux) distinguishes the controllers.
+          - patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: all
+                labels:
+                  app.kubernetes.io/name: flux
+              spec:
+                template:
+                  metadata:
+                    labels:
+                      app.kubernetes.io/name: flux
+            target:
+              kind: Deployment
+              name: (kustomize-controller|helm-controller|source-controller|notification-controller)

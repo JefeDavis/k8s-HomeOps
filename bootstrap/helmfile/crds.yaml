@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://www.schemastore.org/helmfile
+
+helmDefaults:
+  args:
+    - --include-crds
+    - --no-hooks
+
+bases:
+  - default.yaml
+
+defaultInherit: default
+
+releases:
+  - name: envoy-gateway
+    namespace: envoy-gateway
+
+  - name: kube-prometheus-stack-crds
+    namespace: observability
+
+  - name: kyverno
+    namespace: kyverno

@@ -1,0 +1,91 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: alloy-logs
+  namespace: alloy
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/alloy/alloy/logs
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: kube-prometheus-stack-crds
+      namespace: observability
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: alloy-metrics
+  namespace: alloy
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/alloy/alloy/metrics
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: kube-prometheus-stack-crds
+      namespace: observability
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: alloy-traces
+  namespace: alloy
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/alloy/alloy/traces
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: kube-prometheus-stack-crds
+      namespace: observability
+    - name: istio-crds
+      namespace: istio-system
+    - name: envoy-gateway
+      namespace: envoy-gateway
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: alloy-exceptions
+  namespace: alloy
+spec:
+  targetNamespace: kyverno-exceptions
+  interval: 1h
+  path: ./kubernetes/apps/alloy/alloy/exceptions
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: kyverno
+      namespace: kyverno

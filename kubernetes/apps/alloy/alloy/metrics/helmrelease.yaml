@@ -1,0 +1,287 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: alloy-metrics
+  namespace: alloy
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: alloy-metrics
+    namespace: alloy
+  interval: 1h
+  values:
+    # alloy-metrics: a clustered StatefulSet that scrapes the platform's ServiceMonitors/
+    # PodMonitors plus each node's kubelet/cAdvisor, sharding targets across replicas, and
+    # remote_writes to the kube-prometheus-stack Prometheus backend. A per-replica PVC backs the
+    # remote_write WAL (durable across restarts and required because the root filesystem is read-only).
+    # The medium/large tiers run two Prometheus replicas; remote-write must fan out to both (a single
+    # headless endpoint pins to one pod) so each replica holds the full dataset for Thanos to dedup. The
+    # small tier runs a single replica, so one endpoint suffices.
+    global:
+      podSecurityContext:
+        runAsNonRoot: true
+        runAsUser: 473
+        runAsGroup: 473
+        # The alloy image runs as uid 473; fsGroup makes the WAL PVC writable by it.
+        fsGroup: 473
+        seccompProfile:
+          type: RuntimeDefault
+
+    # We do not use the monitoring.grafana.com CRs (PodLogs/etc.); skip CRD install so the three
+    # alloy releases do not contend over the same cluster-scoped CRDs.
+    crds:
+      create: false
+
+    serviceAccount:
+      automountServiceAccountToken: false
+
+    controller:
+      type: statefulset
+      priorityClassName: platform-low
+      replicas: 1
+      # The chart renders the PDB whenever enabled regardless of replica count; maxUnavailable only so it
+      # never emits a both-set PDB.
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+      # StatefulSet, so no pod-template-hash key. DoNotSchedule on Karpenter flavors drives node
+      # provisioning; metal has no autoscaler, so it stays best-effort. The alloy pods carry no component
+      # label (all three alloy releases share app.kubernetes.io/name: alloy), so scope by instance.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: alloy
+              app.kubernetes.io/instance: alloy-metrics
+      # Per-replica WAL storage (mounted at alloy.storagePath below); survives restarts/reschedules.
+      volumeClaimTemplates:
+        - metadata:
+            name: storage
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 2Gi
+      volumes:
+        extra:
+          # Short-lived projected SA token (pairs with automountServiceAccountToken: false).
+          - name: serviceaccount-token
+            projected:
+              defaultMode: 0444
+              sources:
+                - serviceAccountToken:
+                    expirationSeconds: 3607
+                    path: token
+                - configMap:
+                    name: kube-root-ca.crt
+                    items:
+                      - key: ca.crt
+                        path: ca.crt
+                - downwardAPI:
+                    items:
+                      - path: namespace
+                        fieldRef:
+                          apiVersion: v1
+                          fieldPath: metadata.namespace
+
+    # config-reloader sidecar (prometheus-config-reloader): ~9Mi observed; memory-only limit (ADR-0010).
+    configReloader:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 48Mi
+
+    alloy:
+      enableReporting: false
+      clustering:
+        enabled: true
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsUser: 473
+        runAsGroup: 473
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+      # GOMEMLIMIT gives Go a soft heap ceiling below the cgroup limit so GC turns aggressive as
+      # it approaches, reclaiming before the kernel OOM-kills. Without it a single-replica full-
+      # cluster scrape + remote_write WAL grows the heap into the hard limit and gets killed. Set
+      # near the sustained working set (the request); limits.memory (4Gi) leaves headroom for GC
+      # overshoot and off-heap/WAL buffers.
+      extraEnv:
+        - name: GOMEMLIMIT
+          value: "3072MiB"
+      resources:
+        requests:
+          cpu: 100m
+          memory: 3Gi
+        limits:
+          memory: 4Gi
+      mounts:
+        extra:
+          - name: storage
+            mountPath: /tmp/alloy
+          - name: serviceaccount-token
+            mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+            readOnly: true
+      configMap:
+        content: |
+          logging {
+            level  = "warn"
+            format = "logfmt"
+          }
+
+          // The platform exposes metrics via prometheus-operator ServiceMonitors/PodMonitors;
+          // clustering shards the discovered targets across StatefulSet replicas.
+          // kubernetes_role=endpointslice discovers Service targets via EndpointSlices instead of the
+          // deprecated v1 Endpoints API (which the apiserver warns on from v1.33+); podmonitors use the
+          // pod role and need no equivalent.
+          prometheus.operator.servicemonitors "primary" {
+            forward_to      = [prometheus.remote_write.default.receiver]
+            kubernetes_role = "endpointslice"
+            // ServiceMonitors that set their own interval still override this default.
+            scrape { default_scrape_interval = "60s" }
+            clustering { enabled = true }
+          }
+
+          prometheus.operator.podmonitors "primary" {
+            forward_to = [prometheus.remote_write.default.receiver]
+            scrape { default_scrape_interval = "60s" }
+            clustering { enabled = true }
+          }
+
+          // Node + container metrics from each kubelet (scraped directly on :10250 over TLS).
+          // Both endpoints must land as job="kubelet" carrying a visible metrics_path label: the
+          // kube-prometheus-stack rules and dashboards select these series by
+          // {job="kubelet", metrics_path="/metrics"} and {..., metrics_path="/metrics/cadvisor"}.
+          // Alloy defaults job to the component name, and __metrics_path__ is internal (dropped
+          // before the scrape), so neither label exists unless set explicitly here.
+          discovery.kubernetes "nodes" {
+            role = "node"
+          }
+
+          discovery.relabel "kubelet" {
+            targets = discovery.kubernetes.nodes.targets
+            rule {
+              target_label = "__metrics_path__"
+              replacement  = "/metrics"
+            }
+            rule {
+              source_labels = ["__metrics_path__"]
+              target_label  = "metrics_path"
+            }
+          }
+
+          prometheus.scrape "kubelet" {
+            targets           = discovery.relabel.kubelet.output
+            job_name          = "kubelet"
+            scrape_interval   = "60s"
+            honor_labels      = true
+            scheme            = "https"
+            bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+            tls_config {
+              insecure_skip_verify = true
+            }
+            forward_to = [prometheus.remote_write.default.receiver]
+            clustering { enabled = true }
+          }
+
+          discovery.relabel "cadvisor" {
+            targets = discovery.kubernetes.nodes.targets
+            rule {
+              target_label = "__metrics_path__"
+              replacement  = "/metrics/cadvisor"
+            }
+            rule {
+              source_labels = ["__metrics_path__"]
+              target_label  = "metrics_path"
+            }
+          }
+
+          prometheus.scrape "cadvisor" {
+            targets           = discovery.relabel.cadvisor.output
+            job_name          = "kubelet"
+            scrape_interval   = "60s"
+            honor_labels      = true
+            scheme            = "https"
+            bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+            tls_config {
+              insecure_skip_verify = true
+            }
+            forward_to = [prometheus.remote_write.default.receiver]
+            clustering { enabled = true }
+          }
+
+          // kube-apiserver metrics. The chart's ServiceMonitor hardcodes a bearerTokenFile and a CA
+          // file; prometheus.operator.servicemonitors refuses on-disk file references (no arbitrary
+          // filesystem access through discovered CRDs) and silently drops such ServiceMonitors, so
+          // apiserver is scraped directly here instead, mirroring the kubelet blocks above. Alloy
+          // reads its own projected token/CA, which is allowed. job="apiserver" matches the
+          // kube-prometheus-stack rules and dashboards.
+          discovery.kubernetes "apiserver" {
+            role = "endpointslice"
+            namespaces {
+              names = ["default"]
+            }
+          }
+
+          discovery.relabel "apiserver" {
+            targets = discovery.kubernetes.apiserver.targets
+            rule {
+              source_labels = ["__meta_kubernetes_service_name", "__meta_kubernetes_endpointslice_port_name"]
+              regex         = "kubernetes;https"
+              action        = "keep"
+            }
+          }
+
+          prometheus.scrape "apiserver" {
+            targets           = discovery.relabel.apiserver.output
+            job_name          = "apiserver"
+            scrape_interval   = "60s"
+            scheme            = "https"
+            bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+            tls_config {
+              ca_file     = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+              server_name = "kubernetes"
+            }
+            forward_to = [prometheus.relabel.apiserver.receiver]
+            clustering { enabled = true }
+          }
+
+          // Drop the high-cardinality apiserver/etcd request-duration histogram buckets, matching the
+          // metricRelabelings the kube-prometheus-stack apiserver ServiceMonitor would have applied.
+          prometheus.relabel "apiserver" {
+            forward_to = [prometheus.remote_write.default.receiver]
+            rule {
+              source_labels = ["__name__", "le"]
+              regex         = "(etcd_request|apiserver_request_slo|apiserver_request_sli|apiserver_request)_duration_seconds_bucket;(0\\.15|0\\.2|0\\.3|0\\.35|0\\.4|0\\.45|0\\.6|0\\.7|0\\.8|0\\.9|1\\.25|1\\.5|1\\.75|2|3|3\\.5|4|4\\.5|6|7|8|9|15|20|40|45|50)(\\.0)?"
+              action        = "drop"
+            }
+          }
+
+          prometheus.remote_write "default" {
+            external_labels = {
+              cluster = "${CLUSTER_NAME}",
+            }
+            endpoint {
+              // The kube-prometheus-stack Prometheus remote_write receiver.
+              url = "http://prometheus-operated.monitoring.svc.cluster.local:9090/api/v1/write"
+            }
+          }
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: StatefulSet
+            patch: |
+              - op: add
+                path: /spec/template/spec/automountServiceAccountToken
+                value: false

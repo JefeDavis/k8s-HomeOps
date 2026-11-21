@@ -1,0 +1,49 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: spegel-peers
+  namespace: spegel-system
+spec:
+  description: >-
+    Allows spegel mirrors to reach each other: the router mesh they form on 5001 after resolving
+    the headless bootstrap Service, and the layer transfers each mirror serves on 5000. Also admits
+    the node-local and remote-node containerd clients, which pull layers from the mirror on 5000
+    from the host network stack (via the NodePort), so they carry the host/remote-node identity.
+
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: spegel
+
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:app.kubernetes.io/name: spegel
+      toPorts:
+        - ports:
+            - port: "5000"
+              protocol: TCP
+            - port: "5001"
+              protocol: TCP
+    # containerd pulls layers from the mirror on 5000 from the host network stack; the router
+    # mesh on 5001 stays pod-to-pod.
+    - fromEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "5000"
+              protocol: TCP
+
+  egress:
+    # L4-only: no destination selector. On Azure CNI Powered by Cilium a remote spegel pod's identity
+    # is not reliably propagated into peers' ipcache, so a peer often resolves as reserved:world; an
+    # endpoint/entity-scoped egress rule then drops the cross-node router mesh (5001) and layer
+    # transfers (5000) at the source. Trust these two mirror ports regardless of peer identity so the
+    # mesh can form. Egress enforcement is source-side, which is where the drop occurs.
+    - toPorts:
+        - ports:
+            - port: "5000"
+              protocol: TCP
+            - port: "5001"
+              protocol: TCP

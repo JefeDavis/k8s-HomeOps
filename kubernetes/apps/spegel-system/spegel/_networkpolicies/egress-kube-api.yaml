@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-kube-api
+  namespace: spegel-system
+spec:
+  description: >-
+    Allows the taint-remover sidecar to reach the Kubernetes API server to clear the
+    spegel.io/not-ready startup taint from its node. The registry container has no
+    ServiceAccount token mounted, so only the sidecar can act on this.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: spegel
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

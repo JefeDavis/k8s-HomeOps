@@ -1,0 +1,21 @@
+---
+# Trace senders that are not enrolled in the mesh push OTLP in plaintext, which the mesh-wide
+# STRICT default rejects (ztunnel logs the drop). Relax just the OTLP ports (4317/4318) to
+# PERMISSIVE so out-of-mesh senders are accepted while in-mesh senders keep mTLS. Everything
+# else on the alloy-traces pods stays STRICT.
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: alloy-traces
+  namespace: alloy
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: alloy-traces
+  mtls:
+    mode: STRICT
+  portLevelMtls:
+    "4317":
+      mode: PERMISSIVE
+    "4318":
+      mode: PERMISSIVE

@@ -1,0 +1,23 @@
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: alloy-logs
+  namespace: kyverno-exceptions
+  annotations:
+    policies.kyverno.io/justification: The Alloy logs DaemonSet mounts /var/log
+      (read-only hostPath) to tail pod logs off disk; the pods still run non-root,
+      read-only root, drop ALL capabilities and use RuntimeDefault seccomp. The hostPath
+      and its volume type are the only restricted deviations.
+spec:
+  matchConditions:
+    - expression:
+        has(object.metadata.labels) && ("app.kubernetes.io/instance" in object.metadata.labels)
+        && object.metadata.labels["app.kubernetes.io/instance"] == "alloy-logs"
+      name: match-labels
+  policyRefs:
+    - kind: ValidatingPolicy
+      name: disallow-host-path
+    - kind: ValidatingPolicy
+      name: restrict-volume-types
+  reportResult: skip

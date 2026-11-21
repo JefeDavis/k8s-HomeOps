@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: rook-ceph-mgr-egress-prometheus
+  namespace: rook-ceph
+spec:
+  description: >-
+    Allows the ceph-mgr dashboard to query the kube-prometheus-stack Prometheus (:9090).
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+            k8s:app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP
+  endpointSelector:
+    matchLabels:
+      k8s:app: rook-ceph-mgr

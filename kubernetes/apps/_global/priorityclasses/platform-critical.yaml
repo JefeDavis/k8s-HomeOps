@@ -1,0 +1,12 @@
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: platform-critical
+value: 100000000
+preemptionPolicy: Never
+globalDefault: false
+description: >-
+  Cluster-critical platform: pod admission (kyverno), mesh identity (istiod), and the live ingress
+  data plane (gateways). Ranked just below the node-pinned tier; does not preempt (these are HA, so a
+  pending replica is covered while Karpenter adds capacity).

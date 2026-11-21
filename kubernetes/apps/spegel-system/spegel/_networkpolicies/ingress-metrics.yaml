@@ -1,0 +1,24 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ingress-metrics
+  namespace: spegel-system
+spec:
+  description: >-
+    Allows the Alloy metrics collector to scrape the spegel registry metrics on 9090.
+
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: spegel
+
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP

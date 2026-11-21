@@ -1,0 +1,16 @@
+{{- $path := "../../kubernetes/apps/%s/%s/%s/helmrelease.yaml" -}}
+{{- $name := .Release.Name -}}
+{{- $namespace := .Release.Namespace -}}
+{{- $component := "app" -}}
+{{- if or (contains "flux" .Release.Name) (contains "crds" .Release.Name) -}}
+  {{- $parts := splitList "-" $name -}}
+  {{- $component = last $parts -}}
+  {{- $name = join "-" (initial $parts) -}}
+{{- end -}}
+{{- $path = printf $path $namespace $name $component -}}
+{{- $hr := fromYaml (readFile $path) -}}
+{{- $patches := list -}}
+{{- range (dig "spec" "postRenderers" (list) $hr) -}}
+  {{- $patches = concat $patches (dig "kustomize" "patches" (list) .) -}}
+{{- end -}}
+{{- $patches | toJson -}}

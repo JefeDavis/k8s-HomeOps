@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: flux-operator-ingress-metrics
+  namespace: flux-system
+spec:
+  description: Allows the observability stack to scrape the flux-operator metrics.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: flux-operator
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:app.kubernetes.io/instance: alloy-metrics
+            k8s:app.kubernetes.io/name: alloy
+            k8s:io.kubernetes.pod.namespace: alloy
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP

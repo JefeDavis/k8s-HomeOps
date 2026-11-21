@@ -1,0 +1,51 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: istio-ztunnel
+  namespace: istio-system
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: istio-ztunnel
+    namespace: istio-system
+  interval: 1h
+  values:
+    resourceQuotas:
+      enabled: true
+
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        memory: 1024Mi
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: DaemonSet
+            patch: |
+              apiVersion: apps/v1
+              kind: DaemonSet
+              metadata:
+                name: not-used
+              spec:
+                template:
+                  spec:
+                    automountServiceAccountToken: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    containers:
+                      - name: istio-proxy
+                        securityContext:
+                          seccompProfile:
+                            type: RuntimeDefault
+          - target:
+              kind: ServiceAccount
+            patch: |
+              - op: add
+                path: /automountServiceAccountToken
+                value: false

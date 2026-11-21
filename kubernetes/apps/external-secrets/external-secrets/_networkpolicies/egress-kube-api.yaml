@@ -1,0 +1,27 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-kube-api
+  namespace: external-secrets
+spec:
+  description: >-
+    Allows the external-secrets controller, webhook, and cert-controller to reach the API
+    server: the controller reconciles ExternalSecrets/SecretStores and writes the target
+    Secrets, the cert-controller manages the webhook certificate and CRD conversion caBundle,
+    and the webhook serves conversion.
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+  endpointSelector:
+    matchExpressions:
+      - key: k8s:app.kubernetes.io/name
+        operator: In
+        values:
+          - external-secrets
+          - external-secrets-cert-controller
+          - external-secrets-webhook
