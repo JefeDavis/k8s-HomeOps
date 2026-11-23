@@ -10,7 +10,7 @@ monorepo_root = true
 "aqua:charmbracelet/gum" = "2.0.2"
 "aqua:kubernetes/kubernetes/kubectl" = "1.37.2"
 "aqua:helm/helm" = "4.3.2"
-"aqua:helmfile/helmfile" = "1.8.4"
+"aqua:helmfile/helmfile" = "1.8.5"
 "github:home-operations/flate" = "0.8.0"
 "github:elsesiy/kubectl-view-secret" = "0.17.0"
 # Git hook runner and the formatters/linters its pre-commit jobs invoke
