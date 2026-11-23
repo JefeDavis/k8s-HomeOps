@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mosquitto-ingress-mqtt
+  namespace: home
+spec:
+  description: >-
+    Allows same-namespace mesh workloads to reach the mosquitto broker on the MQTT port 1883.
+    Identity enforcement for connections is handled by the Istio AuthorizationPolicy at ztunnel.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: mosquitto
+  ingress:
+    - fromEndpoints:
+        - {}
+      toPorts:
+        - ports:
+            - port: "1883"
+              protocol: TCP

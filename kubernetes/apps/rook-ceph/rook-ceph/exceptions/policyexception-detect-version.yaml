@@ -1,0 +1,27 @@
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: rook-ceph-detect-version
+  namespace: kyverno-exceptions
+  annotations:
+    policies.kyverno.io/justification: >-
+      Rook's transient version-detection Job ships no securityContext and carries no rook_cluster label;
+      exempt it from the pod-security baseline for the brief time it runs during reconciliation.
+spec:
+  matchConditions:
+    - expression: request.namespace in ["rook-ceph"]
+      name: in-namespaces
+    - expression: has(object.metadata.labels) && ("app" in object.metadata.labels)
+        && object.metadata.labels["app"] == "rook-ceph-detect-version"
+      name: match-labels
+  policyRefs:
+    - kind: ValidatingPolicy
+      name: disallow-capabilities-strict
+    - kind: ValidatingPolicy
+      name: disallow-privilege-escalation
+    - kind: ValidatingPolicy
+      name: require-run-as-nonroot
+    - kind: ValidatingPolicy
+      name: restrict-seccomp-strict
+  reportResult: skip

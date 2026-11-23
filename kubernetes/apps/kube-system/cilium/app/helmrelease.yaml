@@ -1,0 +1,283 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cilium
+  namespace: kube-system
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: cilium
+    namespace: kube-system
+  interval: 30m
+
+  values:
+    annotations:
+      configmap.reloader.stakater.com/reload: "cilium-config"
+    priorityClassName: system-node-critical
+    updateStrategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 25%
+    serviceAccounts:
+      cilium:
+        automount: false
+      operator:
+        automount: false
+      relay:
+        automount: false
+      ui:
+        automount: false
+    extraVolumes: &serviceAccountVolumes
+      - name: serviceaccount-token
+        projected:
+          defaultMode: 0444
+          sources:
+            - serviceAccountToken:
+                expirationSeconds: 3607
+                path: token
+            - configMap:
+                name: kube-root-ca.crt
+                items:
+                  - key: ca.crt
+                    path: ca.crt
+            - downwardAPI:
+                items:
+                  - path: namespace
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.namespace
+    extraVolumeMounts: &serviceAccountMounts
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: serviceaccount-token
+        readOnly: true
+    securityContext:
+      capabilities:
+        ciliumAgent:
+          - CHOWN
+          - KILL
+          - NET_ADMIN
+          - NET_RAW
+          - IPC_LOCK
+          - SYS_ADMIN
+          - SYS_RESOURCE
+          - PERFMON
+          - BPF
+          - DAC_OVERRIDE
+          - FOWNER
+          - SETGID
+          - SETUID
+        cleanCiliumState:
+          - NET_ADMIN
+          - SYS_ADMIN
+          - SYS_RESOURCE
+
+    # The upstream chart ships no resource requests/limits. The agent's memory scales with the number of
+    # endpoints and policies on the node; size it generously with a memory-only limit to avoid throttling
+    # the datapath.
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 1Gi
+
+    # Init containers (mount-cgroup, clean-cilium-state, apply-sysctl-overwrites, config, mount-bpf-fs):
+    # short-lived bootstrap; small memory-only limit per ADR-0010 (no CPU limit).
+    initResources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 64Mi
+    policyAuditMode: false
+
+    dashboards:
+      enabled: true
+      label: grafana.io/dashboard
+      labelValue: "true"
+      annotations:
+        grafana.io/folder: Network
+
+    # Drop the chart's CPU limit on the install-cni-binaries init container (memory-only, per ADR 0010).
+    cni:
+      exclusive: false # needed for istio
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+
+    socketLB:
+      hostNamespaceOnly: true # needed for istio
+
+    envoy:
+      enabled: false
+      secretsNamespace:
+        create: false
+        name: kube-system
+    operator:
+      priorityClassName: system-cluster-critical
+      # The operator runs 2 replicas (leader-elected); protect it from voluntary disruptions taking both
+      # down at once. maxUnavailable only, so the chart never emits a both-set PDB.
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+      annotations:
+        configmap.reloader.stakater.com/reload: "cilium-config"
+      podSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+      extraVolumes: *serviceAccountVolumes
+      extraVolumeMounts: *serviceAccountMounts
+      rollOutPods: true
+      resources:
+        requests:
+          cpu: 25m
+          memory: 192Mi
+        limits:
+          memory: 384Mi
+      tolerations:
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: Exists
+        - key: "node.kubernetes.io/not-ready"
+          operator: Exists
+        - key: CriticalAddonsOnly
+          operator: Exists
+      prometheus:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+      dashboards:
+        enabled: true
+        label: grafana.io/dashboard
+        labelValue: "true"
+        annotations:
+          grafana.io/folder: Network
+    rollOutCiliumPods: true
+    pmtuDiscovery:
+      enabled: true
+    hubble:
+      metrics:
+        # Metrics the bundled Hubble dashboards query. flow/drop/tcp/dns/icmp/port-distribution back the
+        # network-overview and DNS dashboards; httpV2 backs the L7 HTTP dashboard (needs L7 visibility to
+        # emit request data). Every metric carries source/destination + source_namespace/
+        # destination_namespace labels so the per-namespace dashboards group and filter correctly.
+        enabled:
+          - flow:sourceContext=app|workload-name|pod|reserved-identity;destinationContext=app|workload-name|pod|dns|reserved-identity;labelsContext=source_namespace,destination_namespace
+          - drop:sourceContext=app|workload-name|pod|reserved-identity;destinationContext=app|workload-name|pod|dns|reserved-identity;labelsContext=source_namespace,destination_namespace
+          - tcp:sourceContext=app|workload-name|pod|reserved-identity;destinationContext=app|workload-name|pod|dns|reserved-identity;labelsContext=source_namespace,destination_namespace
+          - dns:query;ignoreAAAA;sourceContext=app|workload-name|pod|reserved-identity;destinationContext=app|workload-name|pod|dns|reserved-identity;labelsContext=source_namespace,destination_namespace
+          - icmp:sourceContext=app|workload-name|pod|reserved-identity;destinationContext=app|workload-name|pod|dns|reserved-identity;labelsContext=source_namespace,destination_namespace
+          - port-distribution:sourceContext=app|workload-name|pod|reserved-identity;destinationContext=app|workload-name|pod|dns|reserved-identity;labelsContext=source_namespace,destination_namespace
+          - policy:sourceContext=app|workload-name|pod|reserved-identity;destinationContext=app|workload-name|pod|dns|reserved-identity;labelsContext=source_namespace,destination_namespace
+          - httpV2:sourceContext=workload-name|pod-name|reserved-identity;destinationContext=workload-name|pod-name|reserved-identity;labelsContext=source_namespace,destination_namespace,traffic_direction
+        serviceMonitor:
+          enabled: true
+
+        dashboards:
+          enabled: true
+          label: grafana.io/dashboard
+          labelValue: "true"
+          annotations:
+            grafana.io/folder: Network
+      relay:
+        enabled: true
+        priorityClassName: platform-low
+        rolloutPods: true
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        prometheus:
+          enabled: true
+          serviceMonitor:
+            enabled: true
+      ui:
+        enabled: true
+        rolloutPods: true
+        podLabels:
+          ingress.gateway.homeops.io/internal: "true"
+
+        priorityClassName: platform-low
+        frontend:
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+        backend:
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+          # The backend lists namespaces/pods/services via the kube API, so it still needs a token even
+          # though serviceAccounts.ui.automount disables the auto-mounted one. Mount a projected token.
+          extraVolumes: *serviceAccountVolumes
+          extraVolumeMounts: *serviceAccountMounts
+    tls:
+      secretsNamespace:
+        create: false
+        name: kube-system
+    ipam:
+      mode: kubernetes
+    # Native routing (no overlay). Every node sits on one L2 segment (10.77.0.0/24), so
+    # autoDirectNodeRoutes lets each node install a direct L3 route to every other node's pod CIDR;
+    # this replaces the Geneve tunnel for cross-node pod traffic. BGP here only advertises
+    # LoadBalancer service IPs, not pod CIDRs, so pod egress to the LAN/internet is still
+    # masqueraded to the node IP; ipv4NativeRoutingCIDR keeps pod-to-pod traffic out of masquerade.
+    routingMode: native
+    autoDirectNodeRoutes: true
+    ipv4NativeRoutingCIDR: 172.22.0.0/16
+    kubeProxyReplacement: "true"
+    kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    k8sServiceHost: localhost
+    k8sServicePort: 7445
+    l2announcements:
+      enabled: true
+    bgpControlPlane:
+      enabled: true
+    loadBalancer:
+      algorithm: maglev
+      mode: dsr
+      serviceTopology: true # spegel-registry relies on trafficDistribution: PreferSameNode
+    localRedirectPolicies:
+      enabled: true
+    enableIPv4BIGTCP: true
+    bpfClockProbe: true
+    bpf:
+      datapathMode: veth
+      masquerade: true
+      preallocateMaps: true
+    bandwidthManager:
+      enabled: true
+      bbr: true
+    endpointRoutes:
+      enabled: true
+    cgroup:
+      autoMount:
+        enabled: false
+      hostRoot: /sys/fs/cgroup
+
+    prometheus:
+      enabled: true
+      # cilium_bpf_syscall_duration_seconds is opt-in (off by default for its datapath
+      # overhead); enable it so the bundled cilium-agent dashboard's BPF syscall panels
+      # populate. Gated with the ServiceMonitor so it only emits when we actually scrape.
+      metrics:
+        - +cilium_bpf_syscall_duration_seconds
+      serviceMonitor:
+        enabled: true
+        trustCRDsExist: true

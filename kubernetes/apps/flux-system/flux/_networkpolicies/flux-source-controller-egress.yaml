@@ -1,0 +1,26 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: flux-source-controller-egress
+  namespace: flux-system
+spec:
+  description: Allows the flux source-controller to reach the image registry over
+    HTTPS to pull OCIRepository and HelmChart artifacts, which the helm and kustomize
+    controllers then consume in-namespace.
+  egress:
+    - toFQDNs:
+        - matchName: github.com
+        - matchName: pkg-containers.githubusercontent.com
+        - matchName: ghcr.io
+        - matchName: mirror.gcr.io
+        - matchPattern: quay.io
+        - matchPattern: "**.quay.io"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+  endpointSelector:
+    matchLabels:
+      k8s:app: source-controller
+      k8s:app.kubernetes.io/part-of: flux

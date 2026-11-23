@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: resume-egress-github
+  namespace: resume
+spec:
+  description: >-
+    Allows the operator-generated resume Hugo web front to reach the GitHub API (api.github.com) and
+    raw content (raw.githubusercontent.com) over HTTPS to populate project data.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: hugo
+      k8s:app.kubernetes.io/component: webfront
+  egress:
+    - toFQDNs:
+        - matchName: api.github.com
+        - matchName: raw.githubusercontent.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

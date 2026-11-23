@@ -1,0 +1,23 @@
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: rook-ceph-osd
+  namespace: kyverno-exceptions
+  annotations:
+    policies.kyverno.io/justification: >-
+      Rook Ceph OSD daemons and OSD-prepare jobs run privileged with hostPID to open and encrypt raw
+      block devices; this is the upstream rook-ceph required posture.
+spec:
+  matchConditions:
+    - expression: request.namespace in ["rook-ceph"]
+      name: in-namespaces
+    - expression: has(object.metadata.labels) && ("app" in object.metadata.labels)
+        && (object.metadata.labels["app"] in ["rook-ceph-osd", "rook-ceph-osd-prepare"])
+      name: match-labels
+  policyRefs:
+    - kind: ValidatingPolicy
+      name: disallow-privileged-containers
+    - kind: ValidatingPolicy
+      name: disallow-host-namespaces
+  reportResult: skip

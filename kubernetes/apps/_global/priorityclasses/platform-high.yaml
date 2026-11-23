@@ -1,0 +1,12 @@
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: platform-high
+value: 10000000
+preemptionPolicy: Never
+globalDefault: false
+description: >-
+  Platform reconciliation and control planes (cert-manager, external-secrets, metrics-server, kyverno
+  background/cleanup/reports controllers, the envoy-gateway control plane, kustomize-mutating-webhook).
+  Degrade-not-break; does not preempt.

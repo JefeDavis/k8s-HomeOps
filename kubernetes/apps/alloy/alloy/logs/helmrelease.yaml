@@ -1,0 +1,193 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: alloy-logs
+  namespace: alloy
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: alloy-logs
+    namespace: alloy
+  interval: 1h
+  values:
+    # alloy-logs: a DaemonSet that tails /var/log/pods on each node (real file tailing, so it
+    # captures crashed/short-lived-pod and system logs) and ships to loki. The hostPath /var/log
+    # mount is why this release carries the module's privileged posture + kyverno exceptions,
+    # scoped to it alone by the app.kubernetes.io/instance=alloy-logs label.
+    global:
+      podSecurityContext:
+        runAsNonRoot: true
+        runAsUser: 473
+        runAsGroup: 473
+        fsGroup: 473
+        supplementalGroups:
+          - 0
+        seccompProfile:
+          type: RuntimeDefault
+
+    crds:
+      create: false
+
+    serviceAccount:
+      automountServiceAccountToken: false
+
+    controller:
+      type: daemonset
+      # Node-pinned log-collector DaemonSet: scheduled at node-critical so it is never evicted off a node.
+      priorityClassName: platform-node-critical
+      volumes:
+        extra:
+          # Writable WAL/positions dir for the read-only root filesystem.
+          - name: storage
+            emptyDir: {}
+          - name: serviceaccount-token
+            projected:
+              defaultMode: 0444
+              sources:
+                - serviceAccountToken:
+                    expirationSeconds: 3607
+                    path: token
+                - configMap:
+                    name: kube-root-ca.crt
+                    items:
+                      - key: ca.crt
+                        path: ca.crt
+                - downwardAPI:
+                    items:
+                      - path: namespace
+                        fieldRef:
+                          apiVersion: v1
+                          fieldPath: metadata.namespace
+
+    # config-reloader sidecar (prometheus-config-reloader): ~9Mi observed; memory-only limit (ADR-0010).
+    configReloader:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 48Mi
+
+    alloy:
+      enableReporting: false
+      # Mount /var/log (read-only) from the host for pod log tailing.
+      mounts:
+        varlog: true
+        extra:
+          - name: storage
+            mountPath: /tmp/alloy
+          - name: serviceaccount-token
+            mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+            readOnly: true
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsUser: 473
+        runAsGroup: 473
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+      # Soft heap ceiling (~90% of limits.memory) so Go GCs before the cgroup OOM-kills on a log
+      # burst, trading a brief CPU bump for staying under the hard cap.
+      extraEnv:
+        - name: GOMEMLIMIT
+          value: "690MiB"
+      resources:
+        requests:
+          cpu: 50m
+          memory: 320Mi
+        limits:
+          memory: 768Mi
+      configMap:
+        content: |
+          logging {
+            level  = "warn"
+            format = "logfmt"
+          }
+
+          // Discover pods scheduled on THIS node only (the DaemonSet pod's node), so each node's
+          // agent tails just its local logs.
+          discovery.kubernetes "pods" {
+            role = "pod"
+            selectors {
+              role  = "pod"
+              field = "spec.nodeName=" + sys.env("K8S_NODE_NAME")
+            }
+          }
+
+          // Build the on-disk log path and carry through the useful pod metadata as labels.
+          discovery.relabel "pod_logs" {
+            targets = discovery.kubernetes.pods.targets
+
+            rule {
+              source_labels = ["__meta_kubernetes_namespace"]
+              target_label  = "namespace"
+              action        = "replace"
+            }
+            rule {
+              source_labels = ["__meta_kubernetes_pod_name"]
+              target_label  = "pod"
+              action        = "replace"
+            }
+            rule {
+              source_labels = ["__meta_kubernetes_pod_container_name"]
+              target_label  = "container"
+              action        = "replace"
+            }
+            rule {
+              source_labels = ["__meta_kubernetes_pod_node_name"]
+              target_label  = "node"
+              action        = "replace"
+            }
+            rule {
+              source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+              target_label  = "app"
+              action        = "replace"
+            }
+            rule {
+              source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+              separator     = "/"
+              replacement   = "/var/log/pods/*$1/*.log"
+              target_label  = "__path__"
+              action        = "replace"
+            }
+          }
+
+          local.file_match "pod_logs" {
+            path_targets = discovery.relabel.pod_logs.output
+          }
+
+          loki.source.file "pod_logs" {
+            targets    = local.file_match.pod_logs.targets
+            forward_to = [loki.process.pod_logs.receiver]
+          }
+
+          loki.process "pod_logs" {
+            stage.static_labels {
+              values = {
+                cluster = "${CLUSTER_NAME}",
+              }
+            }
+            forward_to = [loki.write.default.receiver]
+          }
+
+          loki.write "default" {
+            endpoint {
+              // Push through the Loki gateway, which fronts every deployment mode (single-binary or
+              // distributed), so this endpoint is stable regardless of global.size.
+              url = "http://loki-gateway.loki.svc.cluster.local/loki/api/v1/push"
+            }
+          }
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: DaemonSet
+            patch: |
+              - op: add
+                path: /spec/template/spec/automountServiceAccountToken
+                value: false

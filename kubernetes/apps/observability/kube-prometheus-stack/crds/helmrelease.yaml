@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack-crds
+  namespace: observability
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: prometheus-operator-crds
+    namespace: observability
+  interval: 1h

@@ -1,0 +1,18 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: allow-ingress-external-gateway
+spec:
+  description: >-
+    Allows workloads opted in with the ingress.gateway.homeops.io/external=true label to
+    receive traffic from the external gateway's Envoy proxies in the gateways namespace.
+  endpointSelector:
+    matchLabels:
+      k8s:ingress.gateway.homeops.io/external: "true"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: gateways
+            k8s:app.kubernetes.io/managed-by: envoy-gateway
+            k8s:gateway.networking.k8s.io/gateway-name: external-gateway

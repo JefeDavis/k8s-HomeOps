@@ -1,0 +1,123 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app teddy-cloud
+  namespace: media
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/toniebox-reverse-engineering/teddycloud
+              tag: latest
+            env:
+              TZ: ${TIMEZONE}
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+
+    defaultPodOptions:
+      securityContext:
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      *app :
+        controller: *app
+        ports:
+          http:
+            port: 80
+
+      stream:
+        controller: *app
+        type: LoadBalancer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: "tonie-stream.${INTERNAL_DOMAIN}"
+        loadBalancerIP: ${SVC_TEDDYCLOUD_ADDR}
+        ports:
+          https:
+            port: 443
+
+    route:
+      ui:
+        enabled: true
+        kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: mdi:teddy-bear
+        parentRefs:
+          - kind: Gateway
+            name: private-gateway
+            namespace: gateway
+        hostnames:
+          - tonie.${INTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                name: *app
+                port: 80
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
+    persistence:
+      config:
+        enabled: true
+        existingClaim: ${VOLSYNC_CLAIM}
+        globalMounts:
+          - path: /teddycloud/config
+      certs:
+        enabled: true
+        existingClaim: teddy-cloud-certs
+        globalMounts:
+          - path: /teddycloud/certs
+      firmware:
+        enabled: true
+        accessMode: ReadWriteOnce
+        size: 5Gi
+        storageClass: ceph-block
+        globalMounts:
+          - path: /teddycloud/data/firmware
+      content:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/teddycloud/content
+        globalMounts:
+          - path: /teddycloud/data/content
+      library:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/teddycloud/library
+        globalMounts:
+          - path: /teddycloud/data/library
+      cache:
+        enabled: true
+        globalMounts:
+          - path: /teddycloud/cache
+        type: emptyDir

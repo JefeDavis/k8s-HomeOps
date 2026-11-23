@@ -1,0 +1,28 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-kube-api
+  namespace: kyverno
+spec:
+  description: >-
+    Allows the long-lived kyverno controllers (admission, background, cleanup, reports) to
+    reach the API server.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/part-of: kyverno
+    matchExpressions:
+      - key: k8s:app.kubernetes.io/component
+        operator: In
+        values:
+          - admission-controller
+          - background-controller
+          - cleanup-controller
+          - reports-controller
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

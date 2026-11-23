@@ -1,0 +1,31 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ingress-metrics
+  namespace: cert-manager
+spec:
+  description: >-
+    Allows the observability stack to scrape the cert-manager metrics.
+  endpointSelector:
+    matchExpressions:
+      - key: k8s:app.kubernetes.io/instance
+        operator: In
+        values:
+          - cert-manager
+      - key: k8s:app.kubernetes.io/component
+        operator: In
+        values:
+          - cainjector
+          - controller
+          - webhook
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "http-metrics"
+              protocol: TCP

@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: controller-egress-letsencrypt
+  namespace: cert-manager
+spec:
+  description: >-
+    Allows the cert-manager controller to reach the configured ACME endpoints.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: cert-manager
+      k8s:app.kubernetes.io/component: controller
+  egress:
+    - toFQDNs:
+        - matchPattern: "**.letsencrypt.org"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: ANY

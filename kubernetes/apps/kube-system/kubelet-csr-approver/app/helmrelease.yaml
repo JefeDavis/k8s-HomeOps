@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kubelet-csr-approver
+  namespace: kube-system
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: kubelet-csr-approver
+    namespace: kube-system
+  values:
+    priorityClassName: system-cluster-critical
+
+    providerRegex: |
+      ^(jsdyb-nuc-00[1-3])$
+
+    # Leader-elected reconciler: a single replica is sufficient (the chart default of 2 is overridden).
+    # Brief absence only defers CSR approval.
+    replicas: 1
+
+    bypassDnsResolution: true
+
+    securityContext:
+      capabilities:
+        drop:
+          - ALL
+
+    # The upstream chart ships no requests/limits; a light leader-elected reconciler. Memory-only limit.
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 64Mi
+
+    # The chart has no podDisruptionBudget value, so the drain-safe budget is created via extraObjects
+    # (owned by this release).
+    extraObjects:
+      - apiVersion: policy/v1
+        kind: PodDisruptionBudget
+        metadata:
+          name: kubelet-csr-approver
+          namespace: kube-system
+        spec:
+          maxUnavailable: 1
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: kubelet-csr-approver
+              app.kubernetes.io/instance: kubelet-csr-approver

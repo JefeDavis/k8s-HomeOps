@@ -1,0 +1,20 @@
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: mosquitto
+  namespace: home
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mosquitto
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces:
+              - home
+      to:
+        - operation:
+            ports:
+              - "1883"

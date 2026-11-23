@@ -1,0 +1,34 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cloudnative-pg-secret-reader
+  namespace: cnpg-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cloudnative-pg-secret-reader
+  namespace: volsync-system
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["cloudnative-pg-secret"]
+    verbs: ["get"]
+  - apiGroups: ["authorization.k8s.io"]
+    resources: ["selfsubjectrulesreviews"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cloudnative-pg-secret-reader
+  namespace: cnpg-system-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cloudnative-pg-secret-reader
+subjects:
+  - kind: ServiceAccount
+    name: cloudnative-pg-secret-reader
+    namespace: cnpg-system

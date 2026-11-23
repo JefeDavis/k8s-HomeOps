@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-kube-api
+  namespace: resume
+spec:
+  description: >-
+    Allows the resume-operator controller to reach the API server to reconcile its CRDs and the
+    Deployments, Services, HTTPRoutes and Ingresses it manages, plus leader election.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: resume-operator
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

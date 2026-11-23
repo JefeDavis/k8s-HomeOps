@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: zigbee2mqtt-egress-mqtt
+  namespace: home
+spec:
+  description: >-
+    Allows zigbee2mqtt to reach the mosquitto broker on the MQTT port 1883. In the ambient mesh the
+    connection is carried over ztunnel HBONE and identity is enforced by the mosquitto
+    AuthorizationPolicy.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: zigbee2mqtt
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: home
+            k8s:app.kubernetes.io/name: mosquitto
+      toPorts:
+        - ports:
+            - port: "1883"
+              protocol: TCP

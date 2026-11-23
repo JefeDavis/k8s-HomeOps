@@ -1,0 +1,15 @@
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: kube-prometheus-stack-prometheus-operator
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-prometheus-operator
+  mtls:
+    mode: STRICT
+  portLevelMtls:
+    "10250":
+      mode: PERMISSIVE

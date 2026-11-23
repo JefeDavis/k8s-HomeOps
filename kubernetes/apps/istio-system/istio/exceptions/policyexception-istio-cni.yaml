@@ -1,0 +1,39 @@
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: istio-cni
+  namespace: kyverno-exceptions
+  annotations:
+    policies.kyverno.io/justification:
+      The Istio CNI node agent installs and manages
+      the per-node CNI plugin, requiring host path access, added/elevated capabilities,
+      a custom AppArmor profile and root (no non-root group) to program node networking;
+      this is the upstream istio-cni DaemonSet's required posture.
+spec:
+  matchConditions:
+    - expression:
+        has(object.metadata.labels) && ("app.kubernetes.io/name" in object.metadata.labels)
+        && object.metadata.labels["app.kubernetes.io/name"] == "istio-cni"
+      name: match-labels
+  policyRefs:
+    - kind: ValidatingPolicy
+      name: disallow-capabilities
+    - kind: ValidatingPolicy
+      name: disallow-capabilities-strict
+    - kind: ValidatingPolicy
+      name: disallow-host-path
+    - kind: ValidatingPolicy
+      name: disallow-privilege-escalation
+    - kind: ValidatingPolicy
+      name: require-run-as-nonroot
+    - kind: ValidatingPolicy
+      name: require-run-as-non-root-user
+    - kind: ValidatingPolicy
+      name: restrict-apparmor-profiles
+    - kind: ValidatingPolicy
+      name: restrict-volume-types
+    - kind: ValidatingPolicy
+      name: kyverno-require-ro-rootfs
+    - kind: ValidatingPolicy
+      name: kyverno-require-non-root-group
+  reportResult: skip

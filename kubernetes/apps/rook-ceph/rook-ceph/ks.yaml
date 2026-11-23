@@ -1,0 +1,95 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: rook-ceph
+  namespace: rook-ceph
+spec:
+  targetNamespace: rook-ceph
+  interval: 1h
+  path: "./kubernetes/apps/rook-ceph/rook-ceph/operator"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  dependsOn:
+    - name: kube-prometheus-stack-crds
+      namespace: observability
+    - name: snapshot-controller
+      namespace: kube-system
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ceph-csi-drivers
+  namespace: rook-ceph
+spec:
+  targetNamespace: rook-ceph
+  interval: 1h
+  path: "./kubernetes/apps/rook-ceph/rook-ceph/csi-drivers"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  dependsOn:
+    - name: rook-ceph
+      namespace: rook-ceph
+    - name: envoy-gateway
+      namespace: envoy-gateway
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: rook-ceph-cluster
+  namespace: rook-ceph
+spec:
+  targetNamespace: rook-ceph
+  interval: 1h
+  path: "./kubernetes/apps/rook-ceph/rook-ceph/cluster"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  healthCheckExprs:
+    - apiVersion: ceph.rook.io/v1
+      kind: CephCluster
+      failed: status.ceph.health == 'HEALTH_ERR'
+      current: status.ceph.health in ['HEALTH_OK', 'HEALTH_WARN']
+    - apiVersion: ceph.rook.io/v1
+      kind: CephObjectStore
+      failed: status.phase == 'Failure'
+      current: status.phase == 'Ready'
+  dependsOn:
+    - name: rook-ceph
+      namespace: rook-ceph
+    - name: ceph-csi-drivers
+      namespace: rook-ceph
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: rook-ceph-exceptions
+  namespace: rook-ceph
+spec:
+  targetNamespace: kyverno-exceptions
+  interval: 1h
+  path: "./kubernetes/apps/rook-ceph/rook-ceph/exceptions"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  dependsOn:
+    - name: kyverno
+      namespace: kyverno

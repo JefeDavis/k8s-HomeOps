@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # grafana operator
+  - ./grafana-operator-egress-kube-api.yaml
+  - ./grafana-operator-ingress-metrics.yaml
+
+  # grafana
+  - ./grafana-egress-prometheus.yaml
+  - ./grafana-egress-alertmanager.yaml
+  - ./grafana-ingress-metrics.yaml

@@ -1,0 +1,31 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: logs-egress
+  namespace: alloy
+spec:
+  description: >-
+    Allows alloy-logs to reach the API server for pod-discovery log-target metadata and the
+    loki gateway to push logs; logs are tailed from the host filesystem, so there is no
+    scrape egress. (kube-dns egress comes from the cluster default.)
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: alloy-logs
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+    # Push logs to the loki gateway (nginx, container port 8080).
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: loki
+            k8s:app.kubernetes.io/name: loki
+            k8s:app.kubernetes.io/component: gateway
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP

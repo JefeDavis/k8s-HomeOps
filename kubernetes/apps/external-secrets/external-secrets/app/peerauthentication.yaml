@@ -1,0 +1,13 @@
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: external-secrets-webhook-exception
+  namespace: external-secrets
+spec:
+  portLevelMtls:
+    "10250":
+      mode: PERMISSIVE
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: external-secrets-webhook

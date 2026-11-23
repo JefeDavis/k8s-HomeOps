@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: zigbee2mqtt-egress-coordinator
+  namespace: home
+spec:
+  description: >-
+    Allows zigbee2mqtt to reach the LAN Zigbee coordinator (serial-over-TCP) on 6638. The
+    coordinator is outside the mesh, so this traffic egresses directly rather than through ztunnel.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: zigbee2mqtt
+  egress:
+    - toCIDR:
+        - 10.0.70.92/32
+      toPorts:
+        - ports:
+            - port: "6638"
+              protocol: TCP

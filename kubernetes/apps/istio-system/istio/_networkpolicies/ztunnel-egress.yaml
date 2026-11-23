@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ztunnel-egress
+  namespace: istio-system
+spec:
+  description: >-
+    Allows ztunnel to reach istiod for xDS and CA.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: ztunnel
+  egress:
+    # ztunnel -> istiod xDS/CA.
+    - toEndpoints:
+        - matchLabels:
+            k8s:app.kubernetes.io/name: istiod
+            k8s:io.kubernetes.pod.namespace: istio-system
+      toPorts:
+        - ports:
+            - port: "15012"
+              protocol: TCP

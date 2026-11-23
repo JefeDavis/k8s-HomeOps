@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: reloader-egress-kube-api
+  namespace: system
+spec:
+  description: >-
+    Allows reflector to reach the API server to manage secrets and configmaps.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: reloader
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

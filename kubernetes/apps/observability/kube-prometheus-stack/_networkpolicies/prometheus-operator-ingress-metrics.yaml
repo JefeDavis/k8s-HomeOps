@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-operator-ingress-metrics
+  namespace: observability
+spec:
+  description: >-
+    Allows the Alloy metrics collector to scrape its /metrics.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: prometheus-prometheus-operator
+  ingress:
+    # Operator /metrics scraped by Alloy.
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP

@@ -1,0 +1,157 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: external-secrets-operator
+  namespace: external-secrets
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: external-secrets-operator
+    namespace: external-secrets
+  interval: 1h
+  values:
+    priorityClassName: platform-high
+    # Leader election (off by default in this chart) lets a second controller replica run as a standby.
+    # minAvailable is cleared (the chart defaults it) so the PDB emits only maxUnavailable.
+    leaderElect: true
+    replicaCount: 2
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: ""
+      maxUnavailable: 1
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: external-secrets
+            app.kubernetes.io/instance: external-secrets
+        matchLabelKeys:
+          - pod-template-hash
+    serviceMonitor:
+      enabled: true
+
+    # The binaries serve /healthz + /readyz (controller on --live-addr, webhook/cert-controller on
+    # --healthz-addr) but the chart defaults all probe flags off (external-secrets#7179). Enable them so
+    # every component is health-monitored (controller gets liveness + readiness; webhook/cert-controller
+    # ship readiness already, add liveness below).
+    livenessProbe:
+      enabled: true
+    readinessProbe:
+      enabled: true
+
+    serviceAccount:
+      automount: false
+    extraVolumeMounts: &saTokenMount
+      - name: serviceaccount-token
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        readOnly: true
+    extraVolumes: &saTokenVolume
+      - name: serviceaccount-token
+        projected:
+          defaultMode: 0444
+          sources:
+            - serviceAccountToken:
+                expirationSeconds: 3607
+                path: token
+            - configMap:
+                name: kube-root-ca.crt
+                items:
+                  - key: ca.crt
+                    path: ca.crt
+            - downwardAPI:
+                items:
+                  - path: namespace
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.namespace
+
+    # The upstream chart ships no resource requests/limits, so set them here (controller). Memory-only
+    # limits keep the reconcilers schedulable without CPU throttling.
+    resources:
+      requests:
+        cpu: 25m
+        memory: 96Mi
+      limits:
+        memory: 192Mi
+
+    webhook:
+      priorityClassName: platform-high
+      livenessProbe:
+        enabled: true
+      # Fail-closed webhook in the API admission path: stays at two spread replicas on every tier, with
+      # the chart's default minAvailable: 1 budget so at least one endpoint is always up.
+      replicaCount: 2
+      podDisruptionBudget:
+        enabled: true
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: external-secrets-webhook
+              app.kubernetes.io/instance: external-secrets
+          matchLabelKeys:
+            - pod-template-hash
+      serviceAccount:
+        automount: false
+      extraVolumeMounts: *saTokenMount
+      extraVolumes: *saTokenVolume
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+
+    certController:
+      priorityClassName: platform-high
+      livenessProbe:
+        enabled: true
+      # Issues and rotates the webhook serving cert; kept in step with the webhook at two spread replicas.
+      replicaCount: 2
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: ""
+        maxUnavailable: 1
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: external-secrets-cert-controller
+              app.kubernetes.io/instance: external-secrets
+          matchLabelKeys:
+            - pod-template-hash
+      serviceAccount:
+        automount: false
+      extraVolumeMounts: *saTokenMount
+      extraVolumes: *saTokenVolume
+      resources:
+        requests:
+          cpu: 10m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: ServiceAccount
+              name: external-secrets-webhook
+            patch: |
+              - op: add
+                path: /automountServiceAccountToken
+                value: false
+          - target:
+              kind: ServiceAccount
+              name: external-secrets-cert-controller
+            patch: |
+              - op: add
+                path: /automountServiceAccountToken
+                value: false

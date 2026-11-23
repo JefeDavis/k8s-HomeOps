@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: internal-gateway-egress
+  namespace: gateways
+spec:
+  description: >-
+    Allows the internal gateway to send traffic to the backend pods.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/managed-by: envoy-gateway
+      k8s:gateway.networking.k8s.io/gateway-name: internal-gateway
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:ingress.gateway.homeops.io/internal: "true"
+          matchExpressions:
+            - key: k8s:io.kubernetes.pod.namespace
+              operator: Exists

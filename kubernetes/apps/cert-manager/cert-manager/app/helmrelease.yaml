@@ -1,0 +1,203 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: cert-manager
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: cert-manager
+    namespace: cert-manager
+  interval: 1h
+  values:
+    global:
+      priorityClassName: platform-high
+    crds:
+      enabled: true
+
+    config:
+      gatewayAPI:
+        enabled: true
+        enableListenerSet: true
+      featureGates:
+        ListenerSets: true
+
+    # The controller and cainjector stay single-replica (leader-elected reconcilers) with a drain-safe PDB.
+    # The webhook (below) runs multiple replicas because it sits in the API admission path.
+    podDisruptionBudget:
+      enabled: true
+      maxUnavailable: 1
+    # Drop the auto-mounted SA token and hand each controller a projected, short-lived
+    # token instead, so they keep API access under the disallow-automount policy.
+    automountServiceAccountToken: false
+    serviceAccount:
+      automountServiceAccountToken: false
+    containerSecurityContext:
+      seccompProfile:
+        type: RuntimeDefault
+    volumes:
+      - name: serviceaccount-token
+        projected:
+          defaultMode: 444
+          sources:
+            - serviceAccountToken:
+                expirationSeconds: 3607
+                path: token
+            - configMap:
+                name: kube-root-ca.crt
+                items:
+                  - key: ca.crt
+                    path: ca.crt
+            - downwardAPI:
+                items:
+                  - path: namespace
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.namespace
+    volumeMounts:
+      - name: serviceaccount-token
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        readOnly: true
+    # The upstream chart ships no resource requests/limits, so set them here (controller). Memory-only
+    # limits keep the reconcilers schedulable without CPU throttling.
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
+    webhook:
+      # Fail-closed webhook: stays at two replicas on every tier (no small downscale) with a minAvailable
+      # budget so at least one endpoint is always up to serve admission.
+      replicaCount: 2
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: webhook
+              app.kubernetes.io/instance: cert-manager
+          matchLabelKeys:
+            - pod-template-hash
+      mutatingWebhookConfigurationAnnotations:
+        admissions.enforcer/disabled: "true"
+      validatingWebhookConfigurationAnnotations:
+        admissions.enforcer/disabled: "true"
+      automountServiceAccountToken: false
+      serviceAccount:
+        automountServiceAccountToken: false
+      containerSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: serviceaccount-token
+          projected:
+            defaultMode: 444
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  name: kube-root-ca.crt
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+              - downwardAPI:
+                  items:
+                    - path: namespace
+                      fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+      volumeMounts:
+        - name: serviceaccount-token
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          readOnly: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+    cainjector:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+      automountServiceAccountToken: false
+      serviceAccount:
+        automountServiceAccountToken: false
+      containerSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: serviceaccount-token
+          projected:
+            defaultMode: 444
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  name: kube-root-ca.crt
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+              - downwardAPI:
+                  items:
+                    - path: namespace
+                      fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+      volumeMounts:
+        - name: serviceaccount-token
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          readOnly: true
+      # cainjector caches every cluster CA, so it gets a wider memory ceiling than the other components.
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+    startupapicheck:
+      # startupapicheck is a post-install hook Job that calls the kube API (`check api`); drop the
+      # auto-mounted SA token and hand it the same projected, short-lived token as the controllers.
+      automountServiceAccountToken: false
+      serviceAccount:
+        automountServiceAccountToken: false
+      volumes:
+        - name: serviceaccount-token
+          projected:
+            defaultMode: 444
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  name: kube-root-ca.crt
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+              - downwardAPI:
+                  items:
+                    - path: namespace
+                      fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+      volumeMounts:
+        - name: serviceaccount-token
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          readOnly: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+    dns01RecursiveNameservers: https://1.1.1.1:443/dns-query,https://1.0.0.1:443/dns-query
+    dns01RecursiveNameserversOnly: true

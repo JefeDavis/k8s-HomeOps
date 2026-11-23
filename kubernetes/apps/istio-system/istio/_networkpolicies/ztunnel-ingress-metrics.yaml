@@ -1,0 +1,24 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ztunnel-ingress-metrics
+  namespace: istio-system
+spec:
+  description: >-
+    Allows the observability stack to scrape the ztunnel metrics
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: ztunnel
+  ingress:
+    # Merged/ztunnel metrics scraped by the observability stack. (15021 health is a
+    # kubelet probe, which needs no policy.)
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "ztunnel-stats" # ztunnel / merged metrics
+              protocol: TCP
