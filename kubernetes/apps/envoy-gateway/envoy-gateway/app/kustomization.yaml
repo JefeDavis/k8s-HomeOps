@@ -6,3 +6,4 @@ resources:
   - ./ocirepo.yaml
   - ./helmrelease.yaml
   - ./peerauthentication.yaml
+  - ./grafanadashboard.yaml
