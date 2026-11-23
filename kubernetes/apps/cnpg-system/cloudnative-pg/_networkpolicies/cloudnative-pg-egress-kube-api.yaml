@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: egress-kube-api
+  name: cloudnative-pg-egress-kube-api
   namespace: cnpg-system
 spec:
   description: >-

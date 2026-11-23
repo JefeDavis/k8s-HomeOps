@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: ingress-webhook
+  name: cloudnative-pg-ingress-webhook
   namespace: cnpg-system
 spec:
   description: >-

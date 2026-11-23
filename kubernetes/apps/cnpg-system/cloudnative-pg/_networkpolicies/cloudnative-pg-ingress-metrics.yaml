@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: ingress-metrics
+  name: cloudnative-pg-ingress-metrics
   namespace: cnpg-system
 spec:
   description: >-
