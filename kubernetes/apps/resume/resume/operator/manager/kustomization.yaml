@@ -1,0 +1,11 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - manager.yaml
+  - metrics-service.yaml
+images:
+  - name: controller
+    newName: ghcr.io/jefedavis/resume-operator
+    newTag: v0.4.1@sha256:c6f1ea653713e3dccf3cf8c7e62076233fb08f077133c5fb0cc9575146a15454

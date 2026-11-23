@@ -1,0 +1,18 @@
+---
+customization:
+  extraKernelArgs:
+    - -selinux # Disable SELinux (removes the default selinux=1)
+    - audit=0 # Disable kernel audit
+    - i915.enable_guc=3 # Tiger Lake iGPU: enable GuC submission + HuC (video transcode)
+    - intel_iommu=on # Enable VT-d for PCI passthrough
+    - iommu=pt # IOMMU passthrough mode (host devices use direct DMA)
+    - selinux=0 # Disable SELinux
+    - talos.auditd.disabled=1 # Disable Talos auditd (pair with audit=0)
+    - thunderbolt.host_reset=0 # Thunderbolt NICs
+  systemExtensions:
+    officialExtensions:
+      - siderolabs/gvisor # Sandboxed Containers
+      - siderolabs/i915 # Intel iGPU
+      - siderolabs/intel-ucode # Intel iGPU
+      - siderolabs/thunderbolt # Thunderbolt NICs
+      - siderolabs/nut-client # ups notifications

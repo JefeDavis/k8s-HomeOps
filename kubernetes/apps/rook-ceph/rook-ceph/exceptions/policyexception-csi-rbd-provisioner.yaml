@@ -1,0 +1,31 @@
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: rook-ceph-csi-rbd-provisioner
+  namespace: kyverno-exceptions
+  annotations:
+    policies.kyverno.io/justification: >-
+      The operator-managed RBD CSI provisioner needs host paths (/dev, /sys, /lib/modules) to provision
+      volumes; this is the upstream rook-ceph required posture.
+spec:
+  matchConditions:
+    - expression: request.namespace in ["rook-ceph"]
+      name: in-namespaces
+    - expression: has(object.metadata.labels) && ("app" in object.metadata.labels)
+        && object.metadata.labels["app"] == "rook-ceph.rbd.csi.ceph.com-ctrlplugin"
+      name: match-labels
+  policyRefs:
+    - kind: ValidatingPolicy
+      name: disallow-host-path
+    - kind: ValidatingPolicy
+      name: disallow-capabilities-strict
+    - kind: ValidatingPolicy
+      name: restrict-volume-types
+    - kind: ValidatingPolicy
+      name: disallow-privilege-escalation
+    - kind: ValidatingPolicy
+      name: require-run-as-nonroot
+    - kind: ValidatingPolicy
+      name: restrict-seccomp-strict
+  reportResult: skip

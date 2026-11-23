@@ -1,0 +1,31 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ingress-metrics
+  namespace: kyverno
+spec:
+  description: >-
+    Allows the observability stack to scrape the kyverno controller
+    metrics on 8000.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/part-of: kyverno
+    matchExpressions:
+      - key: k8s:app.kubernetes.io/component
+        operator: In
+        values:
+          - admission-controller
+          - background-controller
+          - cleanup-controller
+          - reports-controller
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP

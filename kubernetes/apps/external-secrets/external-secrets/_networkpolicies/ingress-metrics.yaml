@@ -1,0 +1,28 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ingress-metrics
+  namespace: external-secrets
+spec:
+  description: >-
+    Allows the observability stack to scrape the external-secrets metrics endpoints (controller,
+    webhook, and cert-controller expose metrics on 8080).
+  endpointSelector:
+    matchExpressions:
+      - key: k8s:app.kubernetes.io/name
+        operator: In
+        values:
+          - external-secrets
+          - external-secrets-cert-controller
+          - external-secrets-webhook
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP

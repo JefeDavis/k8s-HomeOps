@@ -1,0 +1,30 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: rook-ceph-egress-kube-api
+  namespace: rook-ceph
+spec:
+  description: >-
+    Allows the Rook operator, the operator-run jobs (detect-version, OSD prepare), the mgr and the
+    CSI provisioner pods to reach the API server.
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+  endpointSelector:
+    matchExpressions:
+      - key: k8s:app
+        operator: In
+        values:
+          - rook-ceph-operator
+          - rook-ceph-detect-version
+          - rook-ceph-osd-prepare
+          - rook-ceph-mgr
+          - rook-ceph.rbd.csi.ceph.com-ctrlplugin
+          - rook-ceph.cephfs.csi.ceph.com-ctrlplugin
+          - ceph-object-controller-detect-version
+          - ceph-file-controller-detect-version

@@ -1,0 +1,208 @@
+---
+# Documents applied to every node. Secret values are injected from the native
+# talosctl bundle talos.sops.yaml (nested paths like certs.os.crt, nut.password)
+# and the schematic id from the Image Factory at render time (see mise.toml
+# //:template). Adapted from onedr0p/home-ops for 3x NUC 11
+# Pro (single igc NIC, native VLAN 77, tagged VLAN 90, 1TB install + 2TB Rook).
+version: v1alpha1
+machine:
+  ca:
+    crt: {{ certs.os.crt }}
+  features:
+    apidCheckExtKeyUsage: true
+    diskQuotaSupport: true
+    rbac: true
+  network:
+    # Resolve the API endpoint to the control-plane VIP locally on every node so
+    # bootstrap does not depend on upstream DNS.
+    extraHostEntries:
+      - ip: 10.77.0.10
+        aliases:
+          - jsdyb-k8s-001.internal.davishaus.dev
+  token: {{ trustdinfo.token }}
+cluster:
+  ca:
+    crt: {{ certs.k8s.crt }}
+  clusterName: jsdyb-k8s-001
+  controlPlane:
+    endpoint: https://jsdyb-k8s-001.internal.davishaus.dev:6443
+  token: {{ secrets.bootstraptoken }}
+---
+# Single onboard Intel 2.5GbE NIC on every NUC 11 Pro (igc driver). No bond.
+apiVersion: v1alpha1
+kind: LinkAliasConfig
+name: net0
+selector:
+  match: link.driver == "igc"
+---
+# Primary address on the native/untagged VLAN 77 (DHCP reservations map MAC -> IP).
+apiVersion: v1alpha1
+kind: DHCPv4Config
+name: net0
+clientIdentifier: mac
+---
+# Control-plane shared VIP (Layer 2 advertisement) on the VLAN 77 segment.
+apiVersion: v1alpha1
+kind: Layer2VIPConfig
+name: 10.77.0.10
+link: net0
+---
+# Tagged VLAN 90 (IoT) sub-interface only, no host IP; serves as the Multus
+# macvlan/ipvlan parent for Home Assistant discovery.
+apiVersion: v1alpha1
+kind: VLANConfig
+name: net0.90
+vlanID: 90
+parent: net0
+---
+apiVersion: v1alpha1
+kind: ResolverConfig
+nameservers:
+  - address: 10.77.0.2 # override DHCP-provided resolvers
+searchDomains:
+  domains: []
+hostDNS:
+  enabled: true
+  forwardKubeDNSToHost: true # Requires Cilium socketLB features
+  resolveMemberNames: true
+---
+apiVersion: v1alpha1
+kind: DiscoveryServiceConfig
+name: default
+endpoint: https://discovery.talos.dev/
+---
+apiVersion: v1alpha1
+kind: DiscoveryIdentityConfig
+clusterID: {{ cluster.id }}
+clusterSecret: {{ cluster.secret }}
+---
+# Unattended install to the 1TB SATA SSD only. The 2TB NVMe (CT2000P3PSSD8) is
+# deliberately left untouched/raw for Rook-Ceph.
+apiVersion: v1alpha1
+kind: UnattendedInstallConfig
+installer:
+  image: factory.talos.dev/metal-installer/{{ schematic }}:v1.14.6
+provisioning:
+  diskSelector:
+    match: disk.model == "CT1000MX500SSD1"
+  wipe: false
+---
+apiVersion: v1alpha1
+kind: FilesystemTrimConfig
+interval: 168h0m0s
+---
+apiVersion: v1alpha1
+kind: FilesystemScrubConfig
+interval: 168h0m0s
+---
+apiVersion: v1alpha1
+kind: WatchdogTimerConfig
+device: /dev/watchdog0
+timeout: 5m
+---
+# Rook-Ceph RBD client.
+apiVersion: v1alpha1
+kind: KernelModuleConfig
+name: rbd
+---
+apiVersion: v1alpha1
+kind: KernelModuleConfig
+name: thunderbolt
+---
+apiVersion: v1alpha1
+kind: SysctlConfig
+params:
+  fs.inotify.max_user_instances: "8192"
+  fs.inotify.max_user_watches: "1048576"
+  net.core.default_qdisc: fq
+  net.core.rmem_max: "67108864"
+  net.core.wmem_max: "67108864"
+  net.ipv4.neigh.default.gc_thresh1: "4096"
+  net.ipv4.neigh.default.gc_thresh2: "8192"
+  net.ipv4.neigh.default.gc_thresh3: "16384"
+  net.ipv4.ping_group_range: 0 2147483647
+  net.ipv4.tcp_congestion_control: bbr
+  net.ipv4.tcp_fastopen: "3"
+  net.ipv4.tcp_mtu_probing: "1"
+  net.ipv4.tcp_notsent_lowat: "131072"
+  net.ipv4.tcp_rmem: 4096 131072 67108864
+  net.ipv4.tcp_slow_start_after_idle: "0"
+  net.ipv4.tcp_wmem: 4096 65536 67108864
+  net/ipv6/conf/net0.90/disable_ipv6: "1" # keep the host off IPv6 on the IoT segment
+  user.max_user_namespaces: "11255"
+---
+apiVersion: v1alpha1
+kind: EtcFileConfig
+name: nfs.conf
+mode: 0o644
+contents: |
+  [nfsrahead]
+  nfs4=16384
+  default=128
+---
+apiVersion: v1alpha1
+kind: EtcFileConfig
+name: nfsmount.conf
+mode: 0o644
+contents: |
+  [ NFSMount_Global_Options ]
+  nfsvers=4.2
+  hard=True
+  nconnect=16
+  noatime=True
+  rsize=1048576
+  wsize=1048576
+---
+apiVersion: v1alpha1
+kind: CRICustomizationConfig
+name: containerd
+content: |
+  [plugins."io.containerd.cri.v1.images"]
+    discard_unpacked_layers = false
+  [plugins."io.containerd.cri.v1.runtime"]
+    device_ownership_from_security_context = true
+---
+apiVersion: v1alpha1
+kind: KubeNodeConfig
+nodeIP:
+  validSubnets:
+    - 10.77.0.0/24
+labels:
+  node.kubernetes.io/gpu: "true"
+  topology.kubernetes.io/region: jsdyb
+---
+apiVersion: v1alpha1
+kind: KubeletConfig
+extraArgs:
+  rotate-server-certificates: "true"
+config:
+  crashLoopBackOff:
+    maxContainerRestartPeriod: 60s
+  imageMaximumGCAge: 168h
+  maxParallelImagePulls: 3
+  serializeImagePulls: false
+  shutdownGracePeriod: 90s
+  shutdownGracePeriodCriticalPods: 60s
+defaultRuntimeSeccompProfileEnabled: true
+image: ghcr.io/siderolabs/kubelet:v1.37.2
+---
+apiVersion: v1alpha1
+kind: KubeNetworkConfig
+dnsDomain: cluster.local
+podSubnets:
+  - 172.22.0.0/16
+serviceSubnets:
+  - 172.23.0.0/16
+---
+apiVersion: v1alpha1
+kind: KubePrismConfig
+port: 7445
+---
+apiVersion: v1alpha1
+kind: ExtensionServiceConfig
+name: nut-client
+configFiles:
+  - content: |
+      MONITOR 10.77.0.2 1 monuser {{ nut.password }} slave
+      SHUTDOWNCMD "/sbin/poweroff"
+    mountPath: /usr/local/etc/nut/upsmon.conf

@@ -1,0 +1,48 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cloudnative-pg
+  namespace: cnpg-system
+spec:
+  targetNamespace: cnpg-system
+  interval: 1h
+  path: ./kubernetes/apps/cnpg-system/cloudnative-pg/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: kube-prometheus-stack-crds
+      namespace: observability
+    - name: istio-ztunnel
+      namespace: istio-system
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cloudnative-pg-config
+  namespace: cnpg-system
+spec:
+  targetNamespace: cnpg-system
+  interval: 1h
+  path: ./kubernetes/apps/cnpg-system/cloudnative-pg/config
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: cloudnative-pg
+      namespace: cnpg-system
+    - name: cert-manager
+      namespace: cert-manager

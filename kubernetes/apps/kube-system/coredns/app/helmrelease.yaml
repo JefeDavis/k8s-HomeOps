@@ -1,0 +1,140 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: coredns
+  namespace: kube-system
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: coredns
+    namespace: kube-system
+  interval: 1h
+  values:
+    fullnameOverride: coredns
+    image:
+      repository: mirror.gcr.io/coredns/coredns
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 300m
+        memory: 128Mi
+    k8sAppLabelOverride: kube-dns
+
+    serviceAccount:
+      create: true
+
+    automountServiceAccountToken: false
+
+    prometheus:
+      service:
+        enabled: true
+      monitor:
+        enabled: true
+
+    service:
+      name: kube-dns
+      clusterIP: 172.23.0.10
+    priorityClassName: system-cluster-critical
+    servers:
+      - zones:
+          - zone: .
+            scheme: dns://
+            use_tcp: true
+        port: 53
+        plugins:
+          - name: errors
+          - name: health
+            configBlock: |-
+              lameduck 5s
+          - name: ready
+          - name: kubernetes
+            parameters: cluster.local in-addr.arpa ip6.arpa
+            configBlock: |-
+              pods verified
+              fallthrough in-addr.arpa ip6.arpa
+          - name: forward
+            parameters: . /etc/resolv.conf
+          - name: cache
+            configBlock: |-
+              prefetch 20
+              serve_stale
+          - name: loop
+          - name: reload
+          - name: loadbalance
+          - name: prometheus
+            parameters: 0.0.0.0:9153
+          - name: log
+            configBlock: |-
+              class error
+
+    tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+
+    podDisruptionBudget:
+      maxUnavailable: 1
+
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            k8s-app: kube-dns
+        matchLabelKeys:
+          - pod-template-hash
+
+    extraVolumes:
+      - name: serviceaccount-token
+        projected:
+          defaultMode: 0444
+          sources:
+            - serviceAccountToken:
+                expirationSeconds: 3607
+                path: token
+            - configMap:
+                name: kube-root-ca.crt
+                items:
+                  - key: ca.crt
+                    path: ca.crt
+            - downwardAPI:
+                items:
+                  - path: namespace
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.namespace
+
+    extraVolumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: serviceaccount-token
+        readOnly: true
+
+    podSecurityContext:
+      seccompProfile:
+        type: RuntimeDefault
+      runAsUser: 65534
+      runAsGroup: 65534
+      runAsNonRoot: true
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      privileged: false
+      capabilities:
+        drop:
+          - ALL
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: Exists

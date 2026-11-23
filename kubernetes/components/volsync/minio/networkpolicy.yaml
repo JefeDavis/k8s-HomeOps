@@ -1,0 +1,18 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ${APP}-volsync-egress-minio
+spec:
+  description: >-
+    Allows volsync restic movers to reach the external MinIO S3 endpoint.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/created-by: volsync
+  egress:
+    - toCIDR:
+        - 10.77.0.2/32
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP

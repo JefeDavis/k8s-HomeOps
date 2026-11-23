@@ -1,0 +1,124 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app mealie
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/mealie-recipes/mealie
+              tag: v2.8.0@sha256:63aef46d90975d9cf9c0fdb9399fc2fe36acd222e1db6be99c504b9ccdbee967
+            env:
+              TZ: ${TIMEZONE}
+              BASE_URL: https://cookbook.${INTERNAL_DOMAIN}
+              PGID: ${APP_GID}
+              PUID: ${APP_UID}
+              AUTO_BACKUP_ENABLED: true
+              ALLOW_SIGNUP: true
+              SMTP_HOST: smtp-relay.network.svc.cluster.local.
+              SMTP_PORT: 2525
+              SMTP_FROM_NAME: Mealie
+              SMTP_FROM_EMAIL: cookbook@${INTERNAL_DOMAIN}
+              SMTP_AUTH_STRATEGY: NONE
+              DB_ENGINE: postgres
+              POSTGRES_URL_OVERRIDE:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-mealie-app
+                    key: uri
+              OIDC_AUTH_ENABLED: false
+              OIDC_CLIENT_ID: *app
+              OIDC_CONFIGURATION_URL: https://auth.${EXTERNAL_DOMAIN}/application/o/mealie/.well-known/openid-configuration
+              OIDC_REMEMBER_ME: true
+              OIDC_PROVIDER_NAME: "Authentik"
+              OIDC_AUTO_REDIRECT: true
+              OIDC_USER_GROUP: Mealie Users
+              OIDC_ADMIN_GROUP: Mealie Admins
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+
+    defaultPodOptions:
+      securityContext:
+        fsGroup: ${APP_GID}
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: ${APP_GID}
+        runAsNonRoot: true
+        runAsUser: ${APP_UID}
+        seccompProfile:
+          type: RuntimeDefault
+
+    service:
+      *app :
+        controller: *app
+        ports:
+          http:
+            port: &port 9000
+
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: mdi:chef-hat
+        parentRefs:
+          - kind: Gateway
+            name: private-gateway
+            namespace: gateway
+        hostnames:
+          - cookbook.${INTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                name: *app
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
+    persistence:
+      data:
+        existingClaim: ${VOLSYNC_CLAIM}
+        globalMounts:
+          - path: /app/data
+
+      backups:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/backups/mealie
+        globalMounts:
+          - path: /app/data/backups
+
+      tmp:
+        type: emptyDir
+
+      nltkdata:
+        type: emptyDir
+        globalMounts:
+          - path: /nltk_data

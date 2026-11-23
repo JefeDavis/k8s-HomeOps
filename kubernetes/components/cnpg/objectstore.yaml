@@ -1,0 +1,28 @@
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: pg-${APP}
+spec:
+  configuration:
+    destinationPath: s3://${CNPG_BUCKET:=cnpg}/
+    endpointURL: ${CNPG_ENDPOINT:=http://minio.network.svc.cluster.local:9000}
+    s3Credentials:
+      accessKeyId:
+        name: pg-${APP}-objectstore-secret
+        key: AWS_ACCESS_KEY_ID
+      secretAccessKey:
+        name: pg-${APP}-objectstore-secret
+        key: AWS_SECRET_ACCESS_KEY
+    data:
+      compression: gzip
+    wal:
+      compression: gzip
+      maxParallel: 2
+  instanceSidecarConfiguration:
+    resources:
+      requests:
+        cpu: 10m
+      limits:
+        memory: 256Mi
+  retentionPolicy: ${CNPG_RETENTION:=30d}

@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-ingress-grafana
+  namespace: observability
+spec:
+  description: >-
+    Allows Grafana to connect to prometheus to pull metrics
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: prometheus
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: grafana
+            k8s:app.kubernetes.io/name: grafana
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP

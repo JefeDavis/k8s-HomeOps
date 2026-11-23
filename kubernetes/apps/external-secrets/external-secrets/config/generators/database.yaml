@@ -1,0 +1,15 @@
+---
+apiVersion: generators.external-secrets.io/v1alpha1
+kind: ClusterGenerator
+metadata:
+  name: database-password-generator
+spec:
+  kind: Password
+  generator:
+    passwordSpec:
+      length: 30
+      digits: 5
+      symbols: 5
+      symbolCharacters: "-_&*^!"
+      noUpper: false
+      allowRepeat: true

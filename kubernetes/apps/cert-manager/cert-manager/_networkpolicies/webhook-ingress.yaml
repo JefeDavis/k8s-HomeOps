@@ -1,0 +1,25 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: webhook-ingress
+  namespace: cert-manager
+spec:
+  description: >-
+    Allows the API server to reach the cert-manager admission/conversion webhook.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: cert-manager
+      k8s:app.kubernetes.io/component: webhook
+      k8s:app.kubernetes.io/name: webhook
+  ingress:
+    # Cross-node API server webhook calls egress via the remote node's
+    # CiliumInternalIP, which carries the `remote-node` identity (only the node's
+    # primary IP gets the `kube-apiserver` label), so remote-node is required too.
+    - fromEntities:
+        - kube-apiserver
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP

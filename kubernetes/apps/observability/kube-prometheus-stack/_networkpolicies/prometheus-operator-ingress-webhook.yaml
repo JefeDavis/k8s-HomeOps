@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-operator-ingress-webhook
+  namespace: observability
+spec:
+  description: >-
+    Allows the API server to reach the prometheus-operator admission webhook.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: prometheus-prometheus-operator
+  ingress:
+    # Admission webhook served to the kube-apiserver.
+    - fromEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP

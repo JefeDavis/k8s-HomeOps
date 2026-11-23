@@ -1,0 +1,158 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: alloy-traces
+  namespace: alloy
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: alloy-traces
+    namespace: alloy
+  interval: 1h
+  values:
+    # alloy-traces: a Deployment that runs an OTLP receiver (grpc 4317 / http 4318), batches, and
+    # exports to tempo. In-mesh senders reach it over ztunnel mTLS; the module's PeerAuthentication
+    # relaxes 4317/4318 to PERMISSIVE so out-of-mesh senders are still accepted.
+    global:
+      podSecurityContext:
+        runAsNonRoot: true
+        runAsUser: 473
+        runAsGroup: 473
+        fsGroup: 473
+        seccompProfile:
+          type: RuntimeDefault
+
+    crds:
+      create: false
+
+    serviceAccount:
+      automountServiceAccountToken: false
+
+    controller:
+      type: deployment
+      priorityClassName: platform-low
+      # Drain-safe budget so the pod is evicted only behind a node drain.
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+      volumes:
+        extra:
+          - name: storage
+            emptyDir: {}
+          - name: serviceaccount-token
+            projected:
+              defaultMode: 0444
+              sources:
+                - serviceAccountToken:
+                    expirationSeconds: 3607
+                    path: token
+                - configMap:
+                    name: kube-root-ca.crt
+                    items:
+                      - key: ca.crt
+                        path: ca.crt
+                - downwardAPI:
+                    items:
+                      - path: namespace
+                        fieldRef:
+                          apiVersion: v1
+                          fieldPath: metadata.namespace
+
+    # config-reloader sidecar (prometheus-config-reloader): ~9Mi observed; memory-only limit (ADR-0010).
+    configReloader:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 48Mi
+
+    alloy:
+      enableReporting: false
+      # Expose the OTLP receiver ports on the container + Service. Port names carry the istio
+      # protocol prefix (`grpc-`/`http-`): the mesh derives the port protocol from the name, and an
+      # unrecognized prefix falls back to sniffing, which builds an HTTP listener that mishandles
+      # in-mesh mTLS gRPC (sidecar senders reset with UR, spans never land). `grpc-`/`http-` make
+      # istio configure HTTP/2 vs HTTP/1 explicitly.
+      extraPorts:
+        - name: grpc-otlp
+          port: 4317
+          targetPort: 4317
+          protocol: TCP
+        - name: http-otlp
+          port: 4318
+          targetPort: 4318
+          protocol: TCP
+      mounts:
+        extra:
+          - name: storage
+            mountPath: /tmp/alloy
+          - name: serviceaccount-token
+            mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+            readOnly: true
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsUser: 473
+        runAsGroup: 473
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+      # Soft heap ceiling (~90% of limits.memory) so Go GCs before the cgroup OOM-kills on a span
+      # burst, trading a brief CPU bump for staying under the hard cap.
+      extraEnv:
+        - name: GOMEMLIMIT
+          value: "230MiB"
+      resources:
+        requests:
+          cpu: 100m
+          memory: 96Mi
+        limits:
+          memory: 256Mi
+      configMap:
+        content: |
+          logging {
+            level  = "warn"
+            format = "logfmt"
+          }
+
+          otelcol.receiver.otlp "default" {
+            grpc {
+              endpoint = "0.0.0.0:4317"
+            }
+            http {
+              endpoint = "0.0.0.0:4318"
+            }
+            output {
+              traces = [otelcol.processor.batch.default.input]
+            }
+          }
+
+          otelcol.processor.batch "default" {
+            output {
+              traces = [otelcol.exporter.otlp.tempo.input]
+            }
+          }
+
+          otelcol.exporter.otlp "tempo" {
+            client {
+              endpoint = "tempo.tempo.svc.cluster.local:4317"
+              // Plaintext to tempo; ztunnel provides mTLS on the wire in the ambient mesh.
+              tls {
+                insecure = true
+              }
+            }
+          }
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+            patch: |
+              - op: add
+                path: /spec/template/spec/automountServiceAccountToken
+                value: false

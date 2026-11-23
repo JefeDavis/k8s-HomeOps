@@ -1,0 +1,16 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: kube-state-metrics-egress-kube-api
+  namespace: observability
+spec:
+  description: >-
+    Allows kube-state-metrics to reach the API server, which it watches to build object-state
+    metrics.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: kube-state-metrics
+  egress:
+    - toEntities:
+        - kube-apiserver

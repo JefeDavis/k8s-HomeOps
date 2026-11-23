@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-ingress-metrics
+  namespace: observability
+spec:
+  description: >-
+    Allows the Alloy metrics collector to reach Prometheus for remote_write and scrape on
+    9090.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: prometheus
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP

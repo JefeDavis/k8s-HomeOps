@@ -1,0 +1,15 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: same-namespace
+  namespace: resume
+spec:
+  description: "Allows intra-namespace pod-to-pod traffic"
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - {}
+  egress:
+    - toEndpoints:
+        - {}

@@ -1,0 +1,27 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/volsync.backube/replicationdestination_v1alpha1.json
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: "${APP}-bootstrap"
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    copyMethod: Snapshot
+    repository: "${APP}-volsync-minio"
+    cacheStorageClassName: "${VOLSYNC_CACHE_STORAGECLASS:-ceph-block}"
+    cacheCapacity: "${VOLSYNC_CACHE_CAPACITY:-8Gi}"
+    storageClassName: "${VOLSYNC_STORAGECLASS:-ceph-block}"
+    volumeSnapshotClassName: "${VOLSYNC_SNAPSHOTCLASS:-csi-ceph-blockpool}"
+    moverSecurityContext:
+      seccompProfile:
+        type: RuntimeDefault
+      runAsNonRoot: true
+      runAsUser: ${APP_UID:-65534}
+      runAsGroup: ${APP_GID:-65534}
+      fsGroup: ${APP_GID:-65534}
+      fsGroupChangePolicy: OnRootMismatch
+    accessModes:
+      - "${VOLSYNC_ACCESSMODES:-ReadWriteOnce}"
+    capacity: "${VOLSYNC_CAPACITY:-1Gi}"

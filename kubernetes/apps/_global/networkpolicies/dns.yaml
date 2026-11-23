@@ -1,0 +1,29 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: allow-dns
+spec:
+  description: >-
+    Allows every pod outside kube-system and flux-system to resolve DNS against kube-dns in
+    kube-system on port 53. The L7 DNS rule lets Cilium observe lookups so toFQDNs policies
+    can resolve names to IPs.
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+  endpointSelector:
+    matchExpressions:
+      - key: k8s:io.kubernetes.pod.namespace
+        operator: NotIn
+        values:
+          - kube-system
+          - flux-system

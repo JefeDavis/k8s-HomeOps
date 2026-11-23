@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: resume-operator
+  namespace: resume
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: resume-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: manager-role
+subjects:
+  - kind: ServiceAccount
+    name: resume-operator
+    namespace: resume
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: resume-operator-leader-election
+  namespace: resume
+rules:
+  - apiGroups: [""]
+    resources: [configmaps]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [coordination.k8s.io]
+    resources: [leases]
+    verbs: [get, list, watch, create, update, patch, delete]
+  # controller-runtime's event broadcaster writes to both the core and events.k8s.io APIs.
+  - apiGroups: [""]
+    resources: [events]
+    verbs: [create, patch]
+  - apiGroups: [events.k8s.io]
+    resources: [events]
+    verbs: [create, patch, update]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: resume-operator-leader-election
+  namespace: resume
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: resume-operator-leader-election
+subjects:
+  - kind: ServiceAccount
+    name: resume-operator
+    namespace: resume

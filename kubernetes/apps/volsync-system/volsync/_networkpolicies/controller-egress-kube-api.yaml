@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: controller-egress-kube-api
+  namespace: volsync-system
+spec:
+  description: >-
+    Allows the volsync to reach the API server.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: volsync
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

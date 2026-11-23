@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: zigbee2mqtt-egress-github
+  namespace: home
+spec:
+  description: >-
+    Allows the zigbee2mqtt frontend to reach GitHub raw content (raw.githubusercontent.com) over
+    HTTPS to download device image icons.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: zigbee2mqtt
+  egress:
+    - toFQDNs:
+        - matchName: raw.githubusercontent.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

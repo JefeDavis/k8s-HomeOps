@@ -1,0 +1,30 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-kube-api
+  namespace: cert-manager
+spec:
+  description: >-
+    Allows the cert-manager cainjector, controller, startupapicheck, and webhook to reach the
+    API server.
+  endpointSelector:
+    matchExpressions:
+      - key: k8s:app.kubernetes.io/instance
+        operator: In
+        values:
+          - cert-manager
+      - key: k8s:app.kubernetes.io/component
+        operator: In
+        values:
+          - cainjector
+          - controller
+          - startupapicheck
+          - webhook
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

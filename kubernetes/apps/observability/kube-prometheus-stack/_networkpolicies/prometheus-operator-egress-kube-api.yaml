@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-operator-egress-kube-api
+  namespace: observability
+spec:
+  description: >-
+    Allows the prometheus-operator to reach the API server, which it reconciles Prometheus,
+    ServiceMonitor, and related objects against.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: prometheus-prometheus-operator
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

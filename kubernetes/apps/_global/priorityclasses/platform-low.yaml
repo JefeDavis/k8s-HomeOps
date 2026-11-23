@@ -1,0 +1,11 @@
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: platform-low
+value: 100000
+preemptionPolicy: Never
+globalDefault: false
+description: >-
+  Best-effort platform tier (observability, backup, provisioning and durable-state controllers). First
+  shed under node pressure; does not preempt.

@@ -1,0 +1,25 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: flux-notification-controller-egress-traces
+  namespace: flux-system
+spec:
+  description:
+    Allows notification-controller to export OTLP/HTTP traces to the alloy-traces
+    collector (:4318). (API-server egress comes from the shared part-of:flux controllers-egress
+    policy.)
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:app.kubernetes.io/instance: alloy-traces
+            k8s:app.kubernetes.io/name: alloy
+            k8s:io.kubernetes.pod.namespace: alloy
+      toPorts:
+        - ports:
+            - port: "4318"
+              protocol: TCP
+  endpointSelector:
+    matchLabels:
+      k8s:app: notification-controller
+      k8s:app.kubernetes.io/part-of: flux
