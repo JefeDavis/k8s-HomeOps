@@ -5,6 +5,8 @@ kind: Kustomization
 resources:
   - ./ocirepo.yaml
   - ./helmrelease.yaml
-  - ./podmonitor.yaml
   - ./secret-gcp-kms.sops.yaml
   - ./secret-github-deploy-key.sops.yaml
+  - ./podmonitor.yaml
+  - ./prometheusrule.yaml
+  - ./grafanadashboard.yaml

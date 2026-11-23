@@ -17,6 +17,9 @@ spec:
           - kustomize-controller
           - notification-controller
           - source-controller
+          - source-watcher
+          - image-automation-controller
+          - image-reflector-controller
   podMetricsEndpoints:
     - port: http-prom
       relabelings:
