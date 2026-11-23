@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: hubble-relay-egress-peers
+  namespace: kube-system
+spec:
+  description: >-
+    Allows hubble-relay to reach each node's cilium-agent Hubble peer/observer API (:4244).
+    Every node is a control-plane node, so the agent node IPs carry the host, remote-node, and
+    kube-apiserver identities.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: hubble-relay
+  egress:
+    - toEntities:
+        - host
+        - remote-node
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "4244"
+              protocol: TCP

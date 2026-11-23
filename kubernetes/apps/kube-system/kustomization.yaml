@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
+  - ./cilium/_networkpolicies/
   - ./coredns/_networkpolicies/
   - ./kubelet-csr-approver/_networkpolicies/
   - ./metrics-server/_networkpolicies/

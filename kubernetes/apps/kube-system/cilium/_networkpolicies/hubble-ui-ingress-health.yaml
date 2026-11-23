@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: hubble-ui-ingress-health
+  namespace: kube-system
+spec:
+  description: >-
+    Allows the kubelet to probe the hubble-ui frontend (:8081). Ingress from the internal
+    gateway is covered by the clusterwide allow-ingress-internal-gateway policy.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: hubble-ui
+  ingress:
+    - fromEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP

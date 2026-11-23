@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: hubble-relay-ingress-health
+  namespace: kube-system
+spec:
+  description: >-
+    Allows the kubelet to reach the hubble-relay gRPC health probe (:4222).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: hubble-relay
+  ingress:
+    - fromEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "4222"
+              protocol: TCP

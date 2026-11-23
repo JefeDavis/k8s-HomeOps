@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # hubble-relay
+  - ./hubble-relay-egress-dns.yaml
+  - ./hubble-relay-egress-peers.yaml
+  - ./hubble-relay-ingress-health.yaml
+  - ./hubble-relay-ingress-metrics.yaml
+  - ./hubble-relay-ingress-ui.yaml
+
+  # hubble-ui
+  - ./hubble-ui-egress-dns.yaml
+  - ./hubble-ui-egress-kube-api.yaml
+  - ./hubble-ui-egress-relay.yaml
+  - ./hubble-ui-ingress-health.yaml

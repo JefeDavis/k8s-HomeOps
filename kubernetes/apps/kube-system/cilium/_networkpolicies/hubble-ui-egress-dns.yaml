@@ -1,0 +1,25 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: hubble-ui-egress-dns
+  namespace: kube-system
+spec:
+  description: >-
+    Allows the hubble-ui backend to resolve DNS against kube-dns. kube-system is excluded from
+    the clusterwide allow-dns policy, so in-namespace DNS consumers declare their own egress.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: hubble-ui
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"

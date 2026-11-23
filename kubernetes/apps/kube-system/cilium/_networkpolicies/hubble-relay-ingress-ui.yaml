@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: hubble-relay-ingress-ui
+  namespace: kube-system
+spec:
+  description: >-
+    Allows hubble-ui to query the hubble-relay gRPC API (:4245).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: hubble-relay
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:app.kubernetes.io/name: hubble-ui
+      toPorts:
+        - ports:
+            - port: "4245"
+              protocol: TCP
