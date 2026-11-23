@@ -2,12 +2,11 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: traces-egress
+  name: alloy-traces-egress-tempo
   namespace: alloy
 spec:
   description: >-
-    Allows alloy-traces to reach the tempo backend to export received traces over OTLP gRPC.
-    (kube-dns egress comes from the cluster default.)
+    Allows alloy-traces to export received traces to the tempo backend over OTLP gRPC (:4317).
   endpointSelector:
     matchLabels:
       k8s:app.kubernetes.io/instance: alloy-traces

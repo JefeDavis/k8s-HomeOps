@@ -3,9 +3,13 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./controller-egress-dns01.yaml
-  - ./controller-egress-letsencrypt.yaml
-  - ./egress-kube-api.yaml
-  - ./ingress-metrics.yaml
-  - ./same-namespace.yaml
-  - ./webhook-ingress.yaml
+  # controller
+  - ./cert-manager-controller-egress-dns01.yaml
+  - ./cert-manager-controller-egress-letsencrypt.yaml
+
+  # webhook
+  - ./cert-manager-webhook-ingress-kube-api.yaml
+
+  # shared
+  - ./cert-manager-egress-kube-api.yaml
+  - ./cert-manager-ingress-metrics.yaml

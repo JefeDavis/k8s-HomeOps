@@ -3,8 +3,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./certgen-egress-kube-api.yaml
+  # controller
   - ./controller-egress-kube-api.yaml
   - ./ingress-metrics.yaml
   - ./ingress-webhook.yaml
-  - ./same-namespace.yaml
+
+  # certgen
+  - ./certgen-egress-kube-api.yaml

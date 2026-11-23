@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: controller-egress-dns01
+  name: cert-manager-controller-egress-dns01
   namespace: cert-manager
 spec:
   description: >-

@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: controller-egress-letsencrypt
+  name: cert-manager-controller-egress-letsencrypt
   namespace: cert-manager
 spec:
   description: >-

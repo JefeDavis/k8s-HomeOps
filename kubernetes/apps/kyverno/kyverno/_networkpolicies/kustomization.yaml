@@ -3,9 +3,11 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  # controller
   - ./egress-kube-api.yaml
   - ./egress-traces.yaml
-  - ./hooks-egress.yaml
   - ./ingress-metrics.yaml
   - ./ingress-webhook.yaml
-  - ./same-namespace.yaml
+
+  # hooks
+  - ./hooks-egress.yaml

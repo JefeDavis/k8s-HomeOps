@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: ingress-metrics
+  name: cert-manager-ingress-metrics
   namespace: cert-manager
 spec:
   description: >-

@@ -1,0 +1,16 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: alloy-metrics-egress-scrape
+  namespace: alloy
+spec:
+  description: >-
+    Allows alloy-metrics to scrape every in-cluster target. Intentionally broad: a cluster-wide
+    scraper must reach every workload's metrics port, which is not known ahead of time.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: alloy-metrics
+  egress:
+    - toEntities:
+        - cluster

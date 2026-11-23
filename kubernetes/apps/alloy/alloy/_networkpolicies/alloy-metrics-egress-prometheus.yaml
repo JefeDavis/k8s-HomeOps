@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: alloy-metrics-egress-prometheus
+  namespace: alloy
+spec:
+  description: >-
+    Allows alloy-metrics remote_write to the kube-prometheus-stack Prometheus receiver (:9090).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: alloy-metrics
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+            k8s:app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP

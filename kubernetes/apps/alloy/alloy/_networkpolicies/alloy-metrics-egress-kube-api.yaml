@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: alloy-metrics-egress-kube-api
+  namespace: alloy
+spec:
+  description: >-
+    Allows alloy-metrics to reach the API server for discovery and ServiceMonitor/PodMonitor
+    watches.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: alloy-metrics
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

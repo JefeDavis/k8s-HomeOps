@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: traces-ingress
+  name: alloy-traces-ingress-otlp
   namespace: alloy
 spec:
   description: >-

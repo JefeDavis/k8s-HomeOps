@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: alloy-logs-egress-kube-api
+  namespace: alloy
+spec:
+  description: >-
+    Allows alloy-logs to reach the API server for pod-discovery log-target metadata.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: alloy-logs
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

@@ -91,7 +91,10 @@ spec:
         memory: 32Mi
       limits:
         memory: 64Mi
-    policyAuditMode: false
+    # Discovery pass: default-deny every endpoint but log (don't drop) missing-policy flows as AUDIT
+    # verdicts in Hubble, so the policy set can be regenerated before enforcement is re-enabled.
+    policyAuditMode: true
+    policyEnforcementMode: always
 
     dashboards:
       enabled: true

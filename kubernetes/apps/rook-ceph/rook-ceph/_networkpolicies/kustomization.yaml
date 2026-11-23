@@ -3,10 +3,16 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ceph-ingress-metrics.yaml
-  - csi-operator-egress-kube-api.yaml
-  - egress-prometheus.yaml
-  - rgw-ingress.yaml
-  - rook-ceph-egress-kube-api.yaml
-  - rook-cluster-ingress-node.yaml
-  - same-namespace.yaml
+  # rook-ceph operator
+  - ./rook-ceph-egress-kube-api.yaml
+
+  # csi
+  - ./csi-operator-egress-kube-api.yaml
+
+  # ceph cluster
+  - ./ceph-ingress-metrics.yaml
+  - ./egress-prometheus.yaml
+  - ./rook-cluster-ingress-node.yaml
+
+  # rgw
+  - ./rgw-ingress.yaml

@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: alloy-metrics-egress-kubelet
+  namespace: alloy
+spec:
+  description: >-
+    Allows alloy-metrics to scrape each node's kubelet and cAdvisor metrics (:10250).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: alloy-metrics
+  egress:
+    - toEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP

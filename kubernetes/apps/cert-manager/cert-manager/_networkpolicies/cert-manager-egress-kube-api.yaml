@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: egress-kube-api
+  name: cert-manager-egress-kube-api
   namespace: cert-manager
 spec:
   description: >-
