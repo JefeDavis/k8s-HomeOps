@@ -12,3 +12,9 @@ spec:
       app.kubernetes.io/managed-by: cloudnative-pg
   podMetricsEndpoints:
     - port: metrics
+      relabelings:
+        - sourceLabels: ["cluster"]
+          targetLabel: cnpg_cluster
+          action: replace
+        - regex: cluster
+          action: labeldrop
