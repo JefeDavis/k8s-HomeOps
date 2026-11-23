@@ -4,8 +4,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   # operator
-  - ./egress-kube-api.yaml
-  - ./ingress-metrics.yaml
+  - ./external-secrets-egress-kube-api.yaml
+  - ./external-secrets-ingress-metrics.yaml
 
   # webhook
-  - ./webhook-ingress.yaml
+  - ./external-secrets-webhook-ingress-kube-api.yaml
