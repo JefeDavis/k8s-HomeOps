@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: ztunnel-egress
+  name: ztunnel-egress-istiod
   namespace: istio-system
 spec:
   description: >-

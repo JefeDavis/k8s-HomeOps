@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: egress-kube-api
+  name: istio-egress-kube-api
   namespace: istio-system
 spec:
   description: >-

@@ -2,29 +2,15 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: istiod-ingress
+  name: istiod-ingress-xds
   namespace: istio-system
 spec:
   description: >-
-    Allows the API server to reach the istiod injection/validation webhook, and every mesh proxy
-    (ambient ztunnel and classic sidecars) to reach xDS/SDS/CA.
+    Allows every mesh proxy (ambient ztunnel and classic sidecars) to reach istiod xDS/SDS/CA.
   endpointSelector:
     matchLabels:
       k8s:app.kubernetes.io/name: istiod
   ingress:
-    # The API server drives the injection/validation webhook. Cross-node calls
-    # egress via the remote node's CiliumInternalIP, which carries the
-    # `remote-node` identity (only the node's primary IP gets the `kube-apiserver`
-    # label), so remote-node is required too.
-    - fromEntities:
-        - kube-apiserver
-        - remote-node
-      toPorts:
-        - ports:
-            - port: "15017" # injection/validation webhook
-              protocol: TCP
-            - port: "443"
-              protocol: TCP
     # xDS + SDS (config + certs) from every mesh proxy: ambient ztunnel AND classic
     # sidecars in istio-injection=enabled namespaces. `cluster` = proxies in any
     # workload namespace, so both data-plane modes reach the control plane.
