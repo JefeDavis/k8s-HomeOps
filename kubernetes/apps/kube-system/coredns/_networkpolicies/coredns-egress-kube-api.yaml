@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: coredns-egress-kube-api
+  namespace: kube-system
+spec:
+  description: >-
+    Allows coredns to watch services and endpoints from the API server.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: coredns
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

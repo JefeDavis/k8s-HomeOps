@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: coredns-ingress-health
+  namespace: kube-system
+spec:
+  description: >-
+    Allows the kubelet to reach the coredns health (8080) and ready (8181) probe endpoints.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: coredns
+  ingress:
+    - fromEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "8080" # health
+              protocol: TCP
+            - port: "8181" # ready
+              protocol: TCP

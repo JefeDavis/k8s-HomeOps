@@ -1,0 +1,24 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: coredns-ingress-dns
+  namespace: kube-system
+spec:
+  description: >-
+    Allows every pod in the cluster, plus host-network workloads, to resolve names against
+    coredns on 53 (TCP and UDP).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: coredns
+  ingress:
+    - fromEntities:
+        - cluster
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP

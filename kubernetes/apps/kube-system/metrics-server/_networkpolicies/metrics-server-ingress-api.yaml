@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: metrics-server-ingress-api
+  namespace: kube-system
+spec:
+  description: >-
+    Allows the API server aggregation layer to reach metrics-server on 10250 for the
+    metrics.k8s.io API. Cross-node calls arrive with the remote-node identity and same-node
+    calls with the host identity, so both are allowed alongside kube-apiserver.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: metrics-server
+  ingress:
+    - fromEntities:
+        - kube-apiserver
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP

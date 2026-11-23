@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: coredns-ingress-metrics
+  namespace: kube-system
+spec:
+  description: >-
+    Allows the alloy-metrics collector to scrape coredns metrics on 9153.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: coredns
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "9153"
+              protocol: TCP

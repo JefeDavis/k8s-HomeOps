@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: metrics-server-egress-kube-api
+  namespace: kube-system
+spec:
+  description: >-
+    Allows metrics-server to watch nodes and pods from the API server.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: metrics-server
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

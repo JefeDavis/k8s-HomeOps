@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: metrics-server-ingress-metrics
+  namespace: kube-system
+spec:
+  description: >-
+    Allows the alloy-metrics collector to scrape metrics-server on 10250.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: metrics-server
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP

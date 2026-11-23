@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: snapshot-controller-egress-kube-api
+  namespace: kube-system
+spec:
+  description: >-
+    Allows snapshot-controller to watch VolumeSnapshot resources via the API server.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: snapshot-controller
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

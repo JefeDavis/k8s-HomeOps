@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: coredns-egress-upstream-dns
+  namespace: kube-system
+spec:
+  description: >-
+    Allows coredns to forward external queries to the node's host DNS resolver
+    (forward . /etc/resolv.conf) on 53 (TCP and UDP).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: coredns
+  egress:
+    - toEntities:
+        - host
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP

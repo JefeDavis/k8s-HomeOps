@@ -1,0 +1,10 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # metrics-server
+  - ./metrics-server-egress-kube-api.yaml
+  - ./metrics-server-egress-kubelet.yaml
+  - ./metrics-server-ingress-api.yaml
+  - ./metrics-server-ingress-metrics.yaml

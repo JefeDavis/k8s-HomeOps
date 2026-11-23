@@ -1,0 +1,11 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # coredns
+  - ./coredns-egress-kube-api.yaml
+  - ./coredns-egress-upstream-dns.yaml
+  - ./coredns-ingress-dns.yaml
+  - ./coredns-ingress-health.yaml
+  - ./coredns-ingress-metrics.yaml

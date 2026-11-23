@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: kubelet-csr-approver-ingress-health
+  namespace: kube-system
+spec:
+  description: >-
+    Allows the kubelet to reach the kubelet-csr-approver health and metrics endpoint on 8081.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: kubelet-csr-approver
+  ingress:
+    - fromEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP

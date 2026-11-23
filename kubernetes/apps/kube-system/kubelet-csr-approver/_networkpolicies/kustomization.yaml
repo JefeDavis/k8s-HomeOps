@@ -1,0 +1,8 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # kubelet-csr-approver
+  - ./kubelet-csr-approver-egress-kube-api.yaml
+  - ./kubelet-csr-approver-ingress-health.yaml
