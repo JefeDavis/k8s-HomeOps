@@ -32,7 +32,7 @@ spec:
       httpRoute:
         enabled: true
         hostnames:
-          - flux.internal.${DOMAIN
+          - flux.internal.${DOMAIN}
         parentRefs:
           - kind: ListenerSet
             name: internal
