@@ -21,6 +21,24 @@ spec:
     tolerations:
       - key: CriticalAddonsOnly
         operator: Exists
+    web:
+      config:
+        authentication:
+          type: Anonymous
+          anonymous:
+            username: flux
+            groups:
+              - flux-admin
+      httpRoute:
+        enabled: true
+        hostnames:
+          - flux.internal.${DOMAIN
+        parentRefs:
+          - kind: ListenerSet
+            name: internal
+            namespace: gateways
+      networkPolicy:
+        create: false
     extraVolumes:
       - name: serviceaccount-token
         projected:
@@ -53,8 +71,6 @@ spec:
               - op: add
                 path: /spec/template/spec/automountServiceAccountToken
                 value: false
-          # Strip the chart's CPU limit on the operator (memory-only, ADR 0010); Flux SSA ignores a
-          # values-level null, so remove it post-render.
           - target:
               kind: Deployment
             patch: |

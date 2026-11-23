@@ -6,4 +6,5 @@ resources:
   - ./ocirepo.yaml
   - ./helmrelease.yaml
   - ./pdb.yaml
+  - ./clusterrolebinding.yaml
   - ./secret-cluster-secrets.sops.yaml
