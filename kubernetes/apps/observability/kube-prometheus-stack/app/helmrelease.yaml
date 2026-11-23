@@ -1,0 +1,302 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: observability
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: kube-prometheus-stack
+    namespace: observability
+  interval: 1h
+  valuesFrom:
+    - kind: ConfigMap
+      name: flux-metrics-configmap
+      valuesKey: flux-metrics.yaml
+  values:
+    crds:
+      enabled: false
+
+    # Drop the "kube-prometheus-stack-" prefix from prometheus-operator object names.
+    cleanPrometheusOperatorObjectNames: true
+    fullnameOverride: prometheus
+    nameOverride: prometheus
+
+    alertmanager:
+      enabled: true
+      route:
+        main:
+          enabled: true
+          hostnames:
+            - alertmanager.internal.${DOMAIN}
+          parentRefs:
+            - kind: ListenerSet
+              name: internal
+              namespace: gateways
+
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+
+      alertmanagerSpec:
+        podMetadata:
+          labels:
+            ingress.gateway.homeops.io/internal: "true"
+        priorityClassName: platform-low
+        alertmanagerConfiguration:
+          name: alertmanager
+        externalUrl: https://alertmanager.internal.${DOMAIN}
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: ceph-block
+              resources:
+                requests:
+                  storage: 1Gi
+
+    grafana:
+      enabled: false
+      forceDeployDashboards: true
+      operator:
+        dashboardsConfigMapRefEnabled: true
+        folder: observability
+        matchLabels:
+          dashboards: grafana
+
+    kubeEtcd:
+      enabled: true
+      service:
+        selector:
+          component: kube-apiserver
+
+    kubeProxy:
+      enabled: false
+    kubelet:
+      enabled: false
+    kubeApiServer:
+      enabled: false
+
+    # CoreDNS serves unauthenticated metrics on :9153, but the chart's ServiceMonitor defaults its
+    # authorization to a bearer token from the prometheus SA token Secret. Clear it with "" (an explicit
+    # null is dropped by Helm value coalescing, leaving the default map): the endpoint needs no auth, and
+    # it avoids the control-plane createTokenSecret guard that fails when the sidecar runs the prometheus
+    # SA with create=false.
+    coreDns:
+      serviceMonitor:
+        authorization: ""
+
+    prometheusOperator:
+      priorityClassName: platform-low
+      nameOverride: prometheus-operator
+      fullnameOverride: prometheus-operator
+
+      # This chart renders the PDB spec verbatim and defaults minAvailable: 1, which would coexist with
+      # our maxUnavailable (an invalid both-set PDB). A values-level override can't clear it (Flux drops a
+      # null, and an empty string renders invalid), so the module post-renderer strips the chart's
+      # minAvailable from the rendered PDB, leaving maxUnavailable only.
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+
+      kubeletEndpointsEnabled: false
+      kubeletEndpointSliceEnabled: true
+
+      automountServiceAccountToken: false
+      serviceAccount:
+        automountServiceAccountToken: false
+      # Projected SA token pairs with automountServiceAccountToken=false (restricted PSS).
+      extraVolumeMounts: &saTokenMount
+        - name: serviceaccount-token
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      extraVolumes: &saTokenVolume
+        - name: serviceaccount-token
+          projected:
+            defaultMode: 0444
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  name: kube-root-ca.crt
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+              - downwardAPI:
+                  items:
+                    - path: namespace
+                      fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+      resources:
+        requests:
+          cpu: 5m
+          memory: 25Mi
+        limits:
+          memory: 100Mi
+
+      prometheusConfigReloader:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 64Mi
+      containerSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
+
+    prometheus:
+      enabled: true
+      route:
+        main:
+          enabled: true
+          hostnames:
+            - prometheus.internal.${DOMAIN}
+          parentRefs:
+            - kind: ListenerSet
+              name: internal
+              namespace: gateways
+      # This chart renders the PDB spec verbatim and defaults minAvailable: 1, which would coexist with
+      # our maxUnavailable (an invalid both-set PDB). A values-level override can't clear it (Flux drops a
+      # null, and an empty string renders invalid), so the module post-renderer strips the chart's
+      # minAvailable from the rendered PDB, leaving maxUnavailable only.
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+      serviceAccount:
+        automountServiceAccountToken: false
+        name: prometheus
+      prometheusSpec:
+        podMetadata:
+          labels:
+            ingress.gateway.homeops.io/internal: "true"
+        externalUrl: https://prometheus.internal.${DOMAIN}
+        priorityClassName: platform-low
+        replicas: 1
+        # DoNotSchedule on Karpenter flavors makes the second replica Pending, which is what drives node
+        # provisioning and stops consolidation from re-co-locating them; metal has no autoscaler, so it
+        # stays best-effort.
+        topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: prometheus
+                app.kubernetes.io/instance: prometheus
+        retention: 30d
+        retentionSize: 40GiB
+        resources:
+          requests:
+            cpu: 100m
+            memory: 1Gi
+          limits:
+            memory: 4Gi
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: ceph-block
+              resources:
+                requests:
+                  storage: 50Gi
+        serviceDiscoveryRole: EndpointSlice
+        # Alloy is the platform scraper; this Prometheus is a remote_write storage/query backend.
+        # Accept remote_write from Alloy on :9090, and select NO scrape targets of its own: the
+        # selectors below match a label nothing carries, which (with NilUsesHelmValues=false) yields
+        # an empty target set instead of the chart's "select everything" default of {}.
+        enableRemoteWriteReceiver: true
+        serviceMonitorSelector: &noScrape
+          matchLabels:
+            observability.homeops.io/prometheus-scrape: "true"
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelector: *noScrape
+        podMonitorSelectorNilUsesHelmValues: false
+        probeSelector: *noScrape
+        probeSelectorNilUsesHelmValues: false
+        scrapeConfigSelector: *noScrape
+        scrapeConfigSelectorNilUsesHelmValues: false
+        # Recording/alerting rules still load cluster-wide (evaluated over the remote_written data).
+        ruleSelectorNilUsesHelmValues: false
+        automountServiceAccountToken: false
+        volumeMounts: *saTokenMount
+        volumes: *saTokenVolume
+        containers:
+          - name: prometheus
+            securityContext:
+              seccompProfile:
+                type: RuntimeDefault
+          - name: config-reloader
+            securityContext:
+              seccompProfile:
+                type: RuntimeDefault
+        initContainers:
+          - name: init-config-reloader
+            securityContext:
+              seccompProfile:
+                type: RuntimeDefault
+
+    kube-state-metrics:
+      priorityClassName: platform-low
+      nameOverride: "kube-state-metrics"
+      fullnameOverride: "kube-state-metrics"
+      automountServiceAccountToken: false
+      serviceAccount:
+        automountServiceAccountToken: false
+      volumeMounts: *saTokenMount
+      volumes: *saTokenVolume
+      containerSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      resources:
+        requests:
+          cpu: 10m
+          memory: 320Mi
+        limits:
+          memory: 640Mi
+
+    nodeExporter:
+      enabled: true
+    prometheus-node-exporter:
+      priorityClassName: platform-node-critical
+      namespaceOverride: kube-system
+      nameOverride: "node-exporter"
+      fullnameOverride: "node-exporter"
+      # The subchart ships no requests/limits; the exporter is a light, steady process.
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+
+    additionalPrometheusRulesMap:
+      dockerhub-rules:
+        groups:
+          - name: dockerhub
+            rules:
+              - alert: DockerhubRateLimitRisk
+                annotations:
+                  summary: There are {{ $value }} containers pulling from Dockerhub. This may lead to rate limiting.
+                expr: count(time() - container_last_seen{image=~"(docker.io).*",container!=""} < 30) > 100
+                labels:
+                  severity: critical
+      oom-rules:
+        groups:
+          - name: oom
+            rules:
+              - alert: OomKilled
+                annotations:
+                  summary: Container {{ $labels.container }} in pod {{ $labels.namespace }}/{{ $labels.pod }} has been OOMKilled {{ $value }} times in the last 10 minutes.
+                expr: (kube_pod_container_status_restarts_total - kube_pod_container_status_restarts_total offset 10m >= 1) and ignoring (reason) min_over_time(kube_pod_container_status_last_terminated_reason{reason="OOMKilled"}[10m]) == 1
+                labels:
+                  severity: critical
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: PodDisruptionBudget
+            patch: |
+              - op: remove
+                path: /spec/minAvailable

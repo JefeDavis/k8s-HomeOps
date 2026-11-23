@@ -1,0 +1,15 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: pg-${APP}
+spec:
+  backupOwnerReference: self
+  cluster:
+    name: pg-${APP}
+  immediate: true
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+  # NOTE: CNPG cron has SIX fields -- the leading field is seconds, not minutes.
+  schedule: ${CNPG_BACKUP_SCHEDULE:="0 0 2 * * *"}

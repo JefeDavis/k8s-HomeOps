@@ -1,0 +1,18 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: resume
+labels:
+  - pairs:
+      app.kubernetes.io/name: resume-operator
+      app.kubernetes.io/instance: resume-operator
+      app.kubernetes.io/part-of: resume
+      app.kubernetes.io/managed-by: kustomize
+    includeSelectors: false
+    includeTemplates: true
+resources:
+  - ./crd
+  - ./rbac
+  - ./manager
+  - ./prometheus

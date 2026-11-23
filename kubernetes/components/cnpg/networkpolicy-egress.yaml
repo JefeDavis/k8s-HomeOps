@@ -1,0 +1,26 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: pg-${APP}-egress
+spec:
+  description: >-
+    Allows CNPG pods (barman-cloud WAL archival, recovery jobs, and backups) to reach the
+    external MinIO S3 endpoint and kube api.
+  endpointSelector:
+    matchLabels:
+      k8s:cnpg.io/cluster: pg-${APP}
+      k8s:app.kubernetes.io/managed-by: cloudnative-pg
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+    - toCIDR:
+        - 10.77.0.2/32
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP

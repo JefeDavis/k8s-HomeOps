@@ -1,0 +1,26 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: external
+  namespace: gateways
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: external-gateway
+  listeners:
+    - name: external-https
+      protocol: HTTPS
+      port: 443
+      hostname: "*.${DOMAIN}"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: external-tls
+      allowedRoutes:
+        namespaces:
+          from: All

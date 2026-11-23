@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: zigbee2mqtt-ingress-metrics
+  namespace: home
+spec:
+  description: >-
+    Allows the alloy-metrics collector to scrape the zigbee2mqtt exporter metrics on 8087.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: zigbee2mqtt
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "8087"
+              protocol: TCP

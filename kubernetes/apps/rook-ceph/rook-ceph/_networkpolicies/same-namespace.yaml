@@ -1,0 +1,15 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: same-namespace
+  namespace: rook-ceph
+spec:
+  description: "Allows Intra namespace communication"
+  egress:
+    - toEndpoints:
+        - {}
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - {}

@@ -1,0 +1,27 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: rook-cluster-ingress-node
+  namespace: rook-ceph
+spec:
+  description: >-
+    Allows the kernel RBD and CephFS clients, which mount from the node network stack, to reach the
+    mons (3300 msgr2; 6789 msgr1 stays listed for a cluster with requireMsgr2 off) and the OSD, MDS
+    and mgr daemons (6800-7300).
+  ingress:
+    - fromEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "3300"
+              protocol: TCP
+            - port: "6789"
+              protocol: TCP
+            - port: "6800"
+              endPort: 7300
+              protocol: TCP
+  endpointSelector:
+    matchLabels:
+      k8s:rook_cluster: rook-ceph

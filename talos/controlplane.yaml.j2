@@ -1,0 +1,134 @@
+---
+# Control-plane-only documents (machine.type + CAs + k8s components). Secret
+# values are injected from the native talosctl bundle talos.sops.yaml (nested
+# paths like certs.os.crt, certs.k8s.key) at render time.
+# All three NUCs are control planes, so scheduling is allowed on them.
+machine:
+  type: controlplane
+  # ca merges as a unit; crt must be repeated alongside key
+  ca:
+    crt: {{ certs.os.crt }}
+    key: {{ certs.os.key }}
+cluster:
+  # Talos 1.14 no longer auto-taints control planes; omitting a control-plane
+  # taint (KubeNodeConfig.taints) leaves all three NUCs schedulable.
+  ca:
+    crt: {{ certs.k8s.crt }}
+    key: {{ certs.k8s.key }}
+  aggregatorCA:
+    crt: {{ certs.k8saggregator.crt }}
+    key: {{ certs.k8saggregator.key }}
+  etcd:
+    advertisedSubnets:
+      - 10.77.0.0/24
+    ca:
+      crt: {{ certs.etcd.crt }}
+      key: {{ certs.etcd.key }}
+    extraArgs:
+      listen-metrics-urls: http://0.0.0.0:2381
+  serviceAccount:
+    key: {{ certs.k8sserviceaccount.key }}
+---
+apiVersion: v1alpha1
+kind: KubeNodeConfig
+labels:
+  node-role.kubernetes.io/control-plane: ""
+---
+apiVersion: v1alpha1
+kind: KubeAPIServerConfig
+certExtraSANs:
+  - 10.77.0.10 # control-plane VIP
+  - jsdyb-k8s-001.internal.davishaus.dev
+  - k8s.davishaus.dev
+  - 127.0.0.1 # KubePrism
+extraArgs:
+  enable-aggregator-routing: "true"
+  feature-gates: CrossNamespaceVolumeDataSource=true,HPAScaleToZero=true
+image: registry.k8s.io/kube-apiserver:v1.37.2
+---
+apiVersion: v1alpha1
+kind: KubeAuditPolicyConfig
+configuration:
+  apiVersion: audit.k8s.io/v1
+  kind: Policy
+  rules:
+    - level: Metadata
+---
+apiVersion: v1alpha1
+kind: KubeAuthenticationConfig
+configuration:
+  anonymous:
+    conditions:
+      - path: /livez
+      - path: /readyz
+      - path: /healthz
+    enabled: true
+  jwt: []
+---
+apiVersion: v1alpha1
+kind: KubeAuthorizerConfig
+name: node
+type: Node
+---
+apiVersion: v1alpha1
+kind: KubeAuthorizerConfig
+name: rbac
+type: RBAC
+---
+apiVersion: v1alpha1
+kind: KubeControllerManagerConfig
+extraArgs:
+  bind-address: 0.0.0.0
+  feature-gates: CrossNamespaceVolumeDataSource=true,HPAScaleToZero=true
+image: registry.k8s.io/kube-controller-manager:v1.37.2
+---
+apiVersion: v1alpha1
+kind: KubeCoreDNSConfig
+enabled: false
+---
+apiVersion: v1alpha1
+kind: KubeEtcdEncryptionConfig
+config:
+  resources:
+    - providers:
+        - secretbox:
+            keys:
+              - name: key2
+                secret: {{ secrets.secretboxencryptionsecret }}
+        - identity: {}
+      resources:
+        - secrets
+---
+apiVersion: v1alpha1
+kind: KubeProxyConfig
+enabled: false
+image: registry.k8s.io/kube-proxy:v1.37.2
+---
+apiVersion: v1alpha1
+kind: KubeSchedulerConfig
+config:
+  profiles:
+    - schedulerName: default-scheduler
+      plugins:
+        score:
+          disabled:
+            - name: ImageLocality
+      pluginConfig:
+        - name: PodTopologySpread
+          args:
+            defaultingType: List
+            defaultConstraints:
+              - maxSkew: 1
+                topologyKey: kubernetes.io/hostname
+                whenUnsatisfiable: ScheduleAnyway
+extraArgs:
+  bind-address: 0.0.0.0
+image: registry.k8s.io/kube-scheduler:v1.37.2
+---
+apiVersion: v1alpha1
+kind: KubeTalosAPIAccessConfig
+allowedRoles:
+  - os:admin
+allowedKubernetesNamespaces:
+  - actions-runner-system
+  - system-upgrade

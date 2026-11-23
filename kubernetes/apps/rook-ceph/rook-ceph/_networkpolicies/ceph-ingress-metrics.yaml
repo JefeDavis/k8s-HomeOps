@@ -1,0 +1,29 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ceph-ingress-metics
+  namespace: rook-ceph
+spec:
+  description: >-
+    Allows the observability stack to scrape the ceph-mgr (9283) and ceph-exporter (9926) metrics
+    endpoints.
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "9283"
+              protocol: TCP
+            - port: "9926"
+              protocol: TCP
+  endpointSelector:
+    matchExpressions:
+      - key: k8s:app
+        operator: In
+        values:
+          - rook-ceph-mgr
+          - rook-ceph-exporter

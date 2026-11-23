@@ -1,0 +1,27 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: resume
+  namespace: resume
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: external-gateway
+    namespace: gateways
+  listeners:
+    - name: external-https
+      protocol: HTTPS
+      port: 443
+      hostname: "resume.jefedavis.dev"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: resume-tls
+      allowedRoutes:
+        namespaces:
+          from: All

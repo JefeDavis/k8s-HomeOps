@@ -1,0 +1,34 @@
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: rook-ceph-daemons
+  namespace: kyverno-exceptions
+  annotations:
+    policies.kyverno.io/justification: >-
+      Rook Ceph core daemons (mon/mgr/osd/rgw/mds/crashcollector/exporter, labeled rook_cluster by the
+      operator) need host paths (/var/lib/rook, /dev), elevated capabilities and root to manage on-disk
+      storage; this is the upstream rook-ceph required posture.
+spec:
+  matchConditions:
+    - expression: request.namespace in ["rook-ceph"]
+      name: in-namespaces
+    - expression: has(object.metadata.labels) && ("rook_cluster" in object.metadata.labels)
+        && object.metadata.labels["rook_cluster"] == "rook-ceph"
+      name: match-labels
+  policyRefs:
+    - kind: ValidatingPolicy
+      name: disallow-host-path
+    - kind: ValidatingPolicy
+      name: disallow-capabilities-strict
+    - kind: ValidatingPolicy
+      name: restrict-volume-types
+    - kind: ValidatingPolicy
+      name: disallow-privilege-escalation
+    - kind: ValidatingPolicy
+      name: require-run-as-nonroot
+    - kind: ValidatingPolicy
+      name: require-run-as-non-root-user
+    - kind: ValidatingPolicy
+      name: restrict-seccomp-strict
+  reportResult: skip

@@ -1,0 +1,105 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: envoy-gateway
+  namespace: envoy-gateway
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: envoy-gateway
+    namespace: envoy-gateway
+  interval: 1h
+  values:
+    nameOverride: envoy-gateway
+    crds:
+      enabled: true
+      gatewayAPI:
+        enabled: true
+        channel: standard
+      envoyGateway:
+        enabled: true
+    podDisruptionBudget:
+      minAvailable: ""
+      maxUnavailable: 1
+    deployment:
+      priorityClassName: platform-high
+      envoyGateway:
+        rbac:
+          cluster: true
+        securityContext:
+          readOnlyRootFilesystem: true
+      pod:
+        topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                control-plane: envoy-gateway
+            matchLabelKeys:
+              - pod-template-hash
+        extraVolumes:
+          - name: serviceaccount-token
+            projected:
+              defaultMode: 0444
+              sources:
+                - serviceAccountToken:
+                    expirationSeconds: 3607
+                    path: token
+                - configMap:
+                    name: kube-root-ca.crt
+                    items:
+                      - key: ca.crt
+                        path: ca.crt
+                - downwardAPI:
+                    items:
+                      - path: namespace
+                        fieldRef:
+                          apiVersion: v1
+                          fieldPath: metadata.namespace
+        extraVolumeMounts:
+          - name: serviceaccount-token
+            mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+            readOnly: true
+      replicas: 2
+    config:
+      envoyGateway:
+        extensionApis:
+          enableBackend: true
+          enableLua: true
+        provider:
+          type: Kubernetes
+          kubernetes:
+            deploy:
+              type: GatewayNamespace
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Service
+            patch: |
+              apiVersion: v1
+              kind: Service
+              metadata:
+                name: not-used
+              spec:
+                ports:
+                  - name: grpc
+                    port: 18000
+                    appProtocol: tls
+          - target:
+              kind: Deployment
+              name: envoy-gateway
+            patch: |
+              - op: add
+                path: /spec/template/spec/automountServiceAccountToken
+                value: false
+          - target:
+              kind: ServiceAccount
+              name: envoy-gateway
+            patch: |
+              - op: add
+                path: /automountServiceAccountToken
+                value: false

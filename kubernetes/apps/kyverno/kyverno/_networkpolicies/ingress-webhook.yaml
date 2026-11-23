@@ -1,0 +1,29 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ingress-webhook
+  namespace: kyverno
+spec:
+  description: >-
+    Allows the API server to reach the kyverno admission and cleanup webhooks on 9443.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/part-of: kyverno
+    matchExpressions:
+      - key: k8s:app.kubernetes.io/component
+        operator: In
+        values:
+          - admission-controller
+          - cleanup-controller
+  ingress:
+    # Cross-node API server webhook calls egress via the remote node's
+    # CiliumInternalIP, which carries the `remote-node` identity (only the node's
+    # primary IP gets the `kube-apiserver` label), so remote-node is required too.
+    - fromEntities:
+        - kube-apiserver
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "9443"
+              protocol: TCP

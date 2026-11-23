@@ -1,0 +1,25 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: controller-egress-dns01
+  namespace: cert-manager
+spec:
+  description: >-
+    Allows the cert-manager controller to reach the configured recursive nameservers
+    (certManager.dns01RecursiveNameservers) to self-check ACME DNS01 TXT-record
+    propagation, bypassing cluster DNS. Only the controller solves DNS01 challenges.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: cert-manager
+      k8s:app.kubernetes.io/component: controller
+  egress:
+    - toCIDR:
+        - 1.1.1.1/32
+        - 1.0.0.1/32
+    - toFQDNs:
+        - matchName: api.cloudflare.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: ANY

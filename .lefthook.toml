@@ -1,0 +1,73 @@
+[pre-commit]
+parallel = true
+skip = ["merge", "rebase"]
+
+# mise fmt rewrites the config in place on every run, and a mise lock that
+# reads it mid-rewrite prunes every tool from the lockfile, so the two run
+# piped while the rest of pre-commit stays parallel.
+[[pre-commit.jobs]]
+name = "mise"
+glob = [".mise/config.toml", ".mise/conf.d/*.toml"]
+
+[pre-commit.jobs.group]
+piped = true
+
+[[pre-commit.jobs.group.jobs]]
+name = "format-mise"
+run = "mise fmt"
+stage_fixed = true
+
+[[pre-commit.jobs.group.jobs]]
+name = "lock-mise"
+run = "mise lock && git add -A -- .mise ':(exclude).mise/*.toml'"
+
+# The staged paths go to oxfmt by name, and oxfmt drops those a repository's
+# .prettierignore covers, generated chart docs and schemas among them; when
+# that is every path it was given it exits non-zero, which would fail a
+# commit of only ignored files. Told not to, it exits zero and formats
+# nothing. A repository cannot fix this on its own: remotes merge over the
+# repository's lefthook config, so its exclude or run for these commands
+# never applies.
+[pre-commit.commands.format-json]
+glob = ["*.json", "*.json5", "*.jsonc"]
+# mise lock sidecars are digest-pinned in mise.lock; reformatting them makes
+# `mise install --locked` fail with a digest mismatch.
+exclude = [".mise/locks/**"]
+run = "oxfmt --no-error-on-unmatched-pattern {staged_files}"
+stage_fixed = true
+
+[pre-commit.commands.format-markdown]
+glob = ["*.md", "*.markdown", "*.mdx"]
+run = "oxfmt --no-error-on-unmatched-pattern {staged_files}"
+stage_fixed = true
+
+[pre-commit.commands.format-yaml]
+glob = ["*.yaml", "*.yml"]
+exclude = [".mise/locks/**"]
+run = "oxfmt --no-error-on-unmatched-pattern {staged_files}"
+stage_fixed = true
+
+[pre-commit.commands.shellcheck]
+glob = ["*.sh"]
+run = "shellcheck {staged_files}"
+
+[pre-commit.commands.zizmor]
+glob = [
+  ".github/workflows/*.yaml",
+  ".github/actions/**/action.yaml",
+  "actions/**/action.yaml",
+]
+run = "zizmor --offline {staged_files}"
+
+# Guard against committing a SOPS-managed secret in plaintext. Every *.sops.*
+# file must report encrypted=true (see .sops.yaml for the paths SOPS owns).
+[pre-commit.commands.sops-encrypted]
+glob = ["*.sops.yaml", "*.sops.yml"]
+run = '''
+for file in {staged_files}; do
+  if ! sops filestatus "$file" | jq -e '.encrypted' >/dev/null; then
+    echo "ERROR: $file is staged but not SOPS-encrypted. Run: sops --encrypt --in-place $file"
+    exit 1
+  fi
+done
+'''

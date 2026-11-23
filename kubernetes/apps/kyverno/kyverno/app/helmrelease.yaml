@@ -1,0 +1,238 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kyverno
+  namespace: kyverno
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: kyverno
+    namespace: kyverno
+  interval: 1h
+  values:
+    global:
+      crdWatcher: true
+
+    # Admission controller
+    admissionController:
+      priorityClassName: platform-critical
+      replicas: 3
+      podDisruptionBudget:
+        minAvailable: 1
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/component: admission-controller
+              app.kubernetes.io/instance: kyverno
+          matchLabelKeys:
+            - pod-template-hash
+      serviceMonitor:
+        enabled: true
+      tracing:
+        enabled: true
+        address: alloy-traces.alloy.svc.cluster.local
+        port: 4317
+      container:
+        extraArgs:
+          exemplarFilter: always-off
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+      initContainer:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 256Mi
+      rbac:
+        serviceAccount:
+          automountServiceAccountToken: false
+
+    # Background controller
+    backgroundController:
+      priorityClassName: platform-high
+      replicas: 2
+      podDisruptionBudget:
+        minAvailable: 1
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/component: background-controller
+              app.kubernetes.io/instance: kyverno
+          matchLabelKeys:
+            - pod-template-hash
+      serviceMonitor:
+        enabled: true
+      tracing:
+        enabled: true
+        address: alloy-traces.alloy.svc.cluster.local
+        port: 4317
+      extraArgs:
+        exemplarFilter: always-off
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+      rbac:
+        serviceAccount:
+          automountServiceAccountToken: false
+
+    # Cleanup controller
+    cleanupController:
+      priorityClassName: platform-high
+      replicas: 2
+      podDisruptionBudget:
+        minAvailable: 1
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/component: cleanup-controller
+              app.kubernetes.io/instance: kyverno
+          matchLabelKeys:
+            - pod-template-hash
+      serviceMonitor:
+        enabled: true
+      tracing:
+        enabled: true
+        address: alloy-traces.alloy.svc.cluster.local
+        port: 4317
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+      rbac:
+        serviceAccount:
+          automountServiceAccountToken: false
+
+    # Reports controller
+    reportsController:
+      priorityClassName: platform-high
+      replicas: 2
+      podDisruptionBudget:
+        minAvailable: 1
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/component: reports-controller
+              app.kubernetes.io/instance: kyverno
+          matchLabelKeys:
+            - pod-template-hash
+      serviceMonitor:
+        enabled: true
+      tracing:
+        enabled: true
+        address: alloy-traces.alloy.svc.cluster.local
+        port: 4317
+      extraArgs:
+        exemplarFilter: always-off
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+      rbac:
+        serviceAccount:
+          automountServiceAccountToken: false
+        # Policies stay not ready unless this SA can get/list/watch every matched resource, subresources
+        # included (kyverno/kyverno#17227); the custom policies match pods/ephemeralcontainers.
+        clusterRole:
+          extraResources:
+            - apiGroups: [""]
+              resources: [pods/ephemeralcontainers]
+
+    # Hook / migration / test jobs
+    crds:
+      migration:
+        podLabels:
+          app.kubernetes.io/part-of: kyverno
+          app.kubernetes.io/component: hooks
+        serviceAccount:
+          automountServiceAccountToken: false
+
+    test:
+      serviceAccount:
+        automountServiceAccountToken: false
+
+    webhooksCleanup:
+      serviceAccount:
+        automountServiceAccountToken: false
+
+    # Exclude system/platform namespaces from the policy webhooks so a Kyverno outage can't
+    # block reconciliation (webhook failurePolicy stays Fail for everything else).
+    config:
+      webhooks:
+        namespaceSelector:
+          matchExpressions:
+            - key: kubernetes.io/metadata.name
+              operator: NotIn
+              values:
+                - kube-system
+                - flux-system
+
+    features:
+      policyExceptions:
+        enabled: true
+        namespace: kyverno-exceptions
+      backgroundScan:
+        skipResourceFilters: false
+
+    grafana:
+      enabled: true
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: kyverno-admission-controller
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: not-used
+              spec:
+                template:
+                  spec:
+                    initContainers:
+                      - name: kyverno-pre
+                        resources:
+                          limits:
+                            cpu: null
+          - target:
+              kind: Job
+              name: kyverno-migrate-resources
+            patch: |
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                name: not-used
+              spec:
+                template:
+                  spec:
+                    containers:
+                      - name: kyverno-cli
+                        resources:
+                          limits:
+                            cpu: null

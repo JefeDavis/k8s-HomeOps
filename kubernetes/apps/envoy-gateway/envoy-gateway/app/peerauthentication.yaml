@@ -1,0 +1,15 @@
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: envoy-gateway-webhook
+  namespace: envoy-gateway
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: envoy-gateway
+  mtls:
+    mode: STRICT
+  portLevelMtls:
+    "9443":
+      mode: PERMISSIVE

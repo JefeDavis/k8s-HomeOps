@@ -1,0 +1,71 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: plugin-barman-cloud
+  namespace: cnpg-system
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: plugin-barman-cloud
+    namespace: cnpg-system
+  interval: 1h
+  values:
+    replicaCount: 2
+    priorityClassName: platform-low
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: plugin-barman-cloud
+        matchLabelKeys:
+          - pod-template-hash
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              labelSelector: app.kubernetes.io/name=plugin-barman-cloud
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: plugin-barman-cloud
+              spec:
+                template:
+                  spec:
+                    automountServiceAccountToken: false
+                    containers:
+                      - name: barman-cloud
+                        volumeMounts:
+                          - name: serviceaccount-token
+                            mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+                            readOnly: true
+                    volumes:
+                      - name: serviceaccount-token
+                        projected:
+                          defaultMode: 0444
+                          sources:
+                            - serviceAccountToken:
+                                expirationSeconds: 3607
+                                path: token
+                            - configMap:
+                                name: kube-root-ca.crt
+                                items:
+                                  - key: ca.crt
+                                    path: ca.crt
+                            - downwardAPI:
+                                items:
+                                  - path: namespace
+                                    fieldRef:
+                                      apiVersion: v1
+                                      fieldPath: metadata.namespace

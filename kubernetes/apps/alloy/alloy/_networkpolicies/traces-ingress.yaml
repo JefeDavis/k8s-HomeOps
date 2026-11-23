@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: traces-ingress
+  namespace: alloy
+spec:
+  description: >-
+    Allows alloy-traces to accept OTLP traffic (gRPC 4317 / HTTP 4318) from workloads anywhere
+    in the cluster. In the mesh these arrive over ztunnel mTLS; the module PeerAuthentication
+    relaxes these ports to PERMISSIVE so out-of-mesh senders are accepted too.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: alloy-traces
+  ingress:
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "4317"
+              protocol: TCP
+            - port: "4318"
+              protocol: TCP

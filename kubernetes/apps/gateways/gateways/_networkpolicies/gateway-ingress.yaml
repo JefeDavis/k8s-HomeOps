@@ -1,0 +1,25 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: gateway-ingress
+  namespace: gateways
+spec:
+  description: >-
+    Allows external clients via the load balancer, plus node-local health checks, to reach the
+    envoy-gateway-managed Envoy proxy listener ports (north-south ingress).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/managed-by: envoy-gateway
+  ingress:
+    # An external NLB (ip targets) plus node-local health checks reach the listener ports.
+    - fromEntities:
+        - world
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "10080"
+              protocol: TCP
+            - port: "10443"
+              protocol: TCP

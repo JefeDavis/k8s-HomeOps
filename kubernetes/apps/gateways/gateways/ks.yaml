@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: gateways
+  namespace: gateways
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/gateways/gateways/config
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: envoy-gateway
+      namespace: envoy-gateway
+    - name: cert-manager-config
+      namespace: cert-manager

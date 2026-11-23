@@ -1,0 +1,259 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app home-assistant
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          git-sync:
+            env:
+              GITSYNC_REPO: https://github.com/JefeDavis/hass-config
+              GITSYNC_REF: main
+              GITSYNC_PERIOD: 10s # 1 day
+              GITSYNC_ROOT: /config
+            image:
+              repository: registry.k8s.io/git-sync/git-sync
+              tag: v4.4.0@sha256:0330739a707a2969d617e859f096659ab6d149212658ac0ad7e550b59482ebf0
+            restartPolicy: Always
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 128Mi
+            securityContext:
+              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: false
+              capabilities: { drop: ["ALL"] }
+        containers:
+          main:
+            image:
+              repository: ghcr.io/onedr0p/home-assistant
+              tag: 2025.3.3@sha256:9e2a7177b4600653d6cb46dff01b1598189a5ae93be0b99242fbc039d32d79f1
+            env:
+              TZ: ${TIMEZONE}
+              HASS_RECORDER_DB_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-home-assistant-app
+                    key: uri
+            envFrom:
+              - secretRef:
+                  name: home-assistant-secret
+                prefix: "HASS_"
+            ports:
+              - name: http
+                containerPort: 8123
+              - name: sonos
+                containerPort: 1400
+            probes:
+              liveness:
+                custom: true
+                spec:
+                  httpGet:
+                    path: /manifest.json
+                    port: 8123
+                  initialDelaySeconds: 3
+                  periodSeconds: 3
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+
+            resources:
+              requests:
+                cpu: 47m
+                memory: 1Gi
+              limits:
+                memory: 2Gi
+
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+          codeserver:
+            image:
+              repository: ghcr.io/coder/code-server
+              tag: 4.99.3
+            env:
+              TZ: ${TIMEZONE}
+            args:
+              - "/config"
+              - --auth
+              - "none"
+              - --user-data-dir
+              - "/config/.vscode"
+              - --extensions-dir
+              - "/config/.vscode"
+        pod:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |
+              [{
+                "name":"iot-vlan",
+                "namespace": "network",
+                "ips": ["10.0.90.42/24"],
+                "mac": "de:41:11:c5:8b:eb",
+                "gateway": "10.0.90.1"
+              }]
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+
+    service:
+      *app :
+        controller: *app
+        type: LoadBalancer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: home.${INTERNAL_DOMAIN}
+          io.cilium/lb-ipam-ips: ${SVC_HASS_ADDR}
+        ports:
+          http:
+            port: &port 8123
+          sonos:
+            port: 1400
+
+      code:
+        controller: *app
+        ports:
+          http:
+            port: &codePort 8080
+
+    route:
+      home-assistant:
+        enabled: true
+        kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "simple-icons:homeassistant"
+        parentRefs:
+          - kind: Gateway
+            name: public-gateway
+            namespace: gateway
+        hostnames:
+          - home.${EXTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                name: *app
+                port: *port
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
+      code:
+        enabled: true
+        kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "simple-icons:vscode"
+        parentRefs:
+          - kind: Gateway
+            name: private-gateway
+            namespace: gateway
+        hostnames:
+          - hass-code.${INTERNAL_DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                name: home-assistant-code
+                port: *codePort
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
+    serviceMonitors:
+      *app :
+        endpoints:
+          - port: http
+            scheme: http
+            path: /api/prometheus
+            interval: 30s
+            scrapeTimeout: 10s
+            bearerTokenSecret:
+              name: home-assistant-secret
+              key: PROMETHEUS_TOKEN
+
+    persistence:
+      config:
+        existingClaim: ${VOLSYNC_CLAIM}
+        globalMounts:
+          - path: /config
+
+      deploy-key:
+        type: secret
+        name: home-assistant-deploy-key
+        defaultMode: 256
+        advancedMounts:
+          *app :
+            git-sync:
+              - path: /etc/git-secret/ssh
+                subPath: ssh-privatekey
+                readOnly: true
+              - path: /etc/git-secret/known_hosts
+                subPath: known_hosts
+            main: &sshmounts
+              - path: /root/.ssh/id_rsa
+                subPath: ssh-privatekey
+                readOnly: true
+              - path: /root/.ssh/known_hosts
+                subPath: known_hosts
+            codeserver: *sshmounts
+
+      configuration:
+        type: configMap
+        name: hass-config
+        globalMounts:
+          - path: /config/configuration.yaml
+            subPath: configuration.yaml
+
+      backups:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/backups/home-assistant
+        advancedMounts:
+          *app :
+            main:
+              - path: /config/backups
+
+      media:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${SYNOLOGY_ADDR}"
+            path: /volume1/media/home-assistant
+        advancedMounts:
+          *app :
+            main:
+              - path: /media
+
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          *app :
+            git-sync:
+              - path: /tmp

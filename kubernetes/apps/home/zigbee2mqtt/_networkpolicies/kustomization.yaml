@@ -1,0 +1,9 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./zigbee2mqtt-egress-coordinator.yaml
+  - ./zigbee2mqtt-egress-github.yaml
+  - ./zigbee2mqtt-egress-mqtt.yaml
+  - ./zigbee2mqtt-ingress-metrics.yaml

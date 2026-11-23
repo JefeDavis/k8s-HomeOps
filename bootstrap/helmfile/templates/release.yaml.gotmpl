@@ -1,0 +1,14 @@
+{{ $path := "../../kubernetes/apps/%s/%s/%s/ocirepo.yaml"}}
+{{- $name := .Release.Name -}}
+{{- $namespace := .Release.Namespace -}}
+{{- $component := "app" -}}
+{{- if or (contains "flux" .Release.Name) (contains "crds" .Release.Name) -}}
+  {{- $parts := splitList "-" $name -}}
+  {{- $component = last $parts -}}
+  {{- $name = join "-" (initial $parts) -}}
+{{- end -}}
+{{- $path = printf $path $namespace $name $component -}}
+
+{{- $oci := fromYaml (readFile $path) -}}
+chart: {{ $oci.spec.url }}
+version: {{ $oci.spec.ref.tag }}

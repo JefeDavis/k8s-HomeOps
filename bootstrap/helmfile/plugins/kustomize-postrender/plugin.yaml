@@ -1,0 +1,13 @@
+---
+# Helm v4 post-renderer plugin. Helm v4 dropped exec-path post-renderers, so the
+# script is wrapped as a postrenderer/v1 subprocess plugin. Discovered via
+# HELM_PLUGINS (set for the bootstrap tasks in bootstrap/mise.toml); no
+# `helm plugin install` step required.
+apiVersion: v1
+name: kustomize-postrender
+type: postrenderer/v1
+runtime: subprocess
+version: 1.0.0
+runtimeConfig:
+  platformCommand:
+    - command: ${HELM_PLUGIN_DIR}/postrender.sh

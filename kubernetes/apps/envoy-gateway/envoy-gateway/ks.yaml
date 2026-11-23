@@ -1,0 +1,44 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: envoy-gateway
+  namespace: envoy-gateway
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/envoy-gateway/envoy-gateway/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: kube-prometheus-stack-crds
+      namespace: observability
+    - name: istio-ztunnel
+      namespace: istio-system
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: envoy-gateway-config
+  namespace: envoy-gateway
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/envoy-gateway/envoy-gateway/config
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  postBuild:
+    substituteFrom: []
+  dependsOn:
+    - name: envoy-gateway
+      namespace: envoy-gateway

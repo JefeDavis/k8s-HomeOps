@@ -1,0 +1,14 @@
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: pg-${APP}
+spec:
+  selector:
+    matchLabels:
+      cnpg.io/cluster: pg-${APP}
+      cnpg.io/podRole: instance
+      app.kubernetes.io/managed-by: cloudnative-pg
+  portLevelMtls:
+    "8000":
+      mode: PERMISSIVE

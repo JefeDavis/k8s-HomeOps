@@ -1,0 +1,81 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: istio-cni
+  namespace: istio-system
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: istio-cni
+    namespace: istio-system
+  interval: 1h
+  values:
+    profile: ambient
+    ambient:
+      enabled: true
+    # istio-cni runs at system-node-critical; emit the matching permit-ResourceQuota so the DaemonSet is
+    # admitted where a cluster enforces the system-* priority-class limit outside kube-system (GKE). A
+    # no-op on clusters that do not enforce it. The istio-system quota also covers ztunnel.
+    resourceQuotas:
+      enabled: true
+    seccompProfile:
+      type: RuntimeDefault
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        memory: 200Mi
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: DaemonSet
+            patch: |
+              apiVersion: apps/v1
+              kind: DaemonSet
+              metadata:
+                name: not-used
+              spec:
+                template:
+                  spec:
+                    automountServiceAccountToken: false
+                    volumes:
+                      - name: serviceaccount-token
+                        projected:
+                          defaultMode: 0444
+                          sources:
+                            - serviceAccountToken:
+                                expirationSeconds: 3607
+                                path: token
+                            - configMap:
+                                name: kube-root-ca.crt
+                                items:
+                                  - key: ca.crt
+                                    path: ca.crt
+                            - downwardAPI:
+                                items:
+                                  - path: namespace
+                                    fieldRef:
+                                      apiVersion: v1
+                                      fieldPath: metadata.namespace
+                    containers:
+                      - name: install-cni
+                        volumeMounts:
+                          - name: serviceaccount-token
+                            mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+                            readOnly: true
+                        env:
+                        - name: HOST_PROBE_SNAT_IP
+                          valueFrom:
+                            fieldRef:
+                              apiVersion: v1
+                              fieldPath: status.hostIP
+          - target:
+              kind: ServiceAccount
+            patch: |
+              - op: add
+                path: /automountServiceAccountToken
+                value: false

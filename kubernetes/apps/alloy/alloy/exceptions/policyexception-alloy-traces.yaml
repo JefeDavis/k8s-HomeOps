@@ -1,0 +1,22 @@
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: alloy-traces
+  namespace: kyverno-exceptions
+  annotations:
+    policies.kyverno.io/justification:
+      The alloy-traces OTLP receiver (ports 4317/4318)
+      accepts spans from any in-mesh workload, so its ALLOW AuthorizationPolicy is
+      port-scoped rather than pinned to specific SPIFFE principals.
+spec:
+  matchConditions:
+    - expression: request.namespace in ["alloy"]
+      name: in-namespaces
+    - expression: request.kind.kind in ["AuthorizationPolicy"]
+      name: in-kinds
+    - expression: object.metadata.name in ["alloy-traces-otlp"]
+      name: match-names
+  policyRefs:
+    - kind: ValidatingPolicy
+      name: kyverno-require-authorizationpolicy-principals
+  reportResult: skip

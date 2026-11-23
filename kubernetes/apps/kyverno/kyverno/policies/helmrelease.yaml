@@ -1,0 +1,94 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kyverno-policies
+  namespace: kyverno
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: kyverno-policies
+    namespace: kyverno
+  interval: 1h
+  values:
+    podSecurityStandard: restricted
+    # Track the platform-wide posture and format.
+    validationFailureAction: enforce
+    policyType: ValidatingPolicy
+
+    # NIST 800-53 Rev 5 (FedRAMP High) control mappings for the restricted PSS bundle. customAnnotations
+    # stamp metadata; auditAnnotations surface the same control string in PolicyReports (value is a CEL
+    # expression, so a constant is a quoted string literal). Mappings grounded in NIST SP 800-190 +
+    # NSA/CISA Kubernetes Hardening Guide; see .scratch/policies for the full library + crosswalk.
+    customAnnotationsByPolicy:
+      disallow-capabilities:
+        policies.kyverno.io/nist-800-53-control: "AC-06,CM-07,SC-39"
+      disallow-capabilities-strict:
+        policies.kyverno.io/nist-800-53-control: "AC-06,CM-07,SC-39,SI-16"
+      disallow-host-namespaces:
+        policies.kyverno.io/nist-800-53-control: "AC-06,SC-03,SC-07,SC-39"
+      disallow-host-path:
+        policies.kyverno.io/nist-800-53-control: "AC-06,CM-07,SC-04,SC-39"
+      disallow-host-ports:
+        policies.kyverno.io/nist-800-53-control: "CM-07,SC-07"
+      disallow-host-process:
+        policies.kyverno.io/nist-800-53-control: "AC-06,AC-06(08),SC-39"
+      disallow-privilege-escalation:
+        policies.kyverno.io/nist-800-53-control: "AC-06,AC-06(08),CM-07,SC-39,SI-16"
+      disallow-privileged-containers:
+        policies.kyverno.io/nist-800-53-control: "AC-06,AC-06(08),AC-06(09),AC-06(10),CM-07,CM-07(02),SC-03,SC-39"
+      disallow-proc-mount:
+        policies.kyverno.io/nist-800-53-control: "AC-06,CM-07,SC-39"
+      disallow-selinux:
+        policies.kyverno.io/nist-800-53-control: "AC-03,CM-07,SC-39"
+      require-run-as-non-root-user:
+        policies.kyverno.io/nist-800-53-control: "AC-06,AC-06(02),AC-06(08),CM-07"
+      require-run-as-nonroot:
+        policies.kyverno.io/nist-800-53-control: "AC-06,AC-06(02),AC-06(08),CM-07"
+      restrict-apparmor-profiles:
+        policies.kyverno.io/nist-800-53-control: "AC-03,CM-07,SC-39"
+      restrict-seccomp:
+        policies.kyverno.io/nist-800-53-control: "CM-07,SC-39"
+      restrict-seccomp-strict:
+        policies.kyverno.io/nist-800-53-control: "CM-07,SC-39,SI-16"
+      restrict-sysctls:
+        policies.kyverno.io/nist-800-53-control: "CM-06,CM-07,SC-39"
+      restrict-volume-types:
+        policies.kyverno.io/nist-800-53-control: "AC-06,CM-07,SC-39"
+
+    auditAnnotationsByPolicy:
+      disallow-capabilities:
+        nist-800-53-control: '"AC-06,CM-07,SC-39"'
+      disallow-capabilities-strict:
+        nist-800-53-control: '"AC-06,CM-07,SC-39,SI-16"'
+      disallow-host-namespaces:
+        nist-800-53-control: '"AC-06,SC-03,SC-07,SC-39"'
+      disallow-host-path:
+        nist-800-53-control: '"AC-06,CM-07,SC-04,SC-39"'
+      disallow-host-ports:
+        nist-800-53-control: '"CM-07,SC-07"'
+      disallow-host-process:
+        nist-800-53-control: '"AC-06,AC-06(08),SC-39"'
+      disallow-privilege-escalation:
+        nist-800-53-control: '"AC-06,AC-06(08),CM-07,SC-39,SI-16"'
+      disallow-privileged-containers:
+        nist-800-53-control: '"AC-06,AC-06(08),AC-06(09),AC-06(10),CM-07,CM-07(02),SC-03,SC-39"'
+      disallow-proc-mount:
+        nist-800-53-control: '"AC-06,CM-07,SC-39"'
+      disallow-selinux:
+        nist-800-53-control: '"AC-03,CM-07,SC-39"'
+      require-run-as-non-root-user:
+        nist-800-53-control: '"AC-06,AC-06(02),AC-06(08),CM-07"'
+      require-run-as-nonroot:
+        nist-800-53-control: '"AC-06,AC-06(02),AC-06(08),CM-07"'
+      restrict-apparmor-profiles:
+        nist-800-53-control: '"AC-03,CM-07,SC-39"'
+      restrict-seccomp:
+        nist-800-53-control: '"CM-07,SC-39"'
+      restrict-seccomp-strict:
+        nist-800-53-control: '"CM-07,SC-39,SI-16"'
+      restrict-sysctls:
+        nist-800-53-control: '"CM-06,CM-07,SC-39"'
+      restrict-volume-types:
+        nist-800-53-control: '"AC-06,CM-07,SC-39"'

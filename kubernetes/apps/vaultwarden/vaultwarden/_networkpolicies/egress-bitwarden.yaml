@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-bitwarden
+  namespace: vaultwarden
+spec:
+  description: >-
+    Allows vaultwarden to reach the Bitwarden identity service
+    (identity.bitwarden.com) over HTTPS.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: vaultwarden
+  egress:
+    - toFQDNs:
+        - matchName: identity.bitwarden.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

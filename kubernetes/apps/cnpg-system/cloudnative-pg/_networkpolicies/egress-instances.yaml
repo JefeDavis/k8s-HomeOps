@@ -1,0 +1,24 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-instances
+  namespace: cnpg-system
+spec:
+  description: >-
+    Allows the cnpg operator to reach the instance-manager API (:8000) on managed
+    PostgreSQL instance pods in all namespaces.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: cloudnative-pg
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:app.kubernetes.io/managed-by: cloudnative-pg
+          matchExpressions:
+            - key: k8s:io.kubernetes.pod.namespace
+              operator: Exists
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP

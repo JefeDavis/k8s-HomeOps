@@ -1,0 +1,17 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-egress-kube-api
+  namespace: observability
+spec:
+  description: >-
+    Allows Prometheus to reach the API server for Alertmanager service discovery (the operator
+    injects a kubernetes_sd_config to locate the Alertmanager endpoints); it scrapes no targets
+    of its own.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: prometheus
+  egress:
+    - toEntities:
+        - kube-apiserver

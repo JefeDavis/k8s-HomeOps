@@ -1,0 +1,12 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./policyexception-ceph-daemons.yaml
+  - ./policyexception-ceph-osd.yaml
+  - ./policyexception-csi-cephfs-plugin.yaml
+  - ./policyexception-csi-cephfs-provisioner.yaml
+  - ./policyexception-csi-rbd-plugin.yaml
+  - ./policyexception-csi-rbd-provisioner.yaml
+  - ./policyexception-detect-version.yaml

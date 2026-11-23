@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./same-namespace.yaml
+  - ./flux-controllers-egress.yaml
+  - ./flux-controllers-ingress-metrics.yaml
+  - ./flux-egress-dns.yaml
+  - ./flux-kustomize-controller-egress-gcp-kms.yaml
+  - ./flux-notification-controller-egress-traces.yaml
+  - ./flux-operator-egress.yaml
+  - ./flux-operator-ingress-metrics.yaml
+  - ./flux-source-controller-egress.yaml
