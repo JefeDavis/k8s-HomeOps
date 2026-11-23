@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: flux-operator-egress-artifacts
+  namespace: flux-system
+spec:
+  description: >-
+    Allows the flux-operator to pull distribution artifacts from ghcr.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: flux-operator
+  egress:
+    - toFQDNs:
+        - matchName: pkg-containers.githubusercontent.com
+        - matchName: ghcr.io
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

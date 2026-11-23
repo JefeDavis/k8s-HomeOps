@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: flux-controllers-egress-source-controller
+  namespace: flux-system
+spec:
+  description: >-
+    Allows the flux controllers (kustomize-controller, helm-controller) to fetch build
+    artifacts from the source-controller's in-cluster artifact server (:9090).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/part-of: flux
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:app: source-controller
+            k8s:app.kubernetes.io/part-of: flux
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP

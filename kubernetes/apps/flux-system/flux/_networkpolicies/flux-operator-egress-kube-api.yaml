@@ -2,12 +2,14 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: flux-controllers-egress
+  name: flux-operator-egress-kube-api
   namespace: flux-system
 spec:
-  description:
-    Allows the flux controllers to reach the API server to reconcile cluster
-    state.
+  description: >-
+    Allows the flux-operator to reach the API server to reconcile the FluxInstance.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: flux-operator
   egress:
     - toEntities:
         - kube-apiserver
@@ -15,6 +17,3 @@ spec:
         - ports:
             - port: "6443"
               protocol: TCP
-  endpointSelector:
-    matchLabels:
-      k8s:app.kubernetes.io/part-of: flux

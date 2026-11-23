@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: flux-source-controller-egress
+  name: flux-source-controller-egress-sources
   namespace: flux-system
 spec:
   description: Allows the flux source-controller to reach the image registry over

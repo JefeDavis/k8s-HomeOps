@@ -4,7 +4,9 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   # controllers
-  - ./flux-controllers-egress.yaml
+  - ./flux-controllers-egress-kube-api.yaml
+  - ./flux-controllers-egress-notification-controller.yaml
+  - ./flux-controllers-egress-source-controller.yaml
   - ./flux-controllers-ingress-metrics.yaml
   - ./flux-egress-dns.yaml
 
@@ -13,10 +15,13 @@ resources:
 
   # notification-controller
   - ./flux-notification-controller-egress-traces.yaml
+  - ./flux-notification-controller-ingress-events.yaml
 
   # source-controller
-  - ./flux-source-controller-egress.yaml
+  - ./flux-source-controller-egress-sources.yaml
+  - ./flux-source-controller-ingress-artifacts.yaml
 
   # operator
-  - ./flux-operator-egress.yaml
+  - ./flux-operator-egress-artifacts.yaml
+  - ./flux-operator-egress-kube-api.yaml
   - ./flux-operator-ingress-metrics.yaml
