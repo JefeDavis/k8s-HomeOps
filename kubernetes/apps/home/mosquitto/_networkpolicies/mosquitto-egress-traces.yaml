@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mosquitto-egress-traces
+  namespace: home
+spec:
+  description: >-
+    Allows the mosquitto exporter to export OTLP traces to the alloy-traces collector (:4318).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: mosquitto
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:app.kubernetes.io/instance: alloy-traces
+            k8s:app.kubernetes.io/name: alloy
+            k8s:io.kubernetes.pod.namespace: alloy
+      toPorts:
+        - ports:
+            - port: "4318"
+              protocol: TCP

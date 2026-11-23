@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mosquitto-ingress-metrics
+  namespace: home
+spec:
+  description: >-
+    Allows the alloy-metrics collector to scrape the mosquitto exporter metrics on 9234.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: mosquitto
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "9234"
+              protocol: TCP
