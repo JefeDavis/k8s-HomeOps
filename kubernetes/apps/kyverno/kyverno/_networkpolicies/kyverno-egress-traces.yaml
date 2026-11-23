@@ -2,12 +2,11 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: egress-kube-api
+  name: kyverno-egress-traces
   namespace: kyverno
 spec:
   description: >-
-    Allows the long-lived kyverno controllers (admission, background, cleanup, reports) to
-    reach the API server.
+    Allows kyverno to send traces to the observability stack.
   endpointSelector:
     matchLabels:
       k8s:app.kubernetes.io/part-of: kyverno
@@ -20,9 +19,12 @@ spec:
           - cleanup-controller
           - reports-controller
   egress:
-    - toEntities:
-        - kube-apiserver
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-traces
       toPorts:
         - ports:
-            - port: "6443"
+            - port: "4317"
               protocol: TCP

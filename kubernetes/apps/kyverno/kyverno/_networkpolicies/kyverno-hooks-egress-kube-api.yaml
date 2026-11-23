@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: hooks-egress
+  name: kyverno-hooks-egress-kube-api
   namespace: kyverno
 spec:
   description: >-

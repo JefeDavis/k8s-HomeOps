@@ -2,11 +2,12 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: egress-traces
+  name: kyverno-ingress-metrics
   namespace: kyverno
 spec:
   description: >-
-    Allows kyverno to send traces to the observability stack.
+    Allows the observability stack to scrape the kyverno controller
+    metrics on 8000.
   endpointSelector:
     matchLabels:
       k8s:app.kubernetes.io/part-of: kyverno
@@ -18,13 +19,13 @@ spec:
           - background-controller
           - cleanup-controller
           - reports-controller
-  egress:
-    - toEndpoints:
+  ingress:
+    - fromEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: alloy
             k8s:app.kubernetes.io/name: alloy
-            k8s:app.kubernetes.io/instance: alloy-traces
+            k8s:app.kubernetes.io/instance: alloy-metrics
       toPorts:
         - ports:
-            - port: "4317"
+            - port: "8000"
               protocol: TCP

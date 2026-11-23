@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: ingress-webhook
+  name: kyverno-ingress-webhook
   namespace: kyverno
 spec:
   description: >-
