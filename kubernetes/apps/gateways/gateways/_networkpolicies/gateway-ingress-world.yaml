@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: gateway-ingress
+  name: gateway-ingress-world
   namespace: gateways
 spec:
   description: >-

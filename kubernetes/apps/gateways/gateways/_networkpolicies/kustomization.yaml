@@ -4,10 +4,11 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   # external gateway
-  - ./external-gateway-egress.yaml
+  - ./external-gateway-egress-backends.yaml
 
   # internal gateway
-  - ./internal-gateway-egress.yaml
+  - ./internal-gateway-egress-backends.yaml
 
   # shared
-  - ./gateway-ingress.yaml
+  - ./gateway-ingress-world.yaml
+  - ./gateway-ingress-metrics.yaml

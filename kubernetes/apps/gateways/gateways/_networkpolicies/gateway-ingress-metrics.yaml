@@ -1,0 +1,24 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: gateway-ingress-metrics
+  namespace: gateways
+spec:
+  description: >-
+    Allows the observability stack (alloy-metrics) to scrape the envoy-gateway-managed proxy fleet's
+    Prometheus stats on 19001. The stats port is a plaintext Envoy infra listener outside istio mTLS
+    enforcement, so this L3/L4 policy is the only gate on the scrape (no PeerAuthentication needed).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/managed-by: envoy-gateway
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "19001" # envoy-gateway proxy prometheus stats
+              protocol: TCP

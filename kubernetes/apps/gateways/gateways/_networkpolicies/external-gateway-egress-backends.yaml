@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: external-gateway-egress
+  name: external-gateway-egress-backends
   namespace: gateways
 spec:
   description: >-
