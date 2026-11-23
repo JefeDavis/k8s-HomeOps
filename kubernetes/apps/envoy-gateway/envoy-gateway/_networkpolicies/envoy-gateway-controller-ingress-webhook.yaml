@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: ingress-webhook
+  name: envoy-gateway-controller-ingress-webhook
   namespace: envoy-gateway
 spec:
   description: >-

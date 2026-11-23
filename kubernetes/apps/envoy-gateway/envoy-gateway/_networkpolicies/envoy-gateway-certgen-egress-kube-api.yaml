@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: controller-egress-kube-api
+  name: envoy-gateway-certgen-egress-kube-api
   namespace: envoy-gateway
 spec:
   description: >-
@@ -10,7 +10,7 @@ spec:
     secrets.
   endpointSelector:
     matchLabels:
-      k8s:app.kubernetes.io/name: envoy-gateway
+      k8s:job-name: envoy-gateway-certgen
   egress:
     - toEntities:
         - kube-apiserver
