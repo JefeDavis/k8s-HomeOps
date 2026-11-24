@@ -47,6 +47,7 @@ spec:
           labels:
             ingress.gateway.homeops.io/internal: "true"
         priorityClassName: platform-low
+        logFormat: json
         alertmanagerConfiguration:
           name: alertmanager
         externalUrl: https://alertmanager.internal.${DOMAIN}
@@ -92,6 +93,7 @@ spec:
 
     prometheusOperator:
       priorityClassName: platform-low
+      logFormat: json
       nameOverride: prometheus-operator
       fullnameOverride: prometheus-operator
 
@@ -176,6 +178,7 @@ spec:
           labels:
             ingress.gateway.homeops.io/internal: "true"
         externalUrl: https://prometheus.internal.${DOMAIN}
+        logFormat: json
         priorityClassName: platform-low
         replicas: 1
         # DoNotSchedule on Karpenter flavors makes the second replica Pending, which is what drives node
