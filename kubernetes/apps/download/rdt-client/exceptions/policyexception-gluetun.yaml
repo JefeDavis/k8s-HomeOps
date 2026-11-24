@@ -1,0 +1,37 @@
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: download-gluetun
+  namespace: kyverno-exceptions
+  annotations:
+    policies.kyverno.io/justification: >-
+      Covers both containers in the VPN'd download pod. gluetun needs NET_ADMIN to bring up the
+      WireGuard interface, a /dev/net/tun hostPath for the tunnel device, and runs as root to manage
+      the network namespace. The rdt-client (LinuxServer/s6) image can only start as root to drop to
+      its unprivileged user, needing CHOWN/SETUID/SETGID and a writable rootfs for that handoff.
+      Scoped to pods opted in via the egress.vpn.homeops.io/enabled label.
+spec:
+  matchConditions:
+    - expression: request.namespace in ["download"]
+      name: in-namespaces
+    - expression: has(object.metadata.labels)
+        && ("egress.vpn.homeops.io/enabled" in object.metadata.labels)
+        && object.metadata.labels["egress.vpn.homeops.io/enabled"] == "true"
+      name: match-labels
+  policyRefs:
+    - kind: ValidatingPolicy
+      name: disallow-capabilities
+    - kind: ValidatingPolicy
+      name: disallow-capabilities-strict
+    - kind: ValidatingPolicy
+      name: disallow-host-path
+    - kind: ValidatingPolicy
+      name: restrict-volume-types
+    - kind: ValidatingPolicy
+      name: require-run-as-nonroot
+    - kind: ValidatingPolicy
+      name: require-run-as-non-root-user
+    - kind: ValidatingPolicy
+      name: kyverno-require-ro-rootfs
+  reportResult: skip

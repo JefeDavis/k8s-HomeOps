@@ -1,0 +1,181 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app rdt-client
+  namespace: download
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: rdt-client
+    namespace: download
+  values:
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          labels:
+            ingress.gateway.homeops.io/internal: "true"
+            egress.vpn.homeops.io/enabled: "true"
+            istio.io/dataplane-mode: none
+        initContainers:
+          gluetun:
+            image:
+              repository: ghcr.io/qdm12/gluetun
+              tag: v3.41.3
+            restartPolicy: Always
+            env:
+              VPN_SERVICE_PROVIDER: mullvad
+              VPN_TYPE: wireguard
+              FIREWALL: "on"
+              FIREWALL_OUTBOUND_SUBNETS: 10.0.0.0/8,172.16.0.0/12
+              FIREWALL_INPUT_PORTS: "6500"
+              DOT: "off"
+              VPN_PORT_FORWARDING: "off"
+              SERVER_CITIES: Atlanta GA,Miami FL
+              HEALTH_VPN_DURATION_INITIAL: 30s
+              LOG_LEVEL: info
+              TZ: ${TIMEZONE}
+            envFrom:
+              - secretRef:
+                  name: rdt-client-secret
+            securityContext:
+              runAsNonRoot: false
+              runAsUser: 0
+              runAsGroup: 0
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities:
+                add: ["NET_ADMIN"]
+                drop: ["ALL"]
+              seccompProfile: { type: "RuntimeDefault" }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 128Mi
+        containers:
+          *app :
+            image:
+              repository: rogerfar/rdtclient
+              tag: 2.0.143
+            env:
+              TZ: ${TIMEZONE}
+              XDG_CONFIG_HOME: /data/config
+              PUID: "65532"
+              PGID: "65532"
+              SKIP_CHOWN: "true"
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
+            securityContext:
+              runAsNonRoot: false
+              runAsUser: 0
+              runAsGroup: 0
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              seccompProfile: { type: "RuntimeDefault" }
+            resources:
+              requests:
+                cpu: 50m
+                memory: 512Mi
+              limits:
+                memory: 1Gi
+
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: "RuntimeDefault" }
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: *app
+
+    serviceAccount:
+      *app :
+        automountServiceAccountToken: false
+
+    service:
+      *app :
+        controller: *app
+        ports:
+          http:
+            port: &port 6500
+
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:download-circle-outline"
+        parentRefs:
+          - kind: ListenerSet
+            name: internal
+            namespace: gateways
+        hostnames:
+          - rdt.internal.${DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                identifier: *app
+                port: http
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
+    persistence:
+      tun:
+        type: hostPath
+        hostPath: /dev/net/tun
+        hostPathType: CharDevice
+        advancedMounts:
+          *app :
+            gluetun:
+              - path: /dev/net/tun
+
+      gluetun-tmp:
+        type: emptyDir
+        advancedMounts:
+          *app :
+            gluetun:
+              - path: /tmp/gluetun
+
+      config:
+        existingClaim: ${VOLSYNC_CLAIM}
+        globalMounts:
+          - path: /data
+
+      media:
+        existingClaim: rdt-client-media
+        globalMounts:
+          - path: /data/downloads
+
+      run:
+        type: emptyDir
+        globalMounts:
+          - path: /run
+
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-vpn
+  namespace: download
+spec:
+  description: >-
+    rdt-client routes all traffic through the gluetun WireGuard sidecar, so its only real egress is
+    the encrypted tunnel to the Mullvad endpoint (UDP 51820). TCP 443 covers gluetun's pre-tunnel
+    connectivity and public-IP checks.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: rdt-client
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "51820"
+              protocol: UDP
+            - port: "443"
+              protocol: TCP
