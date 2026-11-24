@@ -1,0 +1,25 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: external-client-ip-detection
+  namespace: gateways
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: external-gateway
+  clientIPDetection:
+    xForwardedFor:
+      numTrustedHops: 1
+  http2:
+    onInvalidMessage: TerminateStream
+  tcpKeepalive: {}
+  timeout:
+    http:
+      idleTimeout: 60s
+  tls:
+    alpnProtocols:
+      - h2
+      - http/1.1
+    minVersion: "1.2"

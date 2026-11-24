@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - ./gateway.yaml
   - ./listenerset.yaml
+  - ./clienttrafficpolicy.yaml
   - ./envoyextensionpolicy-waf.yaml
 
 configMapGenerator:
