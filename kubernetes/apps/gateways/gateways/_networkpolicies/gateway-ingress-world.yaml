@@ -7,19 +7,13 @@ metadata:
 spec:
   description: >-
     Allows external clients via the load balancer, plus node-local health checks, to reach the
-    envoy-gateway-managed Envoy proxy listener ports (north-south ingress).
+    envoy-gateway-managed Envoy proxies (north-south ingress). Exposed ports are governed by the
+    Gateway and ListenerSet listeners, so this rule is intentionally port-agnostic.
   endpointSelector:
     matchLabels:
       k8s:app.kubernetes.io/managed-by: envoy-gateway
   ingress:
-    # An external NLB (ip targets) plus node-local health checks reach the listener ports.
     - fromEntities:
         - world
         - host
         - remote-node
-      toPorts:
-        - ports:
-            - port: "10080"
-              protocol: TCP
-            - port: "10443"
-              protocol: TCP

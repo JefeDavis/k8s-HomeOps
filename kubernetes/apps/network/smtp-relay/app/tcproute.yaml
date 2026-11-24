@@ -1,0 +1,16 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: TCPRoute
+metadata:
+  name: smtp-relay
+  namespace: network
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: smtp-relay
+      sectionName: smtp
+  rules:
+    - backendRefs:
+        - name: smtp-relay
+          port: 2525

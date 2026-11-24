@@ -11,7 +11,7 @@ spec:
   gatewayClassName: envoy
   allowedListeners:
     namespaces:
-      from: Same
+      from: All
   listeners:
     - name: http
       protocol: HTTP

@@ -6,15 +6,17 @@ metadata:
   namespace: network
 spec:
   description: >-
-    Allows in-cluster workloads (e.g. vaultwarden) and LAN senders (via the LoadBalancer IP)
-    to submit mail to smtp-relay on 2525.
+    Allows vaultwarden to submit mail to smtp-relay on 2525. Off-cluster senders arrive via the
+    internal gateway's TCPRoute and are covered by the clusterwide allow-ingress-internal-gateway
+    policy.
   endpointSelector:
     matchLabels:
       k8s:app.kubernetes.io/name: smtp-relay
   ingress:
-    - fromEntities:
-        - cluster
-        - world
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: vaultwarden
+            k8s:app.kubernetes.io/name: vaultwarden
       toPorts:
         - ports:
             - port: "2525"
