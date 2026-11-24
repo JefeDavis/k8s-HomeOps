@@ -9,7 +9,7 @@ spec:
     apiGroup: postgresql.cnpg.io
     kind: ClusterImageCatalog
     name: postgresql-standard-trixie
-    major: 15
+    major: 18
   storage:
     size: 8Gi
   resources:
