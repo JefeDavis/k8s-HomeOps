@@ -28,10 +28,30 @@ spec:
         # must precede the rule set), then the rules, then any per-cluster extraDirectives (exclusions).
         directives:
           - Include @coraza.conf
+          - SecRequestBodyLimitAction ProcessPartial
           - SecRuleEngine On
           - SecRequestBodyAccess On
           - SecResponseBodyAccess Off
+          - SecRuleRemoveById 200002 200003
+          - SecRule REQBODY_ERROR "!@eq 0" "id:10004,phase:2,t:none,log,pass,msg:'Failed to parse request body host=%{SERVER_NAME} method=%{REQUEST_METHOD}',logdata:'%{reqbody_error_msg}',severity:2,chain"
+          - SecRule INBOUND_DATA_ERROR "!@eq 1" "t:none"
+          - SecRule MULTIPART_STRICT_ERROR "!@eq 0" "id:10005,phase:2,t:none,log,pass,msg:'Multipart request body failed strict validation host=%{SERVER_NAME} method=%{REQUEST_METHOD}',logdata:'%{reqbody_error_msg}',severity:2,chain"
+          - SecRule INBOUND_DATA_ERROR "!@eq 1" "t:none"
           - Include @crs-setup.conf
           - SecAction "id:900000,phase:1,nolog,pass,t:none,setvar:tx.blocking_paranoia_level=1,setvar:tx.detection_paranoia_level=1,setvar:tx.943110_matched_var_name='',setvar:tx.943120_matched_var_name=''"
           - SecAction "id:900110,phase:1,nolog,pass,t:none,setvar:tx.inbound_anomaly_score_threshold=5,setvar:tx.outbound_anomaly_score_threshold=4"
+          - SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT DELETE PATCH"
+          - SecRule REQUEST_HEADERS:Content-Type "!@rx ^(?:application/(?:x-www-form-urlencoded|json|xml|soap\+xml|[a-z0-9.+-]+\+(?:json|xml))|multipart/form-data|text/xml)(?:\s*;.*)?$" "id:10020,phase:1,pass,nolog,t:none,t:lowercase,ctl:requestBodyAccess=Off"
+          - SecRule REQUEST_HEADERS:Content-Encoding "!@rx ^(?:identity)?$" "id:10021,phase:1,pass,nolog,t:none,t:lowercase,ctl:requestBodyAccess=Off"
+          - SecRule REQUEST_HEADERS:Upgrade "@rx ^websocket$" "id:10022,phase:1,pass,nolog,t:none,t:lowercase,ctl:requestBodyAccess=Off"
           - Include @owasp_crs/*.conf
+          - SecRuleRemoveById 920420
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:password"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:password-new"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:password-confirm"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:client_secret"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:client_assertion"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:refresh_token"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:SAMLResponse"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:SAMLRequest"
+          - SecRule TX:BLOCKING_INBOUND_ANOMALY_SCORE "@ge 1" "id:10090,phase:5,pass,t:none,log,noauditlog,severity:'WARNING',msg:'WAF summary host=%{SERVER_NAME} method=%{REQUEST_METHOD} inbound=%{TX.BLOCKING_INBOUND_ANOMALY_SCORE} threshold=%{TX.INBOUND_ANOMALY_SCORE_THRESHOLD}'"
