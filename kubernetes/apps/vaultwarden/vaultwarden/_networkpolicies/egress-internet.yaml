@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: egress-internet
+  name: vaultwarden-egress-internet
   namespace: vaultwarden
 spec:
   description: >-
