@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
+  - ./smtp-relay/_networkpolicies/
   # Flux-Kustomizations
   - ./external-services/ks.yaml
   - ./smtp-relay/ks.yaml

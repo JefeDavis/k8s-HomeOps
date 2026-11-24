@@ -1,0 +1,9 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # smtp-relay
+  - ./smtp-relay-egress-smtp.yaml
+  - ./smtp-relay-ingress-metrics.yaml
+  - ./smtp-relay-ingress-smtp.yaml

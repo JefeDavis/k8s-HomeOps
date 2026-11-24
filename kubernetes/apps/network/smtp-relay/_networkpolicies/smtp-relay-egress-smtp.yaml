@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: smtp-relay-egress-smtp
+  namespace: network
+spec:
+  description: >-
+    Allows smtp-relay to deliver mail to the SendGrid SMTP relay (smtp.sendgrid.net) on 587.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: smtp-relay
+  egress:
+    - toFQDNs:
+        - matchName: smtp.sendgrid.net
+      toPorts:
+        - ports:
+            - port: "587"
+              protocol: TCP

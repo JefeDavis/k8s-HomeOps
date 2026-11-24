@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: smtp-relay-ingress-smtp
+  namespace: network
+spec:
+  description: >-
+    Allows in-cluster workloads (e.g. vaultwarden) and LAN senders (via the LoadBalancer IP)
+    to submit mail to smtp-relay on 2525.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: smtp-relay
+  ingress:
+    - fromEntities:
+        - cluster
+        - world
+      toPorts:
+        - ports:
+            - port: "2525"
+              protocol: TCP

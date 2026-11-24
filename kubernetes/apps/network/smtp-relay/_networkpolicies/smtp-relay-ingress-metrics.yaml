@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: smtp-relay-ingress-metrics
+  namespace: network
+spec:
+  description: >-
+    Allows the alloy-metrics collector to scrape smtp-relay metrics on 8080.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: smtp-relay
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
