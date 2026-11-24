@@ -29,6 +29,10 @@ spec:
     extraArgs:
       - --logging-format=json
 
+    prometheus:
+      servicemonitor:
+        enabled: true
+
     # The controller and cainjector stay single-replica (leader-elected reconcilers) with a drain-safe PDB.
     # The webhook (below) runs multiple replicas because it sits in the API admission path.
     podDisruptionBudget:
