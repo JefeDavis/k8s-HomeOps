@@ -169,6 +169,14 @@ spec:
           }
 
           loki.process "pod_logs" {
+            stage.cri {}
+
+            stage.labels {
+              values = {
+                stream = "",
+              }
+            }
+
             stage.static_labels {
               values = {
                 cluster = "${CLUSTER_NAME}",
@@ -179,9 +187,7 @@ spec:
 
           loki.write "default" {
             endpoint {
-              // Ship to VictoriaLogs over its Loki-compatible push endpoint; the stream labels above
-              // become VictoriaLogs stream fields automatically.
-              url = "http://victoria-logs.observability.svc.cluster.local:9428/insert/loki/api/v1/push"
+              url = "http://victoria-logs.observability.svc.cluster.local:9428/insert/loki/api/v1/push?_stream_fields=cluster,namespace,app,container,stream"
             }
           }
   postRenderers:
