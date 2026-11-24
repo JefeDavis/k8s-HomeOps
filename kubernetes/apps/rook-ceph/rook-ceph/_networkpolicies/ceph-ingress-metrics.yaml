@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: ceph-ingress-metics
+  name: ceph-ingress-metrics
   namespace: rook-ceph
 spec:
   description: >-

@@ -1,0 +1,26 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: rook-ceph-operator-egress-daemons
+  namespace: rook-ceph
+spec:
+  description: >-
+    Allows the Rook operator to reach the ceph daemons over the mon (3300 msgr2; 6789 msgr1) and
+    daemon (6800-7300) ports to configure and monitor the cluster.
+  endpointSelector:
+    matchLabels:
+      k8s:app: rook-ceph-operator
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:rook_cluster: rook-ceph
+      toPorts:
+        - ports:
+            - port: "3300"
+              protocol: TCP
+            - port: "6789"
+              protocol: TCP
+            - port: "6800"
+              endPort: 7300
+              protocol: TCP

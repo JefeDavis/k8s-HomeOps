@@ -5,13 +5,15 @@ kind: Kustomization
 resources:
   # rook-ceph operator
   - ./rook-ceph-egress-kube-api.yaml
+  - ./rook-ceph-operator-egress-daemons.yaml
 
   # csi
   - ./csi-operator-egress-kube-api.yaml
 
   # ceph cluster
+  - ./ceph-cluster.yaml
   - ./ceph-ingress-metrics.yaml
-  - ./egress-prometheus.yaml
+  - ./rook-ceph-mgr-egress-prometheus.yaml
   - ./rook-cluster-ingress-node.yaml
 
   # rgw
