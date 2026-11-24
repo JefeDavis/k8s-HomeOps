@@ -14,6 +14,8 @@ spec:
   driftDetection:
     mode: enabled
   values:
+    logAsJson: true
+
     resourceQuotas:
       enabled: true
 

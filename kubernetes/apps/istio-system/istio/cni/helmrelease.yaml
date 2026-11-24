@@ -17,6 +17,8 @@ spec:
     profile: ambient
     ambient:
       enabled: true
+    global:
+      logAsJson: true
     # istio-cni runs at system-node-critical; emit the matching permit-ResourceQuota so the DaemonSet is
     # admitted where a cluster enforces the system-* priority-class limit outside kube-system (GKE). A
     # no-op on clusters that do not enforce it. The istio-system quota also covers ztunnel.

@@ -22,6 +22,7 @@ spec:
 
   values:
     global:
+      logAsJson: true
       priorityClassName: platform-critical
       proxy:
         seccompProfile:
