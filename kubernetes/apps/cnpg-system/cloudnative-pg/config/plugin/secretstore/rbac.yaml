@@ -4,6 +4,7 @@ kind: ServiceAccount
 metadata:
   name: cloudnative-pg-secret-reader
   namespace: cnpg-system
+automountServiceAccountToken: false
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role

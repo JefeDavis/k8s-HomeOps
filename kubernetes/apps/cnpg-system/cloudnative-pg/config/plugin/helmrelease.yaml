@@ -35,6 +35,15 @@ spec:
     - kustomize:
         patches:
           - target:
+              kind: ServiceAccount
+            patch: |
+              apiVersion: v1
+              kind: ServiceAccount
+              metadata:
+                name: plugin-barman-cloud
+              automountServiceAccountToken: false
+
+          - target:
               kind: Deployment
               labelSelector: app.kubernetes.io/name=plugin-barman-cloud
             patch: |

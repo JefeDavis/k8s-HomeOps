@@ -35,3 +35,52 @@ spec:
       podMonitorEnabled: true
       grafanaDashboard:
         create: true
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: ServiceAccount
+            patch: |
+              apiVersion: v1
+              kind: ServiceAccount
+              metadata:
+                name: cloudnative-pg
+              automountServiceAccountToken: false
+
+          - target:
+              kind: Deployment
+              labelSelector: app.kubernetes.io/name=cloudnative-pg
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: cloudnative-pg
+              spec:
+                template:
+                  spec:
+                    automountServiceAccountToken: false
+                    containers:
+                      - name: manager
+                        volumeMounts:
+                          - name: serviceaccount-token
+                            mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+                            readOnly: true
+                    volumes:
+                      - name: serviceaccount-token
+                        projected:
+                          defaultMode: 0444
+                          sources:
+                            - serviceAccountToken:
+                                expirationSeconds: 3607
+                                path: token
+                            - configMap:
+                                name: kube-root-ca.crt
+                                items:
+                                  - key: ca.crt
+                                    path: ca.crt
+                            - downwardAPI:
+                                items:
+                                  - path: namespace
+                                    fieldRef:
+                                      apiVersion: v1
+                                      fieldPath: metadata.namespace
