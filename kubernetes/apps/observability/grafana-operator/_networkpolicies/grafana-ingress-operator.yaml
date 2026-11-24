@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: grafana-ingress-operator
+  namespace: observability
+spec:
+  description: >-
+    Allows grafana-operator to manage the grafana instance (dashboards, datasources, folders)
+    through its HTTP API on 3000.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: grafana
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+            k8s:app.kubernetes.io/name: grafana-operator
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP

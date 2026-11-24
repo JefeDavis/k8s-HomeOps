@@ -6,8 +6,8 @@ metadata:
   namespace: observability
 spec:
   description: >-
-    Allows the Alloy metrics collector to reach Prometheus for remote_write and scrape on
-    9090.
+    Allows the Alloy metrics collector to reach Prometheus for remote_write and scrape on 9090,
+    and to scrape its config-reloader sidecar on 8080.
   endpointSelector:
     matchLabels:
       k8s:app.kubernetes.io/name: prometheus
@@ -20,4 +20,6 @@ spec:
       toPorts:
         - ports:
             - port: "9090"
+              protocol: TCP
+            - port: "8080"
               protocol: TCP

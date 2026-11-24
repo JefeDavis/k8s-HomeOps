@@ -1,0 +1,25 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: alertmanager-ingress-metrics
+  namespace: observability
+spec:
+  description: >-
+    Allows the alloy-metrics collector to scrape alertmanager (:9093) and its config-reloader
+    sidecar (:8080).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: alertmanager
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "9093"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP

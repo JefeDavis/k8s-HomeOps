@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: alertmanager-egress-pushover
+  namespace: observability
+spec:
+  description: >-
+    Allows alertmanager to deliver notifications to the Pushover API (:443).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: alertmanager
+  egress:
+    - toFQDNs:
+        - matchName: api.pushover.net
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
