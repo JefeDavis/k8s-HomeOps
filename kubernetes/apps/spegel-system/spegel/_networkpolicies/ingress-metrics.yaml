@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: ingress-metrics
+  name: spegel-ingress-metrics
   namespace: spegel-system
 spec:
   description: >-
