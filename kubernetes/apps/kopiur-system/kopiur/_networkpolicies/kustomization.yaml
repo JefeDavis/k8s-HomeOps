@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # controller
+  - ./kopiur-egress-kube-api.yaml
+  - ./kopiur-ingress-metrics.yaml
+
+  # webhook
+  - ./kopiur-webhook-egress-kube-api.yaml
+  - ./kopiur-webhook-ingress-kube-api.yaml
+
+  # ui
+  - ./kopiur-ui-egress-kube-api.yaml
+  - ./kopiur-ui-ingress-metrics.yaml

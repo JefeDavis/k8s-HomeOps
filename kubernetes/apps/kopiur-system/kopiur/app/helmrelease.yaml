@@ -1,0 +1,93 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kopiur
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: kopiur
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+  values:
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: kopiur
+        matchLabelKeys:
+          - pod-template-hash
+    priorityClassName: platform-low
+    monitoring:
+      dashboards:
+        enabled: true
+        grafanaOperator:
+          enabled: true
+          matchLabels:
+            app.kubernetes.io/name: grafana
+            app.kubernetes.io/instance: grafana
+      prometheusRule:
+        enabled: true
+      serviceMonitor:
+        enabled: true
+    podSecurityContext:
+      runAsUser: 65532
+      runAsGroup: 65532
+      fsGroup: 65532
+      fsGroupChangePolicy: OnRootMismatch
+    resources:
+      requests:
+        cpu: 100m
+      limits:
+        memory: 2Gi
+    serviceAccount:
+      automount: false
+    extraVolumeMounts:
+      - name: serviceaccount-token
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        readOnly: true
+    extraVolumes:
+      - name: serviceaccount-token
+        projected:
+          defaultMode: 0444
+          sources:
+            - serviceAccountToken:
+                expirationSeconds: 3607
+                path: token
+            - configMap:
+                name: kube-root-ca.crt
+                items:
+                  - key: ca.crt
+                    path: ca.crt
+            - downwardAPI:
+                items:
+                  - path: namespace
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.namespace
+    installScope: cluster
+    ui:
+      enabled: true
+      podLabels:
+        ingress.gateway.homeops.io/internal: "true"
+      auth:
+        anonymous:
+          enabled: true
+          user: kopiur-ui
+          groups:
+            - kopiur-ui-admins
+      rbac:
+        bindings:
+          - role: user
+            groups:
+              - kopiur-ui-admins
+      serviceMonitor:
+        enabled: true
