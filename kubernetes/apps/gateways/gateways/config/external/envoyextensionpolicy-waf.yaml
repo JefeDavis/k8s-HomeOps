@@ -28,10 +28,46 @@ spec:
         # must precede the rule set), then the rules, then any per-cluster extraDirectives (exclusions).
         directives:
           - Include @coraza.conf
+          # Inspect the body up to its limit and stream the rest instead of rejecting with 413.
+          - SecRequestBodyLimitAction ProcessPartial
           - SecRuleEngine On
           - SecRequestBodyAccess On
           - SecResponseBodyAccess Off
+          # Drop Coraza's built-in 400s on body parse errors; the log-only rules below replace them.
+          - SecRuleRemoveById 200002 200003
+          # Log (never block) when a request body fails to parse, unless it was only truncated by ProcessPartial.
+          - SecRule REQBODY_ERROR "!@eq 0" "id:10004,phase:2,t:none,log,pass,msg:'Failed to parse request body host=%{SERVER_NAME} method=%{REQUEST_METHOD}',logdata:'%{reqbody_error_msg}',severity:2,chain"
+          - SecRule INBOUND_DATA_ERROR "!@eq 1" "t:none"
+          # Log (never block) when a multipart body fails strict validation, unless it was truncated by ProcessPartial.
+          - SecRule MULTIPART_STRICT_ERROR "!@eq 0" "id:10005,phase:2,t:none,log,pass,msg:'Multipart request body failed strict validation host=%{SERVER_NAME} method=%{REQUEST_METHOD}',logdata:'%{reqbody_error_msg}',severity:2,chain"
+          - SecRule INBOUND_DATA_ERROR "!@eq 1" "t:none"
+          # Load CRS defaults; the anomaly-scoring and paranoia overrides below must come after this include.
           - Include @crs-setup.conf
           - SecAction "id:900000,phase:1,nolog,pass,t:none,setvar:tx.blocking_paranoia_level=1,setvar:tx.detection_paranoia_level=1,setvar:tx.943110_matched_var_name='',setvar:tx.943120_matched_var_name=''"
           - SecAction "id:900110,phase:1,nolog,pass,t:none,setvar:tx.inbound_anomaly_score_threshold=5,setvar:tx.outbound_anomaly_score_threshold=4"
+          # Permit common REST verbs; CRS allows only GET/HEAD/POST/OPTIONS by default and scores the rest.
+          - SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT DELETE PATCH"
+          # Break-glass: add regex-escaped hosts to the alternation (e.g. ...|app\.example\.com) to make them
+          # detection-only (CRS scores and logs, never blocks). Keep temporary; disabled.invalid = none active.
+          - SecRule SERVER_NAME "@rx ^(?:disabled\.invalid)(?::\d+)?$" "id:10010,phase:1,pass,nolog,t:none,t:lowercase,ctl:ruleEngine=DetectionOnly"
+          # Only inspect request bodies with a parseable content type; skip inspection for everything else.
+          - SecRule REQUEST_HEADERS:Content-Type "!@rx ^(?:application/(?:x-www-form-urlencoded|json|xml|soap\+xml|[a-z0-9.+-]+\+(?:json|xml))|multipart/form-data|text/xml)(?:\s*;.*)?$" "id:10020,phase:1,pass,nolog,t:none,t:lowercase,ctl:requestBodyAccess=Off"
+          # Skip body inspection for compressed (non-identity) bodies the WAF cannot meaningfully parse.
+          - SecRule REQUEST_HEADERS:Content-Encoding "!@rx ^(?:identity)?$" "id:10021,phase:1,pass,nolog,t:none,t:lowercase,ctl:requestBodyAccess=Off"
+          # Skip body inspection for WebSocket upgrade requests.
+          - SecRule REQUEST_HEADERS:Upgrade "@rx ^websocket$" "id:10022,phase:1,pass,nolog,t:none,t:lowercase,ctl:requestBodyAccess=Off"
+          # Load the OWASP Core Rule Set; everything below tunes it and must come after this include.
           - Include @owasp_crs/*.conf
+          # Retire the CRS content-type allow list; rule 10020 above governs which bodies are inspected.
+          - SecRuleRemoveById 920420
+          # Keep credential fields out of CRS inspection and rule log lines.
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:password"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:password-new"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:password-confirm"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:client_secret"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:client_assertion"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:refresh_token"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:SAMLResponse"
+          - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:SAMLRequest"
+          # One summary log line per flagged request, carrying the requested host, method, and anomaly score.
+          - SecRule TX:BLOCKING_INBOUND_ANOMALY_SCORE "@ge 1" "id:10090,phase:5,pass,t:none,log,noauditlog,severity:'WARNING',msg:'WAF summary host=%{SERVER_NAME} method=%{REQUEST_METHOD} inbound=%{TX.BLOCKING_INBOUND_ANOMALY_SCORE} threshold=%{TX.INBOUND_ANOMALY_SCORE_THRESHOLD}'"
