@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   # reflector
   - ./reflector-egress-kube-api.yaml
+  - ./reflector-ingress-health.yaml

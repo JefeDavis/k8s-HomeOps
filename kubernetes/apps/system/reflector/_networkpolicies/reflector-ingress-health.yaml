@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: reflector-ingress-health
+  namespace: system
+spec:
+  description: >-
+    Allows the kubelet to reach the reflector health probe endpoint on 8080.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: reflector
+  ingress:
+    - fromEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
