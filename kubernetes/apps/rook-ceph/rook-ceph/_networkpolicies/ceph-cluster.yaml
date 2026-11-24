@@ -1,0 +1,43 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ceph-cluster
+  namespace: rook-ceph
+spec:
+  description: >-
+    Allows the ceph daemons (mon, mgr, osd, mds, rgw, exporter, crashcollector) and the
+    operator-run jobs that carry the rook_cluster label to talk amongst themselves, plus the
+    operator to reach them, over the mon (3300 msgr2; 6789 msgr1 stays listed for a cluster with
+    requireMsgr2 off) and daemon (6800-7300) ports.
+  endpointSelector:
+    matchLabels:
+      k8s:rook_cluster: rook-ceph
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:rook_cluster: rook-ceph
+        - matchLabels:
+            k8s:app: rook-ceph-operator
+      toPorts:
+        - ports:
+            - port: "3300"
+              protocol: TCP
+            - port: "6789"
+              protocol: TCP
+            - port: "6800"
+              endPort: 7300
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:rook_cluster: rook-ceph
+      toPorts:
+        - ports:
+            - port: "3300"
+              protocol: TCP
+            - port: "6789"
+              protocol: TCP
+            - port: "6800"
+              endPort: 7300
+              protocol: TCP

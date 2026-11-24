@@ -2,12 +2,12 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: ingress-metics
+  name: rgw-ingress
   namespace: rook-ceph
 spec:
   description: >-
-    Allows any pod labeled egress.networking.secondfront.io/object-store=true to reach the rgw S3
-    endpoint (container port 8080 behind the Service's port 80).
+    Allows any pod labeled egress.networking.io/object-store=true to reach the rgw S3 endpoint
+    (container port 8080 behind the Service's port 80).
   ingress:
     - fromEndpoints:
         - matchLabels:
