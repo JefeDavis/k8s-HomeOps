@@ -14,29 +14,21 @@ spec:
   driftDetection:
     mode: enabled
   values:
-    # victoria-logs-single: the logs backend. alloy-logs ships pod logs here over the Loki-compatible
-    # push endpoint (:9428/insert/loki/api/v1/push); Grafana queries it via the victoriametrics-logs
-    # datasource. fullnameOverride pins the Service to `victoria-logs` (headless) so consumers get a
-    # stable DNS name regardless of release name.
     server:
       fullnameOverride: victoria-logs
       mode: statefulSet
       retentionPeriod: "30d"
-      priorityClassName: platform-high
+      priorityClassName: platform-low
       persistentVolume:
         enabled: true
         size: 20Gi
         storageClassName: ceph-block
-      # Harden to clear the observability namespace's restricted PSS: the chart already sets
-      # runAsNonRoot/readOnlyRootFilesystem/drop-ALL, these add the required RuntimeDefault seccomp.
       podSecurityContext:
         seccompProfile:
           type: RuntimeDefault
       securityContext:
         seccompProfile:
           type: RuntimeDefault
-      # Soft heap ceiling (~90% of limits.memory) so Go GCs before the cgroup OOM-kills on an ingest
-      # burst, trading a brief CPU bump for staying under the hard cap.
       env:
         - name: GOMEMLIMIT
           value: "460MiB"
