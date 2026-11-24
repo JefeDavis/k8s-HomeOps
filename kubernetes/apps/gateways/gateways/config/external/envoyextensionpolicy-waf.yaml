@@ -2,12 +2,19 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyExtensionPolicy
 metadata:
-  name: waf-extension
+  name: external-gateway-extensions
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: external-gateway
+
+  lua:
+    - type: ValueRef
+      valueRef:
+        group: ""
+        kind: ConfigMap
+        name: envoy-lua-extensions
 
   dynamicModule:
     - name: composer

@@ -6,3 +6,12 @@ resources:
   - ./gateway.yaml
   - ./listenerset.yaml
   - ./envoyextensionpolicy-waf.yaml
+
+configMapGenerator:
+  - name: envoy-lua-extensions
+    files:
+      - resources/block-user-agents.lua
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
