@@ -114,7 +114,7 @@ spec:
           exporter:
             image:
               repository: ghcr.io/d0ugal/zigbee2mqtt-exporter
-              tag: v3.6.3
+              tag: v3.6.4
             env:
               Z2M_EXPORTER_WEBSOCKET_URL: ws://localhost:8080/api
               Z2M_EXPORTER_SERVER_PORT: &metrics 8087
