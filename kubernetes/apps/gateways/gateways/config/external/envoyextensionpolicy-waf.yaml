@@ -1,0 +1,30 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyExtensionPolicy
+metadata:
+  name: waf-extension
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: external-gateway
+
+  dynamicModule:
+    - name: composer
+      filterName: coraza-waf
+      config:
+        request_uri_path_only: true
+        metrics:
+          authority_label: virtual_host_name
+        # SecLang program handed to the Coraza module. Order matters: engine/body knobs first, then
+        # the CRS defaults (@crs-setup.conf), then the CRS anomaly-scoring/paranoia overrides (which
+        # must precede the rule set), then the rules, then any per-cluster extraDirectives (exclusions).
+        directives:
+          - Include @coraza.conf
+          - SecRuleEngine On
+          - SecRequestBodyAccess On
+          - SecResponseBodyAccess Off
+          - Include @crs-setup.conf
+          - SecAction "id:900000,phase:1,nolog,pass,t:none,setvar:tx.blocking_paranoia_level=1,setvar:tx.detection_paranoia_level=1,setvar:tx.943110_matched_var_name='',setvar:tx.943120_matched_var_name=''"
+          - SecAction "id:900110,phase:1,nolog,pass,t:none,setvar:tx.inbound_anomaly_score_threshold=5,setvar:tx.outbound_anomaly_score_threshold=4"
+          - Include @owasp_crs/*.conf

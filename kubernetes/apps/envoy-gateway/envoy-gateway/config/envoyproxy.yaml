@@ -23,6 +23,8 @@ spec:
               response_code: "%RESPONSE_CODE%"
               response_flags: "%RESPONSE_FLAGS%"
               response_code_details: "%RESPONSE_CODE_DETAILS%"
+              waf_rule: "%DYNAMIC_METADATA(io.builtonenvoy.waf:block_rule)%"
+              waf_phase: "%DYNAMIC_METADATA(io.builtonenvoy.waf:block_phase)%"
               duration: "%DURATION%"
               upstream_service_time: "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%"
               bytes_received: "%BYTES_RECEIVED%"
@@ -90,7 +92,7 @@ spec:
             # Coraza dynamic module (.so) delivered read-only via an OCI image volume.
             - name: dynamic-modules
               image:
-                reference: ghcr.io/tetratelabs/built-on-envoy/composer:0.11.0
+                reference: ghcr.io/tetratelabs/built-on-envoy/composer:0.16.0
                 pullPolicy: IfNotPresent
         container:
           env:
