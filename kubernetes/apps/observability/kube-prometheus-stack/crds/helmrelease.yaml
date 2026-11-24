@@ -11,3 +11,5 @@ spec:
     name: prometheus-operator-crds
     namespace: observability
   interval: 1h
+  driftDetection:
+    mode: enabled

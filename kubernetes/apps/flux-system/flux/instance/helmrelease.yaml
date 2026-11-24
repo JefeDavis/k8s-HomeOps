@@ -11,6 +11,8 @@ spec:
     name: flux-instance
     namespace: flux-system
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     instance:
       cluster:

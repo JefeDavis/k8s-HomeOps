@@ -11,6 +11,8 @@ spec:
     name: spegel
     namespace: spegel-system
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     priorityClassName: platform-node-critical
 

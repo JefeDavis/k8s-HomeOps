@@ -11,6 +11,8 @@ spec:
     name: kube-prometheus-stack
     namespace: observability
   interval: 1h
+  driftDetection:
+    mode: enabled
   valuesFrom:
     - kind: ConfigMap
       name: flux-metrics-configmap

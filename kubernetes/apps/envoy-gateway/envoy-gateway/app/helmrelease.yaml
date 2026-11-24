@@ -11,6 +11,8 @@ spec:
     name: envoy-gateway
     namespace: envoy-gateway
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     nameOverride: envoy-gateway
     crds:

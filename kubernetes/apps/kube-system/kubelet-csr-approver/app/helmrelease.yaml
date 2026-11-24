@@ -7,6 +7,8 @@ metadata:
   namespace: kube-system
 spec:
   interval: 1h
+  driftDetection:
+    mode: enabled
   chartRef:
     kind: OCIRepository
     name: kubelet-csr-approver

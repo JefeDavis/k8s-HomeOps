@@ -11,6 +11,8 @@ spec:
     name: cloudnative-pg
     namespace: cnpg-system
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     replicaCount: 2
     priorityClassName: platform-high

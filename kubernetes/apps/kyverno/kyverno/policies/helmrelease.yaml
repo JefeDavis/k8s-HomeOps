@@ -11,6 +11,8 @@ spec:
     name: kyverno-policies
     namespace: kyverno
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     podSecurityStandard: restricted
     # Track the platform-wide posture and format.

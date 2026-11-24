@@ -11,6 +11,8 @@ spec:
     name: cert-manager
     namespace: cert-manager
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     global:
       priorityClassName: platform-high

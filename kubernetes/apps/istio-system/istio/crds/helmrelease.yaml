@@ -11,3 +11,20 @@ spec:
     name: istio-crds
     namespace: istio-system
   interval: 1h
+  driftDetection:
+    mode: enabled
+    ignore:
+      # istiod injects the caBundle and manages failurePolicy on the validating
+      # webhooks it owns, so exclude those fields from drift correction.
+      - paths:
+          - "/webhooks/0/clientConfig/caBundle"
+          - "/webhooks/0/failurePolicy"
+        target:
+          kind: ValidatingWebhookConfiguration
+          name: istiod-default-validator
+      - paths:
+          - "/webhooks/0/clientConfig/caBundle"
+          - "/webhooks/0/failurePolicy"
+        target:
+          kind: ValidatingWebhookConfiguration
+          name: istio-validator-istio-system

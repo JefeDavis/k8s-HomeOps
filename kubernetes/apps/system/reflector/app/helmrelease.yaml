@@ -6,6 +6,8 @@ metadata:
   namespace: system
 spec:
   interval: 1h
+  driftDetection:
+    mode: enabled
   chartRef:
     kind: OCIRepository
     name: reflector

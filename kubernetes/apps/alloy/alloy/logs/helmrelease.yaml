@@ -11,6 +11,8 @@ spec:
     name: alloy-logs
     namespace: alloy
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     # alloy-logs: a DaemonSet that tails /var/log/pods on each node (real file tailing, so it
     # captures crashed/short-lived-pod and system logs) and ships to loki. The hostPath /var/log

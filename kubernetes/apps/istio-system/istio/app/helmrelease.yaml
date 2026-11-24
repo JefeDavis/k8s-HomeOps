@@ -12,6 +12,7 @@ spec:
     namespace: istio-system
   interval: 1h
   driftDetection:
+    mode: enabled
     ignore:
       - paths:
           - /webhooks/0/failurePolicy

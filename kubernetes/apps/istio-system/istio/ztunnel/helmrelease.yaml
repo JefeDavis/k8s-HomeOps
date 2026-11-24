@@ -11,6 +11,8 @@ spec:
     name: istio-ztunnel
     namespace: istio-system
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     resourceQuotas:
       enabled: true

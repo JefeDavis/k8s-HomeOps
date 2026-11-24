@@ -11,6 +11,8 @@ spec:
     name: coredns
     namespace: kube-system
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     fullnameOverride: coredns
     image:

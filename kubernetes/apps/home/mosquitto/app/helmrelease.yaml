@@ -6,6 +6,8 @@ metadata:
   name: &app mosquitto
 spec:
   interval: 10m
+  driftDetection:
+    mode: enabled
   chartRef:
     kind: OCIRepository
     name: mosquitto

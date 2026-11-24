@@ -11,6 +11,8 @@ spec:
     name: alloy-traces
     namespace: alloy
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     # alloy-traces: a Deployment that runs an OTLP receiver (grpc 4317 / http 4318), batches, and
     # exports to tempo. In-mesh senders reach it over ztunnel mTLS; the module's PeerAuthentication

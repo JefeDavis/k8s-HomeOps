@@ -11,6 +11,8 @@ spec:
     name: kyverno
     namespace: kyverno
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     global:
       crdWatcher: true

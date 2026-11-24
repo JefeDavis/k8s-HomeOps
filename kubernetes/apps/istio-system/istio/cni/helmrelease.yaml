@@ -11,6 +11,8 @@ spec:
     name: istio-cni
     namespace: istio-system
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     profile: ambient
     ambient:

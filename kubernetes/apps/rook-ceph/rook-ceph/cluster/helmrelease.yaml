@@ -10,6 +10,8 @@ spec:
     kind: OCIRepository
     name: rook-ceph-cluster
   interval: 1h
+  driftDetection:
+    mode: enabled
   timeout: 10m
   values:
     cephClusterSpec:

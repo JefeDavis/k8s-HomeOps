@@ -10,6 +10,8 @@ spec:
     kind: OCIRepository
     name: ceph-csi-drivers
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     # Rook-compatible values, see
     # https://github.com/rook/rook/blob/master/deploy/charts/ceph-csi-drivers/values.yaml

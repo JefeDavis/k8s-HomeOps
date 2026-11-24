@@ -11,6 +11,8 @@ spec:
     name: external-secrets-operator
     namespace: external-secrets
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     priorityClassName: platform-high
     # Leader election (off by default in this chart) lets a second controller replica run as a standby.

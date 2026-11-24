@@ -11,6 +11,8 @@ spec:
     name: volsync
     namespace: volsync-system
   interval: 1h
+  driftDetection:
+    mode: enabled
   values:
     manageCRDs: true
     replicaCount: 2

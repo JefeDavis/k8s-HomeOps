@@ -11,6 +11,8 @@ spec:
     name: cilium
     namespace: kube-system
   interval: 30m
+  driftDetection:
+    mode: enabled
 
   values:
     annotations:
