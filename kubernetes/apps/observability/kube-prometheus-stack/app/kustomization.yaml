@@ -8,6 +8,7 @@ resources:
   - ./peerauthentication.yaml
   - ./secret-alertmanager.sops.yaml
   - ./alertmanagerconfig.yaml
+  - ./grafanadatasource.yaml
 
 configMapGenerator:
   - name: flux-metrics-configmap

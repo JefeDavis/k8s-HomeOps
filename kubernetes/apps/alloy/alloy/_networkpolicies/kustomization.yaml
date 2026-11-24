@@ -5,7 +5,7 @@ kind: Kustomization
 resources:
   # alloy-logs
   - ./alloy-logs-egress-kube-api.yaml
-  - ./alloy-logs-egress-loki.yaml
+  - ./alloy-logs-egress-victoria-logs.yaml
 
   # alloy-metrics
   - ./alloy-metrics-egress-kube-api.yaml

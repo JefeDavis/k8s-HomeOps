@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: alloy-logs-egress-victoria-logs
+  namespace: alloy
+spec:
+  description: >-
+    Allows alloy-logs to push logs to the victoria-logs backend over its Loki-compatible HTTP
+    ingestion endpoint (:9428). Logs are tailed from the host filesystem, so there is no scrape egress.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: alloy-logs
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+            k8s:app.kubernetes.io/name: victoria-logs-single
+            k8s:app.kubernetes.io/instance: victoria-logs
+      toPorts:
+        - ports:
+            - port: "9428"
+              protocol: TCP

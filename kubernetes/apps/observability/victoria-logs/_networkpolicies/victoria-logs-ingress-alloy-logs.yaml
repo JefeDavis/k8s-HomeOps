@@ -1,0 +1,24 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: victoria-logs-ingress-alloy-logs
+  namespace: observability
+spec:
+  description: >-
+    Allows victoria-logs to accept log pushes from alloy-logs over the Loki-compatible OTLP/HTTP
+    ingestion endpoint (:9428).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: victoria-logs-single
+      k8s:app.kubernetes.io/instance: victoria-logs
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-logs
+      toPorts:
+        - ports:
+            - port: "9428"
+              protocol: TCP
