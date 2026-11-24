@@ -1,0 +1,33 @@
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: intel-gpu-resource-driver-kubelet-plugin
+  namespace: kyverno-exceptions
+  annotations:
+    policies.kyverno.io/justification: >-
+      The Intel GPU DRA kubelet plugin runs as root (root group) and mounts host paths (the kubelet
+      plugins and plugins_registry sockets, /run/cdi for CDI specs and host /sys for GPU sysfs) to
+      enumerate the node's GPUs and register with the kubelet; this is the upstream
+      intel-gpu-resource-driver required posture. It stays unprivileged, drops all capabilities, runs
+      read-only root with a RuntimeDefault seccomp profile, no privilege escalation and no host
+      namespaces.
+spec:
+  matchConditions:
+    - expression: request.namespace in ["device-system"]
+      name: in-namespaces
+    - expression: has(object.metadata.labels) && ("app" in object.metadata.labels)
+        && object.metadata.labels["app"] == "intel-gpu-resource-driver"
+      name: match-labels
+  policyRefs:
+    - kind: ValidatingPolicy
+      name: disallow-host-path
+    - kind: ValidatingPolicy
+      name: restrict-volume-types
+    - kind: ValidatingPolicy
+      name: require-run-as-nonroot
+    - kind: ValidatingPolicy
+      name: require-run-as-non-root-user
+    - kind: ValidatingPolicy
+      name: kyverno-require-non-root-group
+  reportResult: skip

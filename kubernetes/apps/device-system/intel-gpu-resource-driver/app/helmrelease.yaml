@@ -1,0 +1,44 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: intel-gpu-resource-driver
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: intel-gpu-resource-driver
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  values:
+    serviceAccount:
+      automount: true
+
+    cdi:
+      staticPath: /run/cdi
+      dynamicPath: /run/cdi
+
+    kubeletPlugin:
+      privileged: false
+      healthMonitoring:
+        enabled: false
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: DaemonSet
+              name: intel-gpu-resource-driver-kubelet-plugin
+            patch: |
+              - op: add
+                path: /spec/template/spec/priorityClassName
+                value: platform-node-critical
+              - op: add
+                path: /spec/template/spec/containers/0/securityContext/allowPrivilegeEscalation
+                value: false

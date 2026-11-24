@@ -5,5 +5,7 @@ kind: Kustomization
 resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
+  - ./intel-gpu-resource-driver/_networkpolicies/
   # Flux-Kustomizations
   - ./gvisor/ks.yaml
+  - ./intel-gpu-resource-driver/ks.yaml

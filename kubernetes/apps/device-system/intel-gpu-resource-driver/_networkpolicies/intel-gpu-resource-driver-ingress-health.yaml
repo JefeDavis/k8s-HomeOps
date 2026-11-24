@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: intel-gpu-resource-driver-ingress-health
+  namespace: device-system
+spec:
+  description: >-
+    Allows the node kubelet (host) to reach the kubelet plugin's gRPC health endpoint on 51516 for
+    startup and liveness probes.
+  endpointSelector:
+    matchLabels:
+      k8s:app: intel-gpu-resource-driver
+  ingress:
+    - fromEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "51516"
+              protocol: TCP

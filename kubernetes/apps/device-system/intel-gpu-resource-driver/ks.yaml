@@ -1,0 +1,40 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: intel-gpu-resource-driver-exceptions
+  namespace: device-system
+spec:
+  targetNamespace: kyverno-exceptions
+  interval: 1h
+  path: "./kubernetes/apps/device-system/intel-gpu-resource-driver/exceptions"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  dependsOn:
+    - name: kyverno
+      namespace: kyverno
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: intel-gpu-resource-driver
+  namespace: device-system
+spec:
+  targetNamespace: device-system
+  interval: 1h
+  path: "./kubernetes/apps/device-system/intel-gpu-resource-driver/app"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  dependsOn:
+    - name: intel-gpu-resource-driver-exceptions
+      namespace: device-system

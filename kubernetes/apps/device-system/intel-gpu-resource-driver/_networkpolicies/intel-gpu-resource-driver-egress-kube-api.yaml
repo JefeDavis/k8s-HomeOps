@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: intel-gpu-resource-driver-egress-kube-api
+  namespace: device-system
+spec:
+  description: >-
+    Allows the Intel GPU DRA kubelet plugin to reach the API server to publish and reconcile the
+    node's GPU ResourceSlices.
+  endpointSelector:
+    matchLabels:
+      k8s:app: intel-gpu-resource-driver
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
