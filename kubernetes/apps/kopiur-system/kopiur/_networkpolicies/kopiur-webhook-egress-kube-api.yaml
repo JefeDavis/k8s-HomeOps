@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: kopiur-webhook-egress-kube-api
+  namespace: kopiur-system
+spec:
+  description: >-
+    Allows the kopiur webhook to reach the API server to mint its serving certificate Secret and
+    inject the caBundle into its validating/mutating webhook configurations.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: kopiur
+      k8s:app.kubernetes.io/component: webhook
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

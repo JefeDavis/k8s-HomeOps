@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: kopiur-egress-kube-api
+  namespace: kopiur-system
+spec:
+  description: >-
+    Allows the kopiur controller to reach the API server to reconcile its CRDs and the backup
+    Jobs it manages, plus leader election.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: kopiur
+      k8s:app.kubernetes.io/component: controller
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: kopiur-ui-egress-kube-api
+  namespace: kopiur-system
+spec:
+  description: >-
+    Allows the kopiur UI to reach the API server to impersonate the signed-in identity, run
+    SubjectAccessReviews and read the kopiur CRDs.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: kopiur
+      k8s:app.kubernetes.io/component: ui
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP

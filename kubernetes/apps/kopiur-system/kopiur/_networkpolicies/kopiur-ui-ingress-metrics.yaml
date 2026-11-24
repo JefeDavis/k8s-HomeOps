@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: kopiur-ui-ingress-metrics
+  namespace: kopiur-system
+spec:
+  description: >-
+    Allows the alloy-metrics collector to scrape the kopiur UI metrics on the ops port 8091.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: kopiur
+      k8s:app.kubernetes.io/component: ui
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "8091"
+              protocol: TCP
