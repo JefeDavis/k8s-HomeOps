@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: egress-kube-api
+  name: resume-operator-egress-kube-api
   namespace: resume
 spec:
   description: >-

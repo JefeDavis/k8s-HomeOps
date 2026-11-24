@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: ingress-metrics
+  name: resume-operator-ingress-metrics
   namespace: resume
 spec:
   description: >-

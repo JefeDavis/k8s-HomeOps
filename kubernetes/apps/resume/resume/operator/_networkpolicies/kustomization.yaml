@@ -4,6 +4,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   # operator
-  - ./egress-kube-api.yaml
-  - ./ingress-metrics.yaml
+  - ./resume-operator-egress-kube-api.yaml
+  - ./resume-operator-ingress-metrics.yaml
+
+  # webfront (hugo)
   - ./resume-egress-github.yaml
