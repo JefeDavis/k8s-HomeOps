@@ -93,6 +93,9 @@ spec:
         memory: 32Mi
       limits:
         memory: 64Mi
+    logOptions:
+      format: json
+
     # Discovery pass: default-deny every endpoint but log (don't drop) missing-policy flows as AUDIT
     # verdicts in Hubble, so the policy set can be regenerated before enforcement is re-enabled.
     policyAuditMode: true
@@ -170,6 +173,12 @@ spec:
     pmtuDiscovery:
       enabled: true
     hubble:
+      export:
+        static:
+          enabled: true
+          filePath: /dev/stdout
+          allowList:
+            - '{"verdict":["DROPPED","ERROR","AUDIT"]}'
       metrics:
         # Metrics the bundled Hubble dashboards query. flow/drop/tcp/dns/icmp/port-distribution back the
         # network-overview and DNS dashboards; httpV2 backs the L7 HTTP dashboard (needs L7 visibility to
@@ -195,6 +204,8 @@ spec:
             grafana.io/folder: Network
       relay:
         enabled: true
+        logOptions:
+          format: json
         priorityClassName: platform-low
         rolloutPods: true
         resources:
