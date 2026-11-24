@@ -15,7 +15,7 @@ spec:
     mode: enabled
   values:
     # alloy-logs: a DaemonSet that tails /var/log/pods on each node (real file tailing, so it
-    # captures crashed/short-lived-pod and system logs) and ships to loki. The hostPath /var/log
+    # captures crashed/short-lived-pod and system logs) and ships to victoria-logs. The hostPath /var/log
     # mount is why this release carries the module's privileged posture + kyverno exceptions,
     # scoped to it alone by the app.kubernetes.io/instance=alloy-logs label.
     global:
@@ -179,9 +179,9 @@ spec:
 
           loki.write "default" {
             endpoint {
-              // Push through the Loki gateway, which fronts every deployment mode (single-binary or
-              // distributed), so this endpoint is stable regardless of global.size.
-              url = "http://loki-gateway.loki.svc.cluster.local/loki/api/v1/push"
+              // Ship to VictoriaLogs over its Loki-compatible push endpoint; the stream labels above
+              // become VictoriaLogs stream fields automatically.
+              url = "http://victoria-logs.observability.svc.cluster.local:9428/insert/loki/api/v1/push"
             }
           }
   postRenderers:

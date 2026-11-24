@@ -1,0 +1,55 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: victoria-logs
+  namespace: observability
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: victoria-logs
+    namespace: observability
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  values:
+    # victoria-logs-single: the logs backend. alloy-logs ships pod logs here over the Loki-compatible
+    # push endpoint (:9428/insert/loki/api/v1/push); Grafana queries it via the victoriametrics-logs
+    # datasource. fullnameOverride pins the Service to `victoria-logs` (headless) so consumers get a
+    # stable DNS name regardless of release name.
+    server:
+      fullnameOverride: victoria-logs
+      mode: statefulSet
+      retentionPeriod: "30d"
+      priorityClassName: platform-high
+      persistentVolume:
+        enabled: true
+        size: 20Gi
+        storageClassName: ceph-block
+      # Harden to clear the observability namespace's restricted PSS: the chart already sets
+      # runAsNonRoot/readOnlyRootFilesystem/drop-ALL, these add the required RuntimeDefault seccomp.
+      podSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      # Soft heap ceiling (~90% of limits.memory) so Go GCs before the cgroup OOM-kills on an ingest
+      # burst, trading a brief CPU bump for staying under the hard cap.
+      env:
+        - name: GOMEMLIMIT
+          value: "460MiB"
+      # Memory-only limit (ADR-0010): bound the hard cap, leave CPU burstable.
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+      # Expose /metrics to the Prometheus-Operator scrape path (alloy-metrics scrapes ServiceMonitors).
+      serviceMonitor:
+        enabled: true
+    serviceAccount:
+      create: true
+      automountToken: false
