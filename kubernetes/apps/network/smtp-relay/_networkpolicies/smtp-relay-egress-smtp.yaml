@@ -12,7 +12,7 @@ spec:
       k8s:app.kubernetes.io/name: smtp-relay
   egress:
     - toFQDNs:
-        - matchName: smtp.sendgrid.net
+        - matchName: mail.smtp2go.com
       toPorts:
         - ports:
             - port: "587"
