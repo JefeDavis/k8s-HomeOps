@@ -5,4 +5,5 @@ kind: Kustomization
 namespace: lan
 resources:
   - ./minio.yaml
+  - ./nas.yaml
   - ./unifi.yaml
