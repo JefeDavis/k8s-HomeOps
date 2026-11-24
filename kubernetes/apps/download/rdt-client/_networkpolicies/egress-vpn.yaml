@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-vpn
+  namespace: download
+spec:
+  description: >-
+    rdt-client routes all traffic through the gluetun WireGuard sidecar, so its only permitted egress
+    to the internet is the encrypted tunnel to the Mullvad endpoint (UDP 51820). This is the CNI-layer
+    backstop to gluetun's kill switch: even if the in-pod firewall failed open, Cilium permits nothing
+    but WireGuard out to the world.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: rdt-client
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "51820"
+              protocol: UDP

@@ -1,0 +1,51 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app rdt-client
+  namespace: download
+spec:
+  targetNamespace: download
+  interval: 1h
+  path: "./kubernetes/apps/download/rdt-client/app"
+  components:
+    - ../../../../components/volsync
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  postBuild:
+    substitute:
+      APP: *app
+      VOLSYNC_CLAIM: rdt-config
+      VOLSYNC_CAPACITY: 5Gi
+  wait: true
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: volsync-system
+    - name: rdt-client-exceptions
+      namespace: download
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: rdt-client-exceptions
+  namespace: download
+spec:
+  targetNamespace: kyverno-exceptions
+  interval: 1h
+  path: "./kubernetes/apps/download/rdt-client/exceptions"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  dependsOn:
+    - name: kyverno
+      namespace: kyverno
