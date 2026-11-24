@@ -26,6 +26,9 @@ spec:
       featureGates:
         ListenerSets: true
 
+    extraArgs:
+      - --logging-format=json
+
     # The controller and cainjector stay single-replica (leader-elected reconcilers) with a drain-safe PDB.
     # The webhook (below) runs multiple replicas because it sits in the API admission path.
     podDisruptionBudget:
@@ -71,6 +74,8 @@ spec:
       limits:
         memory: 128Mi
     webhook:
+      extraArgs:
+        - --logging-format=json
       # Fail-closed webhook: stays at two replicas on every tier (no small downscale) with a minAvailable
       # budget so at least one endpoint is always up to serve admission.
       replicaCount: 2
@@ -127,6 +132,8 @@ spec:
         limits:
           memory: 128Mi
     cainjector:
+      extraArgs:
+        - --logging-format=json
       podDisruptionBudget:
         enabled: true
         maxUnavailable: 1
