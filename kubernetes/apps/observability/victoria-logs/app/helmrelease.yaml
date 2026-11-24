@@ -1,0 +1,49 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: victoria-logs
+  namespace: observability
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: victoria-logs
+    namespace: observability
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  values:
+    server:
+      fullnameOverride: victoria-logs
+      mode: statefulSet
+      retentionPeriod: "30d"
+      priorityClassName: platform-low
+      podLabels:
+        ingress.gateway.homeops.io/internal: "true"
+      persistentVolume:
+        enabled: true
+        size: 20Gi
+        storageClassName: ceph-block
+      podSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      env:
+        - name: GOMEMLIMIT
+          value: "460MiB"
+      # Memory-only limit (ADR-0010): bound the hard cap, leave CPU burstable.
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+      # Expose /metrics to the Prometheus-Operator scrape path (alloy-metrics scrapes ServiceMonitors).
+      serviceMonitor:
+        enabled: true
+    serviceAccount:
+      create: true
+      automountToken: false

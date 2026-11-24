@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: victoria-logs-ingress-grafana
+  namespace: observability
+spec:
+  description: >-
+    Allows Grafana to query victoria-logs via the victoriametrics-logs datasource (LogsQL over :9428).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: victoria-logs-single
+      k8s:app.kubernetes.io/instance: victoria-logs
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+            k8s:app.kubernetes.io/name: grafana
+      toPorts:
+        - ports:
+            - port: "9428"
+              protocol: TCP

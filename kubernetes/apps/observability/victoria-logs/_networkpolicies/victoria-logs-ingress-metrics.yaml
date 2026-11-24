@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: victoria-logs-ingress-metrics
+  namespace: observability
+spec:
+  description: >-
+    Allows the Alloy metrics collector to scrape victoria-logs' /metrics (ServiceMonitor) on :9428.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: victoria-logs-single
+      k8s:app.kubernetes.io/instance: victoria-logs
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "9428"
+              protocol: TCP

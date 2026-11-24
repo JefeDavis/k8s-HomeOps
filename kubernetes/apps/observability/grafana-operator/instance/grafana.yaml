@@ -54,6 +54,11 @@ spec:
                 capabilities:
                   drop:
                     - ALL
+              env:
+                # Install the VictoriaLogs datasource plugin at startup. The plugins dir lives on the
+                # grafana-pvc, so this works despite readOnlyRootFilesystem.
+                - name: GF_INSTALL_PLUGINS
+                  value: victoriametrics-logs-datasource
               volumeMounts:
                 - name: serviceaccount-token
                   mountPath: /var/run/secrets/kubernetes.io/serviceaccount
