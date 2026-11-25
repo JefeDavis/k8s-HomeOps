@@ -12,6 +12,8 @@ spec:
       app.kubernetes.io/instance: resume-operator
   template:
     metadata:
+      annotations:
+        logs.observability.home.arpa/format: plain
       labels:
         app.kubernetes.io/name: resume-operator
         app.kubernetes.io/instance: resume-operator

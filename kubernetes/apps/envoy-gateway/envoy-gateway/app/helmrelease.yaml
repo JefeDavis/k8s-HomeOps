@@ -68,6 +68,8 @@ spec:
       replicas: 2
     config:
       envoyGateway:
+        logging:
+          encoder: JSON
         extensionApis:
           enableBackend: true
           enableLua: true

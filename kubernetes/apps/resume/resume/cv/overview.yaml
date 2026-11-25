@@ -93,6 +93,8 @@ spec:
       registry: "ghcr.io/"
       name: "jefedavis/resume-pdf-converter"
       tag: "v0.2.0@sha256:fefe6e0c9651aa20733933a21dde65c88a340158900c371da998cfaeb5055ddd"
+  podAnnotations:
+    logs.observability.home.arpa/format: plain
   podLabels:
     ingress.gateway.homeops.io/external: "true"
   podSecurityContext:

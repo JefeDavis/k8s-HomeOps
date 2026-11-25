@@ -236,6 +236,8 @@ spec:
 
     kube-state-metrics:
       priorityClassName: platform-low
+      podAnnotations:
+        logs.observability.home.arpa/format: klog
       nameOverride: "kube-state-metrics"
       fullnameOverride: "kube-state-metrics"
       automountServiceAccountToken: false

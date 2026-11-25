@@ -151,6 +151,11 @@ spec:
               action        = "replace"
             }
             rule {
+              source_labels = ["__meta_kubernetes_pod_annotation_logs_observability_home_arpa_format"]
+              target_label  = "log_format"
+              action        = "replace"
+            }
+            rule {
               source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
               separator     = "/"
               replacement   = "/var/log/pods/*$1/*.log"
@@ -170,6 +175,7 @@ spec:
 
           loki.process "pod_logs" {
             stage.cri {}
+            stage.decolorize {}
 
             stage.labels {
               values = {
@@ -182,12 +188,136 @@ spec:
                 cluster = "${CLUSTER_NAME}",
               }
             }
+
+            stage.match {
+              selector = `{log_format="logfmt"}`
+
+              stage.logfmt {
+                mapping = {
+                  level = "",
+                  msg   = "",
+                }
+              }
+              stage.structured_metadata {
+                values = {
+                  level = "",
+                }
+              }
+              stage.output {
+                source = "msg"
+              }
+            }
+
+            stage.match {
+              selector = `{log_format="klog"}`
+
+              stage.regex {
+                expression = `^(?P<level>[IWEF])\d{4}\s+\S+\s+\d+\s+\S+\]\s+(?P<message>.*)$`
+              }
+              stage.structured_metadata {
+                values = {
+                  level = "",
+                }
+              }
+              stage.output {
+                source = "message"
+              }
+            }
+
+            stage.match {
+              selector = `{log_format="ceph"}`
+
+              stage.regex {
+                expression = `\[(?P<level>DBG|INF|WRN|ERR)\]`
+              }
+              stage.structured_metadata {
+                values = {
+                  level = "",
+                }
+              }
+              stage.replace {
+                expression = `^debug\s+\S+\s+\S+\s+-?\d+\s+`
+                replace    = ""
+              }
+            }
+
+            stage.match {
+              selector = `{log_format="zap"}`
+
+              stage.regex {
+                expression = `^(?P<ts>\S+)\t(?P<level>\w+)\t(?P<logger>\S+)\t(?P<message>[^\t]*)(?:\t(?P<ctx>\{.*\}))?$`
+              }
+              stage.structured_metadata {
+                values = {
+                  level  = "",
+                  logger = "",
+                }
+              }
+              stage.output {
+                source = "message"
+              }
+            }
+
+            stage.match {
+              selector = `{log_format="cnpg"}`
+
+              stage.json {
+                expressions = {
+                  cnpg_message = "record.message || msg",
+                  cnpg_level   = "record.error_severity || level",
+                }
+              }
+              stage.structured_metadata {
+                values = {
+                  level = "cnpg_level",
+                }
+              }
+              stage.output {
+                source = "cnpg_message"
+              }
+            }
+
+            stage.match {
+              selector = `{log_format="starr"}`
+
+              stage.regex {
+                expression = `^\[(?P<level>\w+)\]\s+(?P<logger>[^:]+):`
+              }
+              stage.structured_metadata {
+                values = {
+                  level  = "",
+                  logger = "",
+                }
+              }
+              stage.replace {
+                expression = `^\[\w+\]\s+[^:]+:\s+`
+                replace    = ""
+              }
+            }
+
+            stage.match {
+              selector = `{log_format="nginx"}`
+
+              stage.regex {
+                expression = `^\S+ \S+ \S+ \[[^\]]+\] "(?P<method>\S+) \S+ [^"]*" (?P<status>\d+) `
+              }
+              stage.structured_metadata {
+                values = {
+                  method = "",
+                  status = "",
+                }
+              }
+            }
+
+            stage.label_drop {
+              values = ["log_format"]
+            }
             forward_to = [loki.write.default.receiver]
           }
 
           loki.write "default" {
             endpoint {
-              url = "http://victoria-logs.observability.svc.cluster.local:9428/insert/loki/api/v1/push?_stream_fields=cluster,namespace,app,container,stream"
+              url = "http://victoria-logs.observability.svc.cluster.local:9428/insert/loki/api/v1/push?_stream_fields=cluster,namespace,app,container,stream&_msg_field=msg,message,fields.message,@mt"
             }
           }
   postRenderers:

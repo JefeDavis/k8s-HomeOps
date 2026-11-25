@@ -16,6 +16,8 @@ spec:
   values:
     manageCRDs: true
     replicaCount: 2
+    podAnnotations:
+      logs.observability.home.arpa/format: zap
     metrics:
       disableAuth: true
     podSecurityContext:

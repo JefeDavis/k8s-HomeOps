@@ -408,30 +408,17 @@ targets are reached under default-deny via explicit egress labels (`egress.homeo
 **Facts:** R011 · X007
 
 **How it works.** **Grafana Alloy** is the single collector, deployed as three purpose-built
-instances, each shipping one signal to its store:
+instances: `alloy-metrics` (clustered; scrapes ServiceMonitors/PodMonitors + kubelet/cAdvisor and
+remote-writes to the **kube-prometheus-stack** Prometheus, a _storage backend_ here with scraping
+disabled), `alloy-logs` (per-node DaemonSet; parses and ships pod logs to **Victoria Logs** over its
+Loki-compatible endpoint), and `alloy-traces` (OTLP receiver; exports to **Tempo**). **Grafana**
+(grafana-operator managed; datasources and dashboards are CRs) is the single query surface over all
+three at `grafana.internal.${DOMAIN}`. Prometheus, Grafana, Victoria Logs, and Alertmanager persist
+to `ceph-block`; Alertmanager routes to Pushover.
 
-```mermaid
-flowchart LR
-  AM[alloy-metrics -clustered-<br/>scrapes ServiceMonitors/PodMonitors,<br/>kubelet, cAdvisor] -->|remote_write| PR[(Prometheus<br/>kube-prometheus-stack<br/>ceph-block 50Gi / 30d)]
-  AL[alloy-logs -DaemonSet-<br/>tails pod logs] -->|Loki-compatible push| VL[(Victoria Logs<br/>ceph-block 20Gi / 30d)]
-  AT[alloy-traces -Deployment-<br/>OTLP receiver] --> TE[(Tempo)]
-  PR --> GF[Grafana -operator-managed-]
-  VL --> GF
-  AL2[Alertmanager] --> NT[notifications -Pushover-]
-  PR --> AL2
-```
-
-- **Metrics:** `alloy-metrics` scrapes all ServiceMonitors/PodMonitors + kubelet/cAdvisor and
-  remote-writes to the **kube-prometheus-stack** Prometheus (`93.3.0`), which here is a _storage
-  backend_ (its own scraping is disabled). Alertmanager routes to Pushover.
-- **Logs:** `alloy-logs` tails pod logs to **Victoria Logs** over its Loki-compatible endpoint.
-- **Traces:** `alloy-traces` receives OTLP and exports to **Tempo**.
-- **Visualization:** Grafana is managed by the **grafana-operator** (chart-bundled Grafana is
-  disabled), with datasources for Prometheus, Victoria Logs, and Alertmanager; dashboards and
-  datasources are themselves CRs.
-
-All three signals land in Grafana, reachable internally at `grafana.internal.${DOMAIN}`. Prometheus,
-Grafana, Victoria Logs, and Alertmanager all persist to `ceph-block`.
+The collector, the backends, and the log-processing pipeline (parsing, `_msg`/stream-field handling,
+and the per-pod `logs.observability.home.arpa/format` routing model) are detailed in
+**[observability-architecture.md](observability-architecture.md)** (decisions DD029–DD031).
 
 | DD    | Decision                                    | Rationale                                                             | Facts |
 | ----- | ------------------------------------------- | --------------------------------------------------------------------- | ----- |

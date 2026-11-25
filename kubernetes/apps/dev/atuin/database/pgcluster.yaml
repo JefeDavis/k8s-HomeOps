@@ -5,6 +5,9 @@ metadata:
   name: pg-atuin
 spec:
   instances: 3
+  inheritedMetadata:
+    annotations:
+      logs.observability.home.arpa/format: cnpg
   imageCatalogRef:
     apiGroup: postgresql.cnpg.io
     kind: ClusterImageCatalog

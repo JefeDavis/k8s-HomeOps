@@ -221,6 +221,8 @@ spec:
       ui:
         enabled: true
         rollOutPods: true
+        podAnnotations:
+          logs.observability.home.arpa/format: nginx
         podLabels:
           ingress.gateway.homeops.io/internal: "true"
 

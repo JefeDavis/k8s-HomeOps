@@ -24,6 +24,8 @@ spec:
             enabled: false
         nodePlugin:
           priorityClassName: system-node-critical
+          annotations:
+            logs.observability.home.arpa/format: klog
           resources:
             plugin:
               limits:

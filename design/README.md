@@ -5,6 +5,10 @@ Design documentation for this cluster.
 - **[reference-architecture.md](reference-architecture.md)** is the living top-level reference:
   what the cluster is, how it functions, and the design decisions per domain (platform, network,
   mesh, ingress, storage, observability, security, GitOps). Start here.
+- **[observability-architecture.md](observability-architecture.md)** is the deep dive for the
+  observability domain: the Alloy collector, the metrics/logs/traces backends, Grafana, and the
+  log-processing pipeline (parsing, `_msg`/stream fields, per-pod format routing). Linked from
+  reference-architecture section 7.
 - **[adr/](adr/)** holds the Architecture Decision Records: one file per significant decision,
   capturing the context, the decision, its rationale, consequences, and the alternatives considered.
 
@@ -24,6 +28,7 @@ Design documentation for this cluster.
 | [0010](adr/0010-workload-resources-memory-limits.md)        | Workload resource requests and memory-only limits                  |
 | [0011](adr/0011-priority-classes.md)                        | Platform PriorityClasses for scheduling precedence                 |
 | [0012](adr/0012-serviceaccount-token-automount-disabled.md) | ServiceAccount tokens are not auto-mounted; workloads project them |
+| [0013](adr/0013-structured-log-parsing-and-routing.md)      | Per-pod annotations drive structured log parsing in Alloy          |
 
 ## Conventions
 

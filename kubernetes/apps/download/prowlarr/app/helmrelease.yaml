@@ -18,6 +18,8 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         pod:
+          annotations:
+            logs.observability.home.arpa/format: starr
           labels:
             ingress.gateway.homeops.io/internal: "true"
         containers:
@@ -83,6 +85,7 @@ spec:
             args:
               - prowlarr
               - --enable-additional-metrics
+              - --log-format=json
             env:
               URL: "http://localhost:9696"
               PORT: &metricsPort 9710
