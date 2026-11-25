@@ -25,4 +25,11 @@ spec:
   sources:
     - pvc:
         name: "${KOPIUR_CLAIM:-${APP}}"
+  verification:
+    verifyFilesPercent: 10
+    quick:
+      schedule:
+        cron: 0 6 * * *
+        jitter: 1h
+        timezone: America/New_York
   volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}
