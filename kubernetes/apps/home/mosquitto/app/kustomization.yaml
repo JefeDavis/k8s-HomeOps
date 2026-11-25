@@ -6,3 +6,4 @@ resources:
   - ./ocirepo.yaml
   - ./helmrelease.yaml
   - ./authorizationpolicy.yaml
+  - ./authorizationpolicy-metrics.yaml
