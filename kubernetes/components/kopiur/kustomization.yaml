@@ -5,5 +5,5 @@ kind: Component
 resources:
   - ./snapshotpolicy.yaml
   - ./snapshotschedule.yaml
-  # - ./persistentvolumeclaim.yaml
+  - ./persistentvolumeclaim.yaml
   - ./restore.yaml

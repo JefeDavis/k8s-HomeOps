@@ -157,7 +157,7 @@ spec:
               - path: /dev/net/tun
 
       config:
-        existingClaim: ${VOLSYNC_CLAIM}
+        existingClaim: ${KOPIUR_CLAIM}
         globalMounts:
           - path: /data
 

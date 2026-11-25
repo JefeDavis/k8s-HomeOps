@@ -190,6 +190,6 @@ spec:
 
     persistence:
       data:
-        existingClaim: "${VOLSYNC_CLAIM}"
+        existingClaim: "${KOPIUR_CLAIM}"
         globalMounts:
           - path: /data

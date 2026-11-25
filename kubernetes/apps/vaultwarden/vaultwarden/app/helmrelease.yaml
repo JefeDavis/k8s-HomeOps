@@ -124,7 +124,7 @@ spec:
 
     persistence:
       data:
-        existingClaim: ${VOLSYNC_CLAIM}
+        existingClaim: ${KOPIUR_CLAIM}
 
       icons:
         type: emptyDir
