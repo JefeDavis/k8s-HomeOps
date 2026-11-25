@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app prowlarr
+  namespace: download
+spec:
+  targetNamespace: download
+  interval: 1h
+  path: "./kubernetes/apps/download/prowlarr/app"
+  components:
+    - ../../../../components/kopiur
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  postBuild:
+    substitute:
+      APP: *app
+      KOPIUR_CLAIM: prowlarr-config
+      KOPIUR_CAPACITY: 5Gi
+  wait: true
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: volsync-system

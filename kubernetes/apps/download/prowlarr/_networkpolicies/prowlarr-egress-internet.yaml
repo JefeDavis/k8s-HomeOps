@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prowlarr-egress-internet
+  namespace: download
+spec:
+  description: >-
+    Prowlarr queries external torrent/usenet indexers over HTTPS/HTTP. It is not routed through the
+    gluetun VPN, so egress is permitted directly to the world on 443/80. Ingress from the internal
+    gateway is granted by the ingress.gateway.homeops.io/internal label (global policy).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: prowlarr
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
