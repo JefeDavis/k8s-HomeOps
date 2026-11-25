@@ -82,15 +82,6 @@ spec:
     kubeApiServer:
       enabled: false
 
-    # CoreDNS serves unauthenticated metrics on :9153, but the chart's ServiceMonitor defaults its
-    # authorization to a bearer token from the prometheus SA token Secret. Clear it with "" (an explicit
-    # null is dropped by Helm value coalescing, leaving the default map): the endpoint needs no auth, and
-    # it avoids the control-plane createTokenSecret guard that fails when the sidecar runs the prometheus
-    # SA with create=false.
-    coreDns:
-      serviceMonitor:
-        authorization: ""
-
     prometheusOperator:
       priorityClassName: platform-low
       logFormat: json
@@ -310,3 +301,14 @@ spec:
             patch: |
               - op: remove
                 path: /spec/minAvailable
+          # CoreDNS serves unauthenticated metrics on :9153, but the chart's ServiceMonitor defaults its
+          # authorization to a bearer token from the prometheus SA token Secret. A values-level override
+          # can't clear it cleanly (null is dropped by Helm coalescing, leaving the default map; "" works
+          # but logs a "cannot overwrite table with non table" warning on every reconcile), so strip the
+          # authorization from the rendered ServiceMonitor instead.
+          - target:
+              kind: ServiceMonitor
+              name: prometheus-coredns
+            patch: |
+              - op: remove
+                path: /spec/endpoints/0/authorization
