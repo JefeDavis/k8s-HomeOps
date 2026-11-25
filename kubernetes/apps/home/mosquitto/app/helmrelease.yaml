@@ -39,7 +39,7 @@ spec:
           exporter:
             image:
               repository: ghcr.io/d0ugal/mosquitto-exporter
-              tag: v0.2.65
+              tag: v0.2.66
             env:
               MOSQUITTO_BROKER_ENDPOINT: tcp://127.0.0.1:1883
               SERVER_PORT: &metrics 9234
