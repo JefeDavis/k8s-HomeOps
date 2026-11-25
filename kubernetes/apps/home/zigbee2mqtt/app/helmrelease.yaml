@@ -60,6 +60,7 @@ spec:
               # logging
               ZIGBEE2MQTT_CONFIG_ADVANCED_LOG_LEVEL: info
               ZIGBEE2MQTT_CONFIG_ADVANCED_LOG_OUTPUT: '["console"]'
+              ZIGBEE2MQTT_CONFIG_ADVANCED_LOG_CONSOLE_JSON: true
 
               # device-availability
               ZIGBEE2MQTT_CONFIG_AVAILABILITY_ENABLED: true
