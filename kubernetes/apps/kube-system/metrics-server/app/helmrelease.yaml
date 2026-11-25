@@ -15,6 +15,8 @@ spec:
     namespace: kube-system
   values:
     priorityClassName: platform-high
+    args:
+      - --logging-format=json
     # The chart sets requests (cpu 100m/memory 200Mi) but no limit; restate them and add a memory-only
     # limit so the aggregation server is capped without CPU throttling.
     resources:
