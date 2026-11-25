@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: kopiur-mover-egress-minio
+  namespace: kopiur-system
+spec:
+  description: >-
+    Allows kopiur mover Jobs (central execution) to reach the external MinIO S3 endpoint on 9000.
+  endpointSelector:
+    matchLabels:
+      k8s:egress.homeops.io/minio: "true"
+  egress:
+    - toCIDR:
+        - 10.77.0.2/32
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP

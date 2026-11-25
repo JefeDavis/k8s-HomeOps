@@ -20,3 +20,30 @@ spec:
       namespace: observability
     - name: kube-prometheus-stack-crds
       namespace: observability
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kopiur-repository
+  namespace: kopiur-system
+spec:
+  targetNamespace: kopiur-system
+  interval: 1h
+  path: "./kubernetes/apps/kopiur-system/kopiur/repository"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  healthCheckExprs:
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: ClusterRepository
+      current: status.phase == 'Ready'
+      failed: status.phase in ['Degraded', 'Failed']
+  dependsOn:
+    - name: kopiur
+      namespace: kopiur-system
+    - name: external-services
+      namespace: network

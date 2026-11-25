@@ -1,0 +1,65 @@
+---
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: ClusterRepository
+metadata:
+  name: kopia
+spec:
+  allowedNamespaces:
+    all: true
+  backend:
+    s3:
+      auth:
+        secretRef:
+          name: kopiur-repository
+          namespace: kopiur-system
+      bucket: kopia
+      endpoint: minio.network.svc.cluster.local:9000
+      region: us-east-1
+      tls:
+        disableTls: true
+  encryption:
+    passwordSecretRef:
+      name: kopiur-repository
+      namespace: kopiur-system
+      key: KOPIA_PASSWORD
+  execution:
+    mode: Central
+  maintenance:
+    schedule:
+      quick:
+        cron: 0 * * * *
+        jitter: 10m
+      full:
+        cron: 0 3 * * *
+        jitter: 1h
+  moverDefaults:
+    podLabels:
+      egress.homeops.io/minio: "true"
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+    podSecurityContext:
+      seccompProfile:
+        type: RuntimeDefault
+      runAsUser: 65532
+      runAsGroup: 65532
+      fsGroup: 65532
+      runAsNonRoot: true
+      fsGroupChangePolicy: OnRootMismatch
+    cache:
+      # Every cache PVC is 5Gi or larger (KOPIUR_CAPACITY default). Kopia's own
+      # defaults are 5000 MiB per budget, larger than the whole PVC, so the
+      # sweeper never runs and the cache fills the volume. The metadata budget
+      # applies twice: kopia caps the index-blobs cache at the same size.
+      contentCacheSizeMb: 512
+      metadataCacheSizeMb: 1024
+  parameters:
+    blobRetention:
+      governance:
+        period: 720h
+    epoch:
+      minDuration: 1h
+  scheduleDefaults:
+    timezone: America/New_York
