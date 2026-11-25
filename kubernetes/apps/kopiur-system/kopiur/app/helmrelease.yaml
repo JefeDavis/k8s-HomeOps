@@ -26,6 +26,8 @@ spec:
         matchLabelKeys:
           - pod-template-hash
     priorityClassName: platform-low
+    logging:
+      format: "json"
     monitoring:
       dashboards:
         enabled: true
