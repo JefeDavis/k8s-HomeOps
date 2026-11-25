@@ -1,0 +1,26 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kopiur-ui-anonymous-browse
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kopiur-ui-browse
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: kopiur-ui-anonymous
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kopiur-ui-anonymous-doctor
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kopiur-ui-doctor
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: kopiur-ui-anonymous

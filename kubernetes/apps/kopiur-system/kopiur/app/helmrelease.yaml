@@ -85,14 +85,13 @@ spec:
       auth:
         anonymous:
           enabled: true
-          user: kopiur-ui
-          groups:
-            - kopiur-ui-admins
+          user: kopiur-ui-anonymous
       rbac:
+        browseRole: true
         bindings:
           - role: user
-            groups:
-              - kopiur-ui-admins
+            users:
+              - kopiur-ui-anonymous
       serviceMonitor:
         enabled: true
   postRenderers:
