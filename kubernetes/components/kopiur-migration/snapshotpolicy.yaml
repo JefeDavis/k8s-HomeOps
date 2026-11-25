@@ -1,0 +1,28 @@
+---
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: SnapshotPolicy
+metadata:
+  name: ${APP}
+spec:
+  compression:
+    compressor: zstd
+  mover:
+    cache:
+      capacity: ${KOPIUR_CAPACITY:=5Gi}
+      mode: Persistent
+      storageClassName: ceph-block
+    securityContext:
+      runAsUser: ${KOPIUR_PUID:=65532}
+      runAsGroup: ${KOPIUR_PGID:=65532}
+  repository:
+    kind: ClusterRepository
+    name: kopia
+  retention:
+    keepLatest: 3
+    keepHourly: 24
+    keepDaily: 7
+    keepWeekly: 4
+  sources:
+    - pvc:
+        name: "${KOPIUR_CLAIM:-${APP}}"
+  volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}
