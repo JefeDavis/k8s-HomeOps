@@ -39,9 +39,9 @@ description = "Generate talosconfig (client config) from the secret bundle"
 run = '''
 root="$(git rev-parse --show-toplevel)"
 out="${root}/talos/clusterconfig/talosconfig"
-# Strip the non-talosctl `nut` key so the bundle is a pure SecretsBundle.
-talosctl gen config jsdyb-k8s-001 https://jsdyb-k8s-001.internal.davishaus.dev:6443 \
-    --with-secrets <(sops --decrypt "${root}/talos/talos.sops.yaml" | yq 'del(.nut)') \
+domain="$(sops --decrypt "${root}/talos/talos.sops.yaml" | yq -r '.domain')"
+talosctl gen config jsdyb-k8s-001 "https://jsdyb-k8s-001.internal.${domain}:6443" \
+    --with-secrets <(sops --decrypt "${root}/talos/talos.sops.yaml") \
     --output-types talosconfig \
     --output "$out" \
     --force

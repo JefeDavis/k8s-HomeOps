@@ -18,14 +18,14 @@ machine:
     extraHostEntries:
       - ip: 10.77.0.10
         aliases:
-          - jsdyb-k8s-001.internal.davishaus.dev
+          - jsdyb-k8s-001.internal.{{ domain }}
   token: {{ trustdinfo.token }}
 cluster:
   ca:
     crt: {{ certs.k8s.crt }}
   clusterName: jsdyb-k8s-001
   controlPlane:
-    endpoint: https://jsdyb-k8s-001.internal.davishaus.dev:6443
+    endpoint: https://jsdyb-k8s-001.internal.{{ domain }}:6443
   token: {{ secrets.bootstraptoken }}
 ---
 # Single onboard Intel 2.5GbE NIC on every NUC 11 Pro (igc driver). No bond.

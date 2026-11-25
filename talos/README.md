@@ -27,7 +27,7 @@ nested paths (`certs.os.crt`, `secrets.bootstraptoken`, `nut.password`, ...).
 - Primary IP via DHCP on the **native/untagged VLAN 77** (reservations map MAC -> .11/.12/.13).
 - Tagged **VLAN 90** (`net0.90`) exists with no host IP, as the Multus parent for Home Assistant.
 - Control-plane VIP **10.77.0.10** (`Layer2VIPConfig` on `net0`), endpoint
-  `jsdyb-k8s-001.internal.davishaus.dev:6443`.
+  `jsdyb-k8s-001.internal.<domain>:6443`.
 - Install disk: 1TB SATA SSD `CT1000MX500SSD1`. The 2TB NVMe `CT2000P3PSSD8` is
   left **raw** for Rook-Ceph.
 

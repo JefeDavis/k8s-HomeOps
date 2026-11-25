@@ -38,8 +38,8 @@ apiVersion: v1alpha1
 kind: KubeAPIServerConfig
 certExtraSANs:
   - 10.77.0.10 # control-plane VIP
-  - jsdyb-k8s-001.internal.davishaus.dev
-  - k8s.davishaus.dev
+  - jsdyb-k8s-001.internal.{{ domain }}
+  - k8s.{{ domain }}
   - 127.0.0.1 # KubePrism
 extraArgs:
   enable-aggregator-routing: "true"
