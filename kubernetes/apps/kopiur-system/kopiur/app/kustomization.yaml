@@ -6,3 +6,4 @@ resources:
   - ./ocirepo.yaml
   - ./helmrelease.yaml
   - ./httproute.yaml
+  - ./peerauthentication.yaml

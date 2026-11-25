@@ -1,0 +1,16 @@
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: kopiur-webhook
+  namespace: kopiur-system
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kopiur
+      app.kubernetes.io/component: webhook
+  mtls:
+    mode: STRICT
+  portLevelMtls:
+    "8443":
+      mode: PERMISSIVE
