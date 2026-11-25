@@ -16,6 +16,8 @@ spec:
       enabled: true
     serviceMonitor:
       enabled: true
+    logging:
+      encoder: json
     podSecurityContext:
       seccompProfile:
         type: RuntimeDefault
