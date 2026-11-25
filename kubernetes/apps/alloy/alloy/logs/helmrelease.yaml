@@ -108,7 +108,7 @@ spec:
         content: |
           logging {
             level  = "warn"
-            format = "logfmt"
+            format = "json"
           }
 
           // Discover pods scheduled on THIS node only (the DaemonSet pod's node), so each node's

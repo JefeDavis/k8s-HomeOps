@@ -138,7 +138,7 @@ spec:
         content: |
           logging {
             level  = "warn"
-            format = "logfmt"
+            format = "json"
           }
 
           // The platform exposes metrics via prometheus-operator ServiceMonitors/PodMonitors;

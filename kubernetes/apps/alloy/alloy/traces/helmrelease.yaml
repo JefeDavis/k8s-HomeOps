@@ -119,7 +119,7 @@ spec:
         content: |
           logging {
             level  = "warn"
-            format = "logfmt"
+            format = "json"
           }
 
           otelcol.receiver.otlp "default" {
