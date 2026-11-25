@@ -1,0 +1,17 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: tempo
+  namespace: observability
+spec:
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
+      app.kubernetes.io/instance: grafana
+  datasource:
+    type: tempo
+    name: Tempo
+    uid: tempo
+    access: proxy
+    url: http://tempo.observability.svc.cluster.local:3200

@@ -1,0 +1,117 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tempo
+  namespace: observability
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: tempo
+    namespace: observability
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  values:
+    priorityClassName: platform-low
+
+    securityContext:
+      runAsUser: 65532
+      runAsGroup: 65532
+      fsGroup: 65532
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+
+    serviceAccount:
+      automountServiceAccountToken: false
+
+    service:
+      type: ClusterIP
+
+    persistence:
+      enabled: true
+      storageClassName: ceph-block
+      accessModes:
+        - ReadWriteOnce
+      size: 10Gi
+
+    serviceMonitor:
+      enabled: true
+
+    tempoQuery:
+      enabled: false
+
+    podLabels:
+      egress.networking.io/object-store: "true"
+
+    tempo:
+      reportingEnabled: false
+      retention: 720h
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          memory: 1Gi
+      metricsGenerator:
+        enabled: true
+        remoteWriteUrl: http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/write
+        storage:
+          path: /var/tempo/generator/wal
+      overrides:
+        defaults:
+          metrics_generator:
+            processors:
+              - local-blocks
+              - service-graphs
+              - span-metrics
+      receivers:
+        jaeger:
+          protocols:
+            thrift_compact:
+              endpoint: null
+            thrift_binary:
+              endpoint: null
+            thrift_http:
+              endpoint: null
+            grpc:
+              endpoint: null
+        otlp:
+          protocols:
+            grpc:
+              endpoint: "0.0.0.0:4317"
+            http:
+              endpoint: "0.0.0.0:4318"
+      storage:
+        trace:
+          backend: s3
+          s3:
+            bucket: tempo-traces
+            endpoint: rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local:80
+            insecure: true
+            forcepathstyle: true
+          wal:
+            path: /var/tempo/wal
+      extraEnvFrom:
+        - secretRef:
+            name: tempo
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: StatefulSet
+            patch: |
+              - op: add
+                path: /spec/template/spec/automountServiceAccountToken
+                value: false

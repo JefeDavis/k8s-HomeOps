@@ -142,7 +142,7 @@ spec:
 
           otelcol.exporter.otlp "tempo" {
             client {
-              endpoint = "tempo.tempo.svc.cluster.local:4317"
+              endpoint = "tempo.observability.svc.cluster.local:4317"
               // Plaintext to tempo; ztunnel provides mTLS on the wire in the ambient mesh.
               tls {
                 insecure = true

@@ -13,7 +13,7 @@ spec:
   egress:
     - toEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: tempo
+            k8s:io.kubernetes.pod.namespace: observability
             k8s:app.kubernetes.io/name: tempo
       toPorts:
         - ports:

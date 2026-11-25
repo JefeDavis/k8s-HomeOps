@@ -1,0 +1,24 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: tempo-egress-objectstore
+  namespace: observability
+spec:
+  description: >-
+    Allows Tempo to read and write trace blocks in the Ceph RGW S3 object store
+    (container port 8080 behind the Service's port 80). Tempo pods are labeled
+    egress.networking.io/object-store=true to satisfy the rgw-ingress policy.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: tempo
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: rook-ceph
+            k8s:app.kubernetes.io/name: ceph-rgw
+            k8s:app.kubernetes.io/part-of: ceph-objectstore
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP

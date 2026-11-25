@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: prometheus-ingress-tempo
+  namespace: observability
+spec:
+  description: >-
+    Allows Tempo's metrics-generator to remote_write span and service-graph metrics to the
+    Prometheus receiver (:9090).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: prometheus
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+            k8s:app.kubernetes.io/name: tempo
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP

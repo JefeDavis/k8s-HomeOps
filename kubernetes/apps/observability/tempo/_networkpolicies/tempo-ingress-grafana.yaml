@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: tempo-ingress-grafana
+  namespace: observability
+spec:
+  description: >-
+    Allows Grafana to query Tempo's HTTP API (:3200) for the Tempo datasource.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: tempo
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+            k8s:app.kubernetes.io/name: grafana
+      toPorts:
+        - ports:
+            - port: "3200"
+              protocol: TCP

@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: tempo-ingress-otlp
+  namespace: observability
+spec:
+  description: >-
+    Allows the alloy-traces collector to export OTLP to Tempo (gRPC 4317 / HTTP 4318).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: tempo
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/instance: alloy-traces
+      toPorts:
+        - ports:
+            - port: "4317"
+              protocol: TCP
+            - port: "4318"
+              protocol: TCP

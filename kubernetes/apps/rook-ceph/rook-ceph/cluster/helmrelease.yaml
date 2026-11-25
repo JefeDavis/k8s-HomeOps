@@ -21,6 +21,11 @@ spec:
       cephConfig:
         mon:
           mon_cluster_log_level: info
+        client.rgw:
+          # TODO: remove once Ceph ships the fix for the SigV4 unsigned Content-Type
+          # regression (tracker #79674, regressed in v20.2.4). Lets minio-go clients
+          # (Tempo) write to RGW; revert to false / delete this on a patched release.
+          rgw_sigv4_insecure: "true"
       cleanupPolicy:
         wipeDevicesFromOtherClusters: true
       csi:

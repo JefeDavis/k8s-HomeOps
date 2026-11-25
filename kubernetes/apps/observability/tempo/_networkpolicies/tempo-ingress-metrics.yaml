@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: tempo-ingress-metrics
+  namespace: observability
+spec:
+  description: >-
+    Allows the alloy-metrics collector to scrape Tempo's metrics endpoint (:3200).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: tempo
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "3200"
+              protocol: TCP

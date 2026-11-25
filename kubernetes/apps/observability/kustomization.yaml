@@ -8,7 +8,9 @@ resources:
   - ./grafana-operator/_networkpolicies/
   - ./kube-prometheus-stack/_networkpolicies/
   - ./victoria-logs/_networkpolicies/
+  - ./tempo/_networkpolicies/
   # Flux-Kustomizations
   - ./grafana-operator/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
   - ./victoria-logs/ks.yaml
+  - ./tempo/ks.yaml

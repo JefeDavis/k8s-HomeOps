@@ -13,5 +13,6 @@ resources:
   - ./grafana-egress-alertmanager.yaml
   - ./grafana-egress-grafana-com.yaml
   - ./grafana-egress-prometheus.yaml
+  - ./grafana-egress-tempo.yaml
   - ./grafana-ingress-metrics.yaml
   - ./grafana-ingress-operator.yaml
