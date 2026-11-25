@@ -17,6 +17,7 @@ spec:
     fullnameOverride: coredns
     image:
       repository: mirror.gcr.io/coredns/coredns
+      tag: "1.15.0"
     replicaCount: 2
     resources:
       requests:
@@ -140,3 +141,13 @@ spec:
             - matchExpressions:
                 - key: node-role.kubernetes.io/control-plane
                   operator: Exists
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: coredns
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: -log-format=json
