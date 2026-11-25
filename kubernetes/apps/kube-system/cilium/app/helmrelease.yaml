@@ -86,7 +86,7 @@ spec:
         memory: 1Gi
 
     # Init containers (mount-cgroup, clean-cilium-state, apply-sysctl-overwrites, config, mount-bpf-fs):
-    # short-lived bootstrap; small memory-only limit per ADR-0010 (no CPU limit).
+    # short-lived bootstrap; small memory-only limit (no CPU limit).
     initResources:
       requests:
         cpu: 10m
@@ -108,7 +108,7 @@ spec:
       annotations:
         grafana.io/folder: Network
 
-    # Drop the chart's CPU limit on the install-cni-binaries init container (memory-only, per ADR 0010).
+    # Drop the chart's CPU limit on the install-cni-binaries init container (memory-only).
     cni:
       exclusive: false # needed for istio
       resources:

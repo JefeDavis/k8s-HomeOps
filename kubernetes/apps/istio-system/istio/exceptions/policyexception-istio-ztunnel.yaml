@@ -4,8 +4,7 @@ metadata:
   name: istio-ztunnel
   namespace: kyverno-exceptions
   annotations:
-    policies.secondfront.io/justification:
-      Istio ambient ztunnel is the per-node L4
+    policies.kyverno.io/justification: Istio ambient ztunnel is the per-node L4
       mTLS proxy; it requires elevated capabilities, host path access and root to
       capture and redirect node traffic; this is the upstream ztunnel DaemonSet's
       required posture.

@@ -34,7 +34,7 @@ spec:
       env:
         - name: GOMEMLIMIT
           value: "460MiB"
-      # Memory-only limit (ADR-0010): bound the hard cap, leave CPU burstable.
+      # Memory-only limit: bound the hard cap, leave CPU burstable.
       resources:
         requests:
           cpu: 50m

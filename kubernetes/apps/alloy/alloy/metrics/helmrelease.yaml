@@ -90,7 +90,7 @@ spec:
                           apiVersion: v1
                           fieldPath: metadata.namespace
 
-    # config-reloader sidecar (prometheus-config-reloader): ~9Mi observed; memory-only limit (ADR-0010).
+    # config-reloader sidecar (prometheus-config-reloader): ~9Mi observed; memory-only limit.
     configReloader:
       resources:
         requests:
