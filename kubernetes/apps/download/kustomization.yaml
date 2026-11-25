@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
+  - ./_shared/
   - ./rdt-client/_networkpolicies/
   # Flux-Kustomizations
   - ./rdt-client/ks.yaml

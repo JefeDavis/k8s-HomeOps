@@ -6,4 +6,3 @@ resources:
   - ./ocirepo.yaml
   - ./helmrelease.yaml
   - ./secret-rdt-client.sops.yaml
-  - ./pvc.yaml

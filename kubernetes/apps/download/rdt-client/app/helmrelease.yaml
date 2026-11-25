@@ -162,7 +162,7 @@ spec:
           - path: /data
 
       media:
-        existingClaim: rdt-client-media
+        existingClaim: download-nfs
         globalMounts:
           - path: /data/downloads
 

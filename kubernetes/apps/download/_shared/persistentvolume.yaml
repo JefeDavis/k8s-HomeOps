@@ -2,10 +2,10 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: rdt-client-media
+  name: download-nfs
 spec:
   capacity:
-    storage: 1Ti
+    storage: 64Ti
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
@@ -19,19 +19,5 @@ spec:
     server: 10.77.0.2
     path: /volume1/media/downloads
   claimRef:
-    name: rdt-client-media
+    name: download-nfs
     namespace: download
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: rdt-client-media
-  namespace: download
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: ""
-  volumeName: rdt-client-media
-  resources:
-    requests:
-      storage: 1Ti
