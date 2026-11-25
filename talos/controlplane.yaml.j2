@@ -44,6 +44,7 @@ certExtraSANs:
 extraArgs:
   enable-aggregator-routing: "true"
   feature-gates: CrossNamespaceVolumeDataSource=true,HPAScaleToZero=true
+  logging-format: json
 image: registry.k8s.io/kube-apiserver:v1.37.2
 ---
 apiVersion: v1alpha1
@@ -80,6 +81,7 @@ kind: KubeControllerManagerConfig
 extraArgs:
   bind-address: 0.0.0.0
   feature-gates: CrossNamespaceVolumeDataSource=true,HPAScaleToZero=true
+  logging-format: json
 image: registry.k8s.io/kube-controller-manager:v1.37.2
 ---
 apiVersion: v1alpha1
@@ -123,6 +125,7 @@ config:
                 whenUnsatisfiable: ScheduleAnyway
 extraArgs:
   bind-address: 0.0.0.0
+  logging-format: json
 image: registry.k8s.io/kube-scheduler:v1.37.2
 ---
 apiVersion: v1alpha1
