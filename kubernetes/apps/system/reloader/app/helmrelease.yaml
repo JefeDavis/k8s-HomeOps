@@ -18,6 +18,7 @@ spec:
       reloadStrategy: annotations
       reloadOnCreate: true
       readOnlyRootFileSystem: true
+      logFormat: json
       podDisruptionBudget:
         enabled: true
         maxUnavailable: 1
