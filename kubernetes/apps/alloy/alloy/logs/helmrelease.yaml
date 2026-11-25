@@ -228,16 +228,39 @@ spec:
               selector = `{log_format="ceph"}`
 
               stage.regex {
-                expression = `\[(?P<level>DBG|INF|WRN|ERR)\]`
+                expression = `^(?:debug\s+\S+\s+\S+\s+-?\d+\s+)?(?P<ceph_msg>.*)$`
+              }
+              stage.output {
+                source = "ceph_msg"
+              }
+
+              stage.regex {
+                expression = `\[(?:\S+\s+)?(?P<level>DEBUG|INFO|WARNING|ERROR|DBG|INF|WRN|ERR)\b`
+              }
+              stage.replace {
+                source     = "level"
+                expression = `^(DBG|DEBUG)$`
+                replace    = "debug"
+              }
+              stage.replace {
+                source     = "level"
+                expression = `^(INF|INFO)$`
+                replace    = "info"
+              }
+              stage.replace {
+                source     = "level"
+                expression = `^(WRN|WARNING)$`
+                replace    = "warn"
+              }
+              stage.replace {
+                source     = "level"
+                expression = `^(ERR|ERROR)$`
+                replace    = "error"
               }
               stage.structured_metadata {
                 values = {
                   level = "",
                 }
-              }
-              stage.replace {
-                expression = `^debug\s+\S+\s+\S+\s+-?\d+\s+`
-                replace    = ""
               }
             }
 

@@ -80,10 +80,12 @@ A pod annotation names the log format; `alloy-logs` routes to the matching parse
 - Operator-managed pods (Ceph daemons, CSI drivers) can't take a plain HelmRelease `podAnnotations`;
   they are annotated through their operator specs (`cephClusterSpec.annotations`, the CephFilesystem /
   CephObjectStore specs, the CSI driver specs), so the annotation lives a layer away from the pod.
-- **Levels are kept in each format's native vocabulary** (klog `I/W/E/F`, zap `INFO/WARN/…`, Ceph
-  `DBG/INF/WRN/ERR`) rather than normalized. The Alloy chart renders `configMap.content` through
-  Helm's `tpl`, which would consume the `{{ … }}` of a `stage.template` mapping; avoiding template
-  stages keeps the config robust at the cost of a non-uniform `level` vocabulary across formats.
+- **Levels are normalized only where the native vocabulary isn't UI-recognized.** klog (`I/W/E/F`) and
+  zap (`INFO/WARN/…`) keep their native values; Ceph's `DBG/INF/WRN/ERR` abbreviations are mapped to
+  `debug/info/warn/error` because the Grafana/vmui level detector doesn't recognize them. Mapping uses
+  `source`-scoped `stage.replace` (value substitution on the extracted field), not `stage.template` —
+  the Alloy chart renders `configMap.content` through Helm's `tpl`, which would consume a template's
+  `{{ … }}`.
 - Maintenance rests on convention: an app that changes its log format needs its annotation updated,
   and a new non-JSON app needs one added, or it falls back to the JSON/raw default.
 

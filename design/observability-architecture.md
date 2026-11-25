@@ -96,23 +96,25 @@ to an internal `log_format` label and `stage.match` routes on it, then drops the
 write. **JSON is the default: an unannotated pod is left to Victoria Logs' ingest parser.** Only
 non-JSON pods are annotated.
 
-| `log_format`      | What it parses                                       | Handling                                                                                  |
-| ----------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| _(none)_ / `json` | JSON lines                                           | default; Victoria Logs auto-parses on ingest                                              |
-| `logfmt`          | `key=value` pairs                                    | `stage.logfmt` → `level` field, `_msg` from `msg`                                         |
-| `klog`            | `I1124 … src.go:12] msg`                             | regex → `level` (native `I/W/E/F`), `_msg` = message                                      |
-| `ceph`            | `debug <ts> <thr> <lvl> msg`                         | strip prefix → clean `_msg`; `level` from `[DBG/INF/WRN/ERR]`                             |
-| `zap`             | `ts⇥LEVEL⇥logger⇥msg⇥{json}`                         | regex → `level`, `logger` fields, `_msg` = message                                        |
-| `nginx`           | combined access log                                  | regex → `method`, `status` fields; `_msg` = raw line                                      |
-| `cnpg`            | CloudNativePG JSON (Postgres wrapped under `record`) | JMESPath `record.message \|\| msg` → `_msg`; `record.error_severity \|\| level` → `level` |
-| `starr`           | Servarr/*arr apps (`[Level] Logger: msg`)            | regex → `level`, `logger`; strip prefix → clean `_msg` (non-destructive, multi-line-safe) |
-| `plain`           | unstructured / proprietary                           | no parser; `_msg` = raw (decolorized) line                                                |
+| `log_format`      | What it parses                                       | Handling                                                                                                                   |
+| ----------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| _(none)_ / `json` | JSON lines                                           | default; Victoria Logs auto-parses on ingest                                                                               |
+| `logfmt`          | `key=value` pairs                                    | `stage.logfmt` → `level` field, `_msg` from `msg`                                                                          |
+| `klog`            | `I1124 … src.go:12] msg`                             | regex → `level` (native `I/W/E/F`), `_msg` = message                                                                       |
+| `ceph`            | `debug <ts> <thr> <n> msg` (daemon)                  | strip prefix → clean `_msg`; `level` from `[DBG/INF/WRN/ERR]` or `[<module> LEVEL]`, normalized to `debug/info/warn/error` |
+| `zap`             | `ts⇥LEVEL⇥logger⇥msg⇥{json}`                         | regex → `level`, `logger` fields, `_msg` = message                                                                         |
+| `nginx`           | combined access log                                  | regex → `method`, `status` fields; `_msg` = raw line                                                                       |
+| `cnpg`            | CloudNativePG JSON (Postgres wrapped under `record`) | JMESPath `record.message \|\| msg` → `_msg`; `record.error_severity \|\| level` → `level`                                  |
+| `starr`           | Servarr/*arr apps (`[Level] Logger: msg`)            | regex → `level`, `logger`; strip prefix → clean `_msg` (non-destructive, multi-line-safe)                                  |
+| `plain`           | unstructured / proprietary                           | no parser; `_msg` = raw (decolorized) line                                                                                 |
 
 Each parser runs only inside its `stage.match`, so it never sees another format's lines and can
-transform safely. `level` is kept in each format's **native vocabulary** (not normalized): the Alloy
-chart renders its config through Helm's `tpl`, which would consume a `stage.template`'s `{{ … }}`, so
-level-mapping templates are avoided. Formats beyond this set are annotated `plain` until a parser is
-added.
+transform safely. `level` is mostly kept in each format's **native vocabulary** (klog `I/W/E/F`, zap
+`INFO/WARN/…`); the exception is `ceph`, whose `DBG/INF/WRN/ERR` abbreviations the Grafana/vmui level
+detector doesn't recognize, so they're normalized to `debug/info/warn/error`. Normalization uses
+`source`-scoped `stage.replace` rather than `stage.template`, because the Alloy chart renders its
+config through Helm's `tpl`, which would consume a template's `{{ … }}`. Formats beyond this set are
+annotated `plain` until a parser is added.
 
 ### 3.5 Known limitations
 
