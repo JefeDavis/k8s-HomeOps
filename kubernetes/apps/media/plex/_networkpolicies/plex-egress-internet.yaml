@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: plex-egress-internet
+  namespace: media
+spec:
+  description: >-
+    Plex reaches plex.tv for server claim, account auth, metadata/agent lookups, and relay
+    connections to remote clients. Those hosts span plex.tv APIs, CDNs, and relay nodes, so egress
+    is allowed to the world on HTTPS/HTTP rather than a fragile FQDN allow list.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: plex
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP

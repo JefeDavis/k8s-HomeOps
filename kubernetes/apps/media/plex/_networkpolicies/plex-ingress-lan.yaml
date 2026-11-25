@@ -1,0 +1,36 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: plex-ingress-lan
+  namespace: media
+spec:
+  description: >-
+    Plex is published on a BGP LoadBalancer VIP with externalTrafficPolicy=Local, so LAN clients
+    reach the pod with their real source IP. Permit the home network (10.0.0.0/8) to the direct
+    streaming port (32400/TCP) plus the DLNA, GDM, and Bonjour discovery ports. Remote access
+    arrives via the external gateway instead (see the ingress.gateway.homeops.io/external label).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: plex
+  ingress:
+    - fromCIDR:
+        - 10.0.0.0/8
+      toPorts:
+        - ports:
+            - port: "32400"
+              protocol: TCP
+            - port: "32469"
+              protocol: TCP
+            - port: "1900"
+              protocol: UDP
+            - port: "5353"
+              protocol: UDP
+            - port: "32410"
+              protocol: UDP
+            - port: "32412"
+              protocol: UDP
+            - port: "32413"
+              protocol: UDP
+            - port: "32414"
+              protocol: UDP
