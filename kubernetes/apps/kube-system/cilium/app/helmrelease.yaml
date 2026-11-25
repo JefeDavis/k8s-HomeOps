@@ -207,7 +207,7 @@ spec:
         logOptions:
           format: json
         priorityClassName: platform-low
-        rolloutPods: true
+        rollOutPods: true
         resources:
           requests:
             cpu: 25m
@@ -220,7 +220,7 @@ spec:
             enabled: true
       ui:
         enabled: true
-        rolloutPods: true
+        rollOutPods: true
         podLabels:
           ingress.gateway.homeops.io/internal: "true"
 
