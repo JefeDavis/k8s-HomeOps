@@ -158,7 +158,7 @@ spec:
                   value: /library/streams
     persistence:
       config:
-        existingClaim: ${VOLSYNC_CLAIM}
+        existingClaim: ${KOPIUR_CLAIM}
 
       # Separate PVC for cache to avoid backing up cache files
       cache:
