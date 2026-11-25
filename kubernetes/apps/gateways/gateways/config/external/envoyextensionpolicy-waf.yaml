@@ -69,5 +69,10 @@ spec:
           - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:refresh_token"
           - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:SAMLResponse"
           - SecRuleUpdateTargetByTag "OWASP_CRS" "!ARGS:SAMLRequest"
+          # Plex Web sends a transcode-profile arg (X-Plex-Client-Profile-Extra=append-transcode-target-codec(...))
+          # whose function-call syntax trips CRS RCE/XSS rules (932235 et al.), blocking playback with error s1001.
+          # The endpoint is X-Plex-Token authenticated and the value feeds Plex's structured profile parser, not a
+          # shell, so drop just this one arg from CRS inspection, scoped to the Plex host.
+          - SecRule SERVER_NAME "@streq plex.${DOMAIN}" "id:10030,phase:1,pass,nolog,t:none,t:lowercase,ctl:ruleRemoveTargetByTag=OWASP_CRS;ARGS:X-Plex-Client-Profile-Extra"
           # One summary log line per flagged request, carrying the requested host, method, and anomaly score.
           - SecRule TX:BLOCKING_INBOUND_ANOMALY_SCORE "@ge 1" "id:10090,phase:5,pass,t:none,log,noauditlog,severity:'WARNING',msg:'WAF summary host=%{SERVER_NAME} method=%{REQUEST_METHOD} inbound=%{TX.BLOCKING_INBOUND_ANOMALY_SCORE} threshold=%{TX.INBOUND_ANOMALY_SCORE_THRESHOLD}'"
