@@ -47,3 +47,22 @@ spec:
     serviceAccount:
       create: true
       automountToken: false
+    dashboards:
+      enabled: true
+      grafanaOperator:
+        enabled: true
+        spec:
+          instanceSelector:
+            matchLabels:
+              app.kubernetes.io/name: grafana
+              app.kubernetes.io/instance: grafana
+  # The chart hardcodes `dashboards: grafana` into the GrafanaDashboard instanceSelector; strip it
+  # so the selector matches this cluster's Grafana instance (which carries no such label).
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: GrafanaDashboard
+            patch: |
+              - op: remove
+                path: /spec/instanceSelector/matchLabels/dashboards
