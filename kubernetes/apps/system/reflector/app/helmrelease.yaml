@@ -15,6 +15,12 @@ spec:
   values:
     repository: ghcr.io/emberstack/kubernetes-reflector
 
+    extraEnv:
+      - name: ES_Serilog__WriteTo__0__Name
+        value: Console
+      - name: ES_Serilog__WriteTo__0__Args__formatter
+        value: "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact"
+
     podSecurityContext:
       runAsNonRoot: true
       runAsUser: 65532
