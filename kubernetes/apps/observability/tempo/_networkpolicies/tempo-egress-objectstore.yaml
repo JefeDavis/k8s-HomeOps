@@ -8,7 +8,7 @@ spec:
   description: >-
     Allows Tempo to read and write trace blocks in the Ceph RGW S3 object store
     (container port 8080 behind the Service's port 80). Tempo pods are labeled
-    egress.networking.io/object-store=true to satisfy the rgw-ingress policy.
+    egress.policy.home.arpa/rgw=true to satisfy the rgw-ingress policy.
   endpointSelector:
     matchLabels:
       k8s:app.kubernetes.io/name: tempo

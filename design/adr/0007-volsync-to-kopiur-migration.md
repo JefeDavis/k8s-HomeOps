@@ -36,7 +36,7 @@ Current state (in flight):
 - The Kopiur operator and its `ClusterRepository` (`expanse`) are deployed in `kopiur-system`:
   Kopia → the in-cluster MinIO (bucket `kopia`), central
   execution, quick maintenance hourly + full daily, 30-day governance blob retention, mover pods
-  labeled `egress.homeops.io/minio: "true"`, `allowedNamespaces.all: true`.
+  labeled `egress.policy.home.arpa/minio: "true"`, `allowedNamespaces.all: true`.
 - **No application has cut over yet**, all three stateful apps remain on Volsync. The Kopiur
   infrastructure is in place and ready for gradual per-app adoption.
 

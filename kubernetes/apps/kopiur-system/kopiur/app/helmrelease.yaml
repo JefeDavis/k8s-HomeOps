@@ -81,7 +81,7 @@ spec:
       serviceAccount:
         automount: false
       podLabels:
-        ingress.gateway.homeops.io/internal: "true"
+        ingress.policy.home.arpa/internal-gateway: "true"
       auth:
         anonymous:
           enabled: true

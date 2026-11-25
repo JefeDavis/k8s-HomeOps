@@ -21,7 +21,7 @@ spec:
           annotations:
             logs.observability.home.arpa/format: plain
           labels:
-            ingress.gateway.homeops.io/internal: "true"
+            ingress.policy.home.arpa/internal-gateway: "true"
         replicas: 2
         strategy: RollingUpdate
         containers:

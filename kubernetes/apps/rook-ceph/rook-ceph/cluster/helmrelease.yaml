@@ -20,7 +20,7 @@ spec:
           logs.observability.home.arpa/format: ceph
       labels:
         mgr:
-          ingress.gateway.homeops.io/internal: "true"
+          ingress.policy.home.arpa/internal-gateway: "true"
       cephConfig:
         mon:
           mon_cluster_log_level: info

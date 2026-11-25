@@ -105,6 +105,7 @@ non-JSON pods are annotated.
 | `zap`             | `ts⇥LEVEL⇥logger⇥msg⇥{json}`                         | regex → `level`, `logger` fields, `_msg` = message                                        |
 | `nginx`           | combined access log                                  | regex → `method`, `status` fields; `_msg` = raw line                                      |
 | `cnpg`            | CloudNativePG JSON (Postgres wrapped under `record`) | JMESPath `record.message \|\| msg` → `_msg`; `record.error_severity \|\| level` → `level` |
+| `starr`           | Servarr/*arr apps (`[Level] Logger: msg`)            | regex → `level`, `logger`; strip prefix → clean `_msg` (non-destructive, multi-line-safe) |
 | `plain`           | unstructured / proprietary                           | no parser; `_msg` = raw (decolorized) line                                                |
 
 Each parser runs only inside its `stage.match`, so it never sees another format's lines and can

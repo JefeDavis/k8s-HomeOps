@@ -8,7 +8,7 @@ spec:
   description: >-
     Prowlarr queries external torrent/usenet indexers over HTTPS/HTTP. It is not routed through the
     gluetun VPN, so egress is permitted directly to the world on 443/80. Ingress from the internal
-    gateway is granted by the ingress.gateway.homeops.io/internal label (global policy).
+    gateway is granted by the ingress.policy.home.arpa/internal-gateway label (global policy).
   endpointSelector:
     matchLabels:
       k8s:app.kubernetes.io/name: prowlarr

@@ -44,7 +44,7 @@ spec:
       template:
         metadata:
           labels:
-            ingress.gateway.homeops.io/internal: "true"
+            ingress.policy.home.arpa/internal-gateway: "true"
             app.kubernetes.io/name: grafana
             app.kubernetes.io/instance: grafana
         spec:

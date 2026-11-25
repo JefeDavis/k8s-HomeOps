@@ -54,8 +54,8 @@ exposing an HTTP-01 challenge path. TLS is always on for served hostnames.
 A backend joins a gateway by **label**, and a clusterwide Cilium policy enforces that only that
 gateway's Envoy pods may reach it:
 
-- `ingress.gateway.homeops.io/internal: "true"` → `allow-ingress-internal-gateway` CCNP.
-- `ingress.gateway.homeops.io/external: "true"` → `allow-ingress-external-gateway` CCNP.
+- `ingress.policy.home.arpa/internal-gateway: "true"` → `allow-ingress-internal-gateway` CCNP.
+- `ingress.policy.home.arpa/external-gateway: "true"` → `allow-ingress-external-gateway` CCNP.
 
 So routing (Gateway API) and reachability (Cilium) agree by construction: a route to an un-labeled
 backend is dropped by default-deny.

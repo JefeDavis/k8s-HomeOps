@@ -34,7 +34,7 @@ spec:
         jitter: 1h
   moverDefaults:
     podLabels:
-      egress.homeops.io/minio: "true"
+      egress.policy.home.arpa/minio: "true"
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:

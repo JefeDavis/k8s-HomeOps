@@ -224,7 +224,7 @@ spec:
         podAnnotations:
           logs.observability.home.arpa/format: nginx
         podLabels:
-          ingress.gateway.homeops.io/internal: "true"
+          ingress.policy.home.arpa/internal-gateway: "true"
 
         priorityClassName: platform-low
         frontend:

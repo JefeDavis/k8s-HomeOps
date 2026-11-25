@@ -182,7 +182,7 @@ spec:
                 template:
                   metadata:
                     labels:
-                      ingress.gateway.homeops.io/external: "true"
+                      ingress.policy.home.arpa/external-gateway: "true"
             target:
               kind: Deployment
               name: notification-controller

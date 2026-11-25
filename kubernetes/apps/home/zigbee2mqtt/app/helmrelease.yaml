@@ -23,7 +23,7 @@ spec:
           reloader.stakater.com/auto: "true"
         pod:
           labels:
-            ingress.gateway.homeops.io/internal: "true"
+            ingress.policy.home.arpa/internal-gateway: "true"
         containers:
           *app :
             image:

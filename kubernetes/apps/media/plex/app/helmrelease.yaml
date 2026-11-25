@@ -19,7 +19,7 @@ spec:
           annotations:
             logs.observability.home.arpa/format: plain
           labels:
-            ingress.gateway.homeops.io/external: "true"
+            ingress.policy.home.arpa/external-gateway: "true"
         containers:
           app:
             image:

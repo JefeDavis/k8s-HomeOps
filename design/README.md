@@ -29,6 +29,7 @@ Design documentation for this cluster.
 | [0011](adr/0011-priority-classes.md)                        | Platform PriorityClasses for scheduling precedence                 |
 | [0012](adr/0012-serviceaccount-token-automount-disabled.md) | ServiceAccount tokens are not auto-mounted; workloads project them |
 | [0013](adr/0013-structured-log-parsing-and-routing.md)      | Per-pod annotations drive structured log parsing in Alloy          |
+| [0014](adr/0014-label-namespace-home-arpa.md)               | Label and annotation namespace under home.arpa                     |
 
 ## Conventions
 

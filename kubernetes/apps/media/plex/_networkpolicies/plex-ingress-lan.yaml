@@ -9,7 +9,7 @@ spec:
     Plex is published on a BGP LoadBalancer VIP with externalTrafficPolicy=Local, so LAN clients
     reach the pod with their real source IP. Permit the home network (10.0.0.0/8) to the direct
     streaming port (32400/TCP) plus the DLNA, GDM, and Bonjour discovery ports. Remote access
-    arrives via the external gateway instead (see the ingress.gateway.homeops.io/external label).
+    arrives via the external gateway instead (see the ingress.policy.home.arpa/external-gateway label).
   endpointSelector:
     matchLabels:
       k8s:app.kubernetes.io/name: plex

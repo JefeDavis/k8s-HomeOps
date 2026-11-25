@@ -20,7 +20,7 @@ spec:
       retentionPeriod: "30d"
       priorityClassName: platform-low
       podLabels:
-        ingress.gateway.homeops.io/internal: "true"
+        ingress.policy.home.arpa/internal-gateway: "true"
       persistentVolume:
         enabled: true
         size: 20Gi

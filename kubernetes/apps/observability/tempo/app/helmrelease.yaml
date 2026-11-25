@@ -44,7 +44,7 @@ spec:
       enabled: false
 
     podLabels:
-      egress.networking.io/object-store: "true"
+      egress.policy.home.arpa/rgw: "true"
 
     tempo:
       reportingEnabled: false

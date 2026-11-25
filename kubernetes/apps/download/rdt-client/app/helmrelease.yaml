@@ -23,8 +23,8 @@ spec:
           annotations:
             logs.observability.home.arpa/format: plain
           labels:
-            ingress.gateway.homeops.io/internal: "true"
-            egress.vpn.homeops.io/enabled: "true"
+            ingress.policy.home.arpa/internal-gateway: "true"
+            egress.policy.home.arpa/vpn: "true"
             istio.io/dataplane-mode: none
         initContainers:
           gluetun:

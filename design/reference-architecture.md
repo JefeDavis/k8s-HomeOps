@@ -341,13 +341,13 @@ flowchart TB
   HRb[HTTPRoute app-b] --> LSe
   LSi["ListenerSet internal<br/>*.DOMAIN + *.internal.DOMAIN :443<br/>cert-manager internal-tls"] -. attaches .-> GI["internal-gateway<br/>LAN"]
   LSe["ListenerSet external<br/>*.DOMAIN :443<br/>cert-manager external-tls"] -. attaches .-> GE["external-gateway<br/>+ Coraza WAF"]
-  GI --> BK[(backends labeled<br/>ingress.gateway.homeops.io/internal)]
-  GE --> BK2[(backends labeled<br/>ingress.gateway.homeops.io/external)]
+  GI --> BK[(backends labeled<br/>ingress.policy.home.arpa/internal-gateway)]
+  GE --> BK2[(backends labeled<br/>ingress.policy.home.arpa/external-gateway)]
 ```
 
 **TLS** is provisioned by cert-manager (`letsencrypt-prod` ClusterIssuer, **ACME DNS-01 via
 Cloudflare**) for wildcard certs on each ListenerSet. **Backends opt in by label**
-(`ingress.gateway.homeops.io/{internal,external}: "true"`), and clusterwide Cilium policies
+(`ingress.policy.home.arpa/{internal-gateway,external-gateway}: "true"`), and clusterwide Cilium policies
 (`allow-ingress-{internal,external}-gateway`) ensure only that gateway's Envoy pods may reach them,
 so routing and reachability agree by construction.
 
@@ -393,7 +393,7 @@ OSDs on the raw NVMe, `aes256k` encryption) and provides three storage classes:
 
 **Secure by design.** Ceph data is replicated (size 3, host failure domain) and encrypted;
 snapshots back every protected PVC; database backups run on a schedule to object storage. Backup
-targets are reached under default-deny via explicit egress labels (`egress.homeops.io/minio`).
+targets are reached under default-deny via explicit egress labels (`egress.policy.home.arpa/minio`).
 
 | DD    | Decision                              | Rationale                                                      | Facts      |
 | ----- | ------------------------------------- | -------------------------------------------------------------- | ---------- |

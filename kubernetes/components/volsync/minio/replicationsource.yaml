@@ -16,7 +16,7 @@ spec:
     storageClassName: "${VOLSYNC_STORAGECLASS:-ceph-block}"
     volumeSnapshotClassName: "${VOLSYNC_SNAPSHOTCLASS:-csi-ceph-blockpool}"
     moverPodLabels:
-      vpn.home.arpa/enabled: "false"
+      egress.policy.home.arpa/vpn: "false"
     moverSecurityContext:
       seccompProfile:
         type: RuntimeDefault

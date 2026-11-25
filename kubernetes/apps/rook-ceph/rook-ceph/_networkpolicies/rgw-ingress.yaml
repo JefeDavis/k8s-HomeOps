@@ -6,12 +6,12 @@ metadata:
   namespace: rook-ceph
 spec:
   description: >-
-    Allows any pod labeled egress.networking.io/object-store=true to reach the rgw S3 endpoint
+    Allows any pod labeled egress.policy.home.arpa/rgw=true to reach the rgw S3 endpoint
     (container port 8080 behind the Service's port 80).
   ingress:
     - fromEndpoints:
         - matchLabels:
-            k8s:egress.networking.io/object-store: "true"
+            k8s:egress.policy.home.arpa/rgw: "true"
       toPorts:
         - ports:
             - port: "8080"

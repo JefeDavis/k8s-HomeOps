@@ -9,7 +9,7 @@ spec:
     Allows kopiur mover Jobs (central execution) to reach the external MinIO S3 endpoint on 9000.
   endpointSelector:
     matchLabels:
-      k8s:egress.homeops.io/minio: "true"
+      k8s:egress.policy.home.arpa/minio: "true"
   egress:
     - toCIDR:
         - 10.77.0.2/32

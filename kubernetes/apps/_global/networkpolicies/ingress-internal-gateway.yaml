@@ -5,11 +5,11 @@ metadata:
   name: allow-ingress-internal-gateway
 spec:
   description: >-
-    Allows workloads opted in with the ingress.gateway.homeops.io/internal=true label to
+    Allows workloads opted in with the ingress.policy.home.arpa/internal-gateway=true label to
     receive traffic from the internal gateway's Envoy proxies in the gateways namespace.
   endpointSelector:
     matchLabels:
-      k8s:ingress.gateway.homeops.io/internal: "true"
+      k8s:ingress.policy.home.arpa/internal-gateway: "true"
   ingress:
     - fromEndpoints:
         - matchLabels:

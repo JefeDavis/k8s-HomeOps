@@ -24,7 +24,7 @@ spec:
           annotations:
             logs.observability.home.arpa/format: logfmt
           labels:
-            ingress.gateway.homeops.io/internal: "true"
+            ingress.policy.home.arpa/internal-gateway: "true"
         containers:
           app:
             image:

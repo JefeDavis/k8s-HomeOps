@@ -96,7 +96,7 @@ spec:
   podAnnotations:
     logs.observability.home.arpa/format: plain
   podLabels:
-    ingress.gateway.homeops.io/external: "true"
+    ingress.policy.home.arpa/external-gateway: "true"
   podSecurityContext:
     runAsNonRoot: true
     runAsUser: 65532

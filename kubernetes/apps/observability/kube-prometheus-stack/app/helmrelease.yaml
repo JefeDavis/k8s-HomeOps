@@ -45,7 +45,7 @@ spec:
       alertmanagerSpec:
         podMetadata:
           labels:
-            ingress.gateway.homeops.io/internal: "true"
+            ingress.policy.home.arpa/internal-gateway: "true"
         priorityClassName: platform-low
         logFormat: json
         alertmanagerConfiguration:
@@ -167,7 +167,7 @@ spec:
       prometheusSpec:
         podMetadata:
           labels:
-            ingress.gateway.homeops.io/internal: "true"
+            ingress.policy.home.arpa/internal-gateway: "true"
         externalUrl: https://prometheus.internal.${DOMAIN}
         logFormat: json
         priorityClassName: platform-low
@@ -206,7 +206,7 @@ spec:
         enableRemoteWriteReceiver: true
         serviceMonitorSelector: &noScrape
           matchLabels:
-            observability.homeops.io/prometheus-scrape: "true"
+            metrics.observability.home.arpa/prometheus-scrape: "true"
         serviceMonitorSelectorNilUsesHelmValues: false
         podMonitorSelector: *noScrape
         podMonitorSelectorNilUsesHelmValues: false

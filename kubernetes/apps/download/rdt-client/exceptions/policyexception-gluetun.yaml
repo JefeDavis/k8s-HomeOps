@@ -10,14 +10,14 @@ metadata:
       WireGuard interface, a /dev/net/tun hostPath for the tunnel device, and runs as root to manage
       the network namespace. The rdt-client (LinuxServer/s6) image can only start as root to drop to
       its unprivileged user, needing CHOWN/SETUID/SETGID and a writable rootfs for that handoff.
-      Scoped to pods opted in via the egress.vpn.homeops.io/enabled label.
+      Scoped to pods opted in via the egress.policy.home.arpa/vpn label.
 spec:
   matchConditions:
     - expression: request.namespace in ["download"]
       name: in-namespaces
     - expression: has(object.metadata.labels)
-        && ("egress.vpn.homeops.io/enabled" in object.metadata.labels)
-        && object.metadata.labels["egress.vpn.homeops.io/enabled"] == "true"
+        && ("egress.policy.home.arpa/vpn" in object.metadata.labels)
+        && object.metadata.labels["egress.policy.home.arpa/vpn"] == "true"
       name: match-labels
   policyRefs:
     - kind: ValidatingPolicy
