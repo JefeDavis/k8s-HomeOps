@@ -32,3 +32,6 @@ spec:
     name: k8s-homeops
     namespace: flux-system
   wait: true
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph

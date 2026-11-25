@@ -16,8 +16,6 @@ spec:
     namespace: flux-system
   wait: true
   dependsOn:
-    - name: kube-prometheus-stack-crds
-      namespace: observability
     - name: istio-ztunnel
       namespace: istio-system
 ---

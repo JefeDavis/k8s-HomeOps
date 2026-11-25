@@ -15,6 +15,3 @@ spec:
     name: k8s-homeops
     namespace: flux-system
   wait: true
-  dependsOn:
-    - name: kube-prometheus-stack-crds
-      namespace: observability

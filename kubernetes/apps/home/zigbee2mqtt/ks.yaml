@@ -25,5 +25,3 @@ spec:
   dependsOn:
     - name: mosquitto
       namespace: home
-    - name: kube-prometheus-stack-crds
-      namespace: observability
