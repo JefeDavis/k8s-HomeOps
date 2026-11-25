@@ -61,6 +61,18 @@ spec:
   logging:
     level:
       default: info
+  bootstrap:
+    type: Merge
+    value: |
+      application_log_config:
+        log_format:
+          json_format:
+            time: "%Y-%m-%dT%T.%e%z"
+            level: "%l"
+            thread: "%t"
+            name: "%n"
+            source: "%g:%#"
+            message: "%j"
   provider:
     type: Kubernetes
     kubernetes:
