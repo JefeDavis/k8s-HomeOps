@@ -78,6 +78,8 @@ spec:
     installScope: cluster
     ui:
       enabled: true
+      serviceAccount:
+        automount: false
       podLabels:
         ingress.gateway.homeops.io/internal: "true"
       auth:
@@ -93,3 +95,78 @@ spec:
               - kopiur-ui-admins
       serviceMonitor:
         enabled: true
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: kopiur-webhook
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: kopiur-webhook
+              spec:
+                template:
+                  spec:
+                    containers:
+                      - name: webhook
+                        volumeMounts:
+                          - name: serviceaccount-token
+                            mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+                            readOnly: true
+                    volumes:
+                      - name: serviceaccount-token
+                        projected:
+                          defaultMode: 0444
+                          sources:
+                            - serviceAccountToken:
+                                expirationSeconds: 3607
+                                path: token
+                            - configMap:
+                                name: kube-root-ca.crt
+                                items:
+                                  - key: ca.crt
+                                    path: ca.crt
+                            - downwardAPI:
+                                items:
+                                  - path: namespace
+                                    fieldRef:
+                                      apiVersion: v1
+                                      fieldPath: metadata.namespace
+          - target:
+              kind: Deployment
+              name: kopiur-ui
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: kopiur-ui
+              spec:
+                template:
+                  spec:
+                    containers:
+                      - name: ui
+                        volumeMounts:
+                          - name: serviceaccount-token
+                            mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+                            readOnly: true
+                    volumes:
+                      - name: serviceaccount-token
+                        projected:
+                          defaultMode: 0444
+                          sources:
+                            - serviceAccountToken:
+                                expirationSeconds: 3607
+                                path: token
+                            - configMap:
+                                name: kube-root-ca.crt
+                                items:
+                                  - key: ca.crt
+                                    path: ca.crt
+                            - downwardAPI:
+                                items:
+                                  - path: namespace
+                                    fieldRef:
+                                      apiVersion: v1
+                                      fieldPath: metadata.namespace
