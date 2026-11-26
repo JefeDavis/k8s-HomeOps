@@ -10,6 +10,7 @@ resources:
   - ./lidarr/_networkpolicies/
   - ./prowlarr/_networkpolicies/
   - ./radarr/_networkpolicies/
+  - ./shelfarr/_networkpolicies/
   - ./sonarr/_networkpolicies/
   - ./rdt-client/_networkpolicies/
   # Flux-Kustomizations
@@ -19,5 +20,6 @@ resources:
   - ./lidarr/ks.yaml
   - ./prowlarr/ks.yaml
   - ./radarr/ks.yaml
+  - ./shelfarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./rdt-client/ks.yaml

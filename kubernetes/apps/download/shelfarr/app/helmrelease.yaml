@@ -32,8 +32,9 @@ spec:
             env:
               TZ: ${TIMEZONE}
               HTTP_PORT: &port 8080
-              PUID: 65532
-              PGID: 65532
+              TMPDIR: /tmp
+              PUID: 1000
+              PGID: 1000
               CHOWN_ON_START: never
             probes:
               liveness:
@@ -77,9 +78,9 @@ spec:
       enableServiceLinks: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 65532
-        runAsGroup: 65532
-        fsGroup: 65532
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile: { type: "RuntimeDefault" }
 
