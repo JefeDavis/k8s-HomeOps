@@ -56,6 +56,11 @@ spec:
           - SecRule REQUEST_HEADERS:Content-Encoding "!@rx ^(?:identity)?$" "id:10021,phase:1,pass,nolog,t:none,t:lowercase,ctl:requestBodyAccess=Off"
           # Skip body inspection for WebSocket upgrade requests.
           - SecRule REQUEST_HEADERS:Upgrade "@rx ^websocket$" "id:10022,phase:1,pass,nolog,t:none,t:lowercase,ctl:requestBodyAccess=Off"
+          # The Flux webhook receiver authenticates GitHub payloads via the HMAC signature and the secret
+          # token in the URL path, so the body is trusted. GitHub push payloads (commit messages, diffs)
+          # routinely trip CRS rules and push the anomaly score past the threshold (949110), so skip body
+          # inspection for this host.
+          - SecRule SERVER_NAME "@streq flux-webhook.${DOMAIN}" "id:10023,phase:1,pass,nolog,t:none,t:lowercase,ctl:requestBodyAccess=Off"
           # Load the OWASP Core Rule Set; everything below tunes it and must come after this include.
           - Include @owasp_crs/*.conf
           # Retire the CRS content-type allow list; rule 10020 above governs which bodies are inspected.
