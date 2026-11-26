@@ -12,6 +12,7 @@ spec:
   datasource:
     type: prometheus
     name: prometheus
+    uid: prometheus
     access: proxy
     isDefault: true
     url: http://prometheus-operated.observability.svc.cluster.local:9090
@@ -29,6 +30,7 @@ spec:
   datasource:
     type: alertmanager
     name: alertmanager
+    uid: alertmanager
     access: proxy
     jsonData:
       implementation: prometheus
