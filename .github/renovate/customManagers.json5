@@ -14,7 +14,7 @@
         // # renovate: datasource=helm depName=cilium repository=https://helm.cilium.io
         // version: 1.15.1
         // # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-        // KUBERNETES_VERSION=v1.31.1
+        // KUBERNETES_VERSION=v1.31.14
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( repository=(?<registryUrl>\\S+))?\\n.+(:\\s|=)(&\\S+\\s)?(?<currentValue>\\S+)",
         // # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
         // https://github.com/rancher/system-upgrade-controller/releases/download/v0.13.2/crd.yaml
