@@ -332,6 +332,11 @@ spec:
               }
             }
 
+            stage.drop {
+              source     = "level"
+              expression = "(?i)^trace$"
+            }
+
             stage.label_drop {
               values = ["log_format"]
             }
