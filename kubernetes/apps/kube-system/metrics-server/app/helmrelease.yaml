@@ -21,10 +21,10 @@ spec:
     # limit so the aggregation server is capped without CPU throttling.
     resources:
       requests:
-        cpu: 100m
-        memory: 200Mi
+        cpu: 10m
+        memory: 64Mi
       limits:
-        memory: 400Mi
+        memory: 128Mi
     # Stateless aggregation-API server, safe active-active.
     replicas: 2
     podDisruptionBudget:

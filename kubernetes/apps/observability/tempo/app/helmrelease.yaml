@@ -51,10 +51,10 @@ spec:
       retention: 720h
       resources:
         requests:
-          cpu: 100m
-          memory: 512Mi
+          cpu: 15m
+          memory: 384Mi
         limits:
-          memory: 1Gi
+          memory: 512Mi
       metricsGenerator:
         enabled: true
         remoteWriteUrl: http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/write

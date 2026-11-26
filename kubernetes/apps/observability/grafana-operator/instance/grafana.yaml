@@ -50,6 +50,12 @@ spec:
         spec:
           containers:
             - name: grafana
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 512Mi
+                limits:
+                  memory: 768Mi
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true

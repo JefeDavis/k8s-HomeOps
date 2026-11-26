@@ -27,9 +27,9 @@ spec:
       resources:
         requests:
           cpu: 10m
-          memory: 64Mi
+          memory: 32Mi
         limits:
-          memory: 256Mi
+          memory: 96Mi
   postRenderers:
     - kustomize:
         patches:

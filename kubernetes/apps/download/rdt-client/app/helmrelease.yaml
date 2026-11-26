@@ -61,9 +61,9 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 64Mi
+                memory: 32Mi
               limits:
-                memory: 128Mi
+                memory: 96Mi
         containers:
           *app :
             image:
@@ -94,10 +94,10 @@ spec:
               seccompProfile: { type: "RuntimeDefault" }
             resources:
               requests:
-                cpu: 50m
-                memory: 512Mi
+                cpu: 10m
+                memory: 128Mi
               limits:
-                memory: 1Gi
+                memory: 192Mi
 
     defaultPodOptions:
       automountServiceAccountToken: false

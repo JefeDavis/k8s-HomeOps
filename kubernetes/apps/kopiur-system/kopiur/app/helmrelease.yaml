@@ -47,9 +47,10 @@ spec:
       fsGroupChangePolicy: OnRootMismatch
     resources:
       requests:
-        cpu: 100m
+        cpu: 10m
+        memory: 192Mi
       limits:
-        memory: 2Gi
+        memory: 256Mi
     serviceAccount:
       automount: false
     extraVolumeMounts:
@@ -78,6 +79,12 @@ spec:
     installScope: cluster
     ui:
       enabled: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 96Mi
+        limits:
+          memory: 128Mi
       serviceAccount:
         automount: false
       podLabels:
@@ -110,6 +117,12 @@ spec:
                   spec:
                     containers:
                       - name: webhook
+                        resources:
+                          requests:
+                            cpu: 10m
+                            memory: 32Mi
+                          limits:
+                            memory: 96Mi
                         volumeMounts:
                           - name: serviceaccount-token
                             mountPath: /var/run/secrets/kubernetes.io/serviceaccount

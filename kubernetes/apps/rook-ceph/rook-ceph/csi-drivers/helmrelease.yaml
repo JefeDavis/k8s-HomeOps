@@ -29,54 +29,55 @@ spec:
           resources:
             plugin:
               limits:
-                memory: 1Gi
+                memory: 128Mi
               requests:
-                cpu: 250m
-                memory: 512Mi
+                cpu: 10m
+                memory: 64Mi
             registrar:
               limits:
-                memory: 256Mi
+                memory: 96Mi
               requests:
-                cpu: 50m
-                memory: 128Mi
+                cpu: 10m
+                memory: 32Mi
         controllerPlugin:
           priorityClassName: system-cluster-critical
           resources:
             attacher:
               limits:
-                memory: 256Mi
+                memory: 96Mi
               requests:
-                cpu: 100m
-                memory: 128Mi
+                cpu: 10m
+                memory: 32Mi
             omapGenerator:
               limits:
-                memory: 1Gi
+                memory: 96Mi
               requests:
-                cpu: 250m
-                memory: 512Mi
+                cpu: 10m
+                memory: 32Mi
             plugin:
               limits:
-                memory: 1Gi
+                memory: 128Mi
               requests:
-                memory: 512Mi
+                cpu: 10m
+                memory: 64Mi
             provisioner:
               limits:
-                memory: 256Mi
+                memory: 96Mi
               requests:
-                cpu: 100m
-                memory: 128Mi
+                cpu: 10m
+                memory: 32Mi
             resizer:
               limits:
-                memory: 256Mi
+                memory: 96Mi
               requests:
-                cpu: 100m
-                memory: 128Mi
+                cpu: 10m
+                memory: 32Mi
             snapshotter:
               limits:
-                memory: 256Mi
+                memory: 96Mi
               requests:
-                cpu: 100m
-                memory: 128Mi
+                cpu: 10m
+                memory: 32Mi
     drivers:
       rbd:
         name: rook-ceph.rbd.csi.ceph.com

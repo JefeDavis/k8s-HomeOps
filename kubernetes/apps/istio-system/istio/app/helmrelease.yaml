@@ -73,10 +73,10 @@ spec:
             service: alloy-traces.alloy.svc.cluster.local
     resources:
       requests:
-        cpu: 100m
-        memory: 512Mi
+        cpu: 50m
+        memory: 256Mi
       limits:
-        memory: 1024Mi
+        memory: 512Mi
     # Projected, short-lived SA token; pairs with automountServiceAccountToken:false (postRenderers).
     volumes:
       - name: serviceaccount-token

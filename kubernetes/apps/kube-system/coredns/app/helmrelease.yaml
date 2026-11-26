@@ -21,11 +21,10 @@ spec:
     replicaCount: 2
     resources:
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 10m
+        memory: 32Mi
       limits:
-        cpu: 300m
-        memory: 128Mi
+        memory: 96Mi
     k8sAppLabelOverride: kube-dns
 
     serviceAccount:
@@ -151,3 +150,5 @@ spec:
               - op: add
                 path: /spec/template/spec/containers/0/args/-
                 value: -log-format=json
+              - op: remove
+                path: /spec/template/spec/containers/0/resources/limits/cpu

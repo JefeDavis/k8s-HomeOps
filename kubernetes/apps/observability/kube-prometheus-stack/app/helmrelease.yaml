@@ -50,6 +50,12 @@ spec:
         logFormat: json
         alertmanagerConfiguration:
           name: alertmanager
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 96Mi
         externalUrl: https://alertmanager.internal.${DOMAIN}
         storage:
           volumeClaimTemplate:
@@ -127,10 +133,10 @@ spec:
                         fieldPath: metadata.namespace
       resources:
         requests:
-          cpu: 5m
-          memory: 25Mi
+          cpu: 10m
+          memory: 64Mi
         limits:
-          memory: 100Mi
+          memory: 96Mi
 
       prometheusConfigReloader:
         resources:
@@ -187,8 +193,8 @@ spec:
         retentionSize: 40GiB
         resources:
           requests:
-            cpu: 100m
-            memory: 1Gi
+            cpu: 150m
+            memory: 2Gi
           limits:
             memory: 4Gi
         storageSpec:
@@ -251,9 +257,9 @@ spec:
       resources:
         requests:
           cpu: 10m
-          memory: 320Mi
+          memory: 192Mi
         limits:
-          memory: 640Mi
+          memory: 384Mi
 
     nodeExporter:
       enabled: true

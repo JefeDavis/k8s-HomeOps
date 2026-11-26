@@ -88,10 +88,10 @@ spec:
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                cpu: 15m
-                memory: 192Mi
-              limits:
+                cpu: 25m
                 memory: 256Mi
+              limits:
+                memory: 384Mi
           exporter:
             image:
               repository: ghcr.io/onedr0p/exportarr

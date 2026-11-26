@@ -27,9 +27,9 @@ spec:
         resources:
           requests:
             cpu: 10m
-            memory: 160Mi
+            memory: 128Mi
           limits:
-            memory: 384Mi
+            memory: 192Mi
         containerSecurityContext:
           allowPrivilegeEscalation: false
           capabilities:

@@ -44,17 +44,17 @@ spec:
           exemplarFilter: always-off
         resources:
           requests:
-            cpu: 100m
+            cpu: 25m
             memory: 256Mi
           limits:
-            memory: 512Mi
+            memory: 384Mi
       initContainer:
         resources:
           requests:
-            cpu: 100m
-            memory: 256Mi
+            cpu: 10m
+            memory: 64Mi
           limits:
-            memory: 256Mi
+            memory: 96Mi
       rbac:
         serviceAccount:
           automountServiceAccountToken: false
@@ -85,10 +85,10 @@ spec:
         exemplarFilter: always-off
       resources:
         requests:
-          cpu: 100m
-          memory: 128Mi
+          cpu: 10m
+          memory: 96Mi
         limits:
-          memory: 256Mi
+          memory: 128Mi
       rbac:
         serviceAccount:
           automountServiceAccountToken: false
@@ -117,10 +117,10 @@ spec:
         port: 4317
       resources:
         requests:
-          cpu: 50m
-          memory: 128Mi
+          cpu: 10m
+          memory: 64Mi
         limits:
-          memory: 256Mi
+          memory: 128Mi
       rbac:
         serviceAccount:
           automountServiceAccountToken: false
@@ -151,10 +151,10 @@ spec:
         exemplarFilter: always-off
       resources:
         requests:
-          cpu: 100m
-          memory: 256Mi
+          cpu: 50m
+          memory: 128Mi
         limits:
-          memory: 512Mi
+          memory: 192Mi
       rbac:
         serviceAccount:
           automountServiceAccountToken: false

@@ -28,10 +28,10 @@ spec:
       type: RuntimeDefault
     resources:
       requests:
-        cpu: 100m
-        memory: 100Mi
+        cpu: 25m
+        memory: 64Mi
       limits:
-        memory: 200Mi
+        memory: 128Mi
   postRenderers:
     - kustomize:
         patches:

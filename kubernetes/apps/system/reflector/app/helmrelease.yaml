@@ -15,6 +15,13 @@ spec:
   values:
     repository: ghcr.io/emberstack/kubernetes-reflector
 
+    resources:
+      requests:
+        cpu: 10m
+        memory: 512Mi
+      limits:
+        memory: 768Mi
+
     extraEnv:
       - name: ES_Serilog__WriteTo__0__Name
         value: Console

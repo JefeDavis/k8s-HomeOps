@@ -132,9 +132,9 @@ spec:
       resources:
         requests:
           cpu: 10m
-          memory: 64Mi
+          memory: 32Mi
         limits:
-          memory: 128Mi
+          memory: 96Mi
     cainjector:
       extraArgs:
         - --logging-format=json
@@ -174,9 +174,9 @@ spec:
       resources:
         requests:
           cpu: 10m
-          memory: 64Mi
+          memory: 192Mi
         limits:
-          memory: 256Mi
+          memory: 192Mi
     startupapicheck:
       # startupapicheck is a post-install hook Job that calls the kube API (`check api`); drop the
       # auto-mounted SA token and hand it the same projected, short-lived token as the controllers.

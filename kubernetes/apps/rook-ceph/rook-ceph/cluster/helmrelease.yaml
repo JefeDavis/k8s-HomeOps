@@ -39,9 +39,60 @@ spec:
         ssl: false
         prometheusEndpoint: http://prometheus-operated.observability.svc.cluster.local:9090
       resources:
+        mon:
+          requests:
+            cpu: 100m
+            memory: 1Gi
+          limits:
+            memory: 2Gi
+        mgr:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 1Gi
+        mgr-sidecar:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
         osd:
+          requests:
+            cpu: 100m
+            memory: 4Gi
           limits:
             memory: 8Gi # Required for bootstrap
+        prepareosd:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        crashcollector:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+        logcollector:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+        exporter:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+        cleanup:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
       security:
         cephx:
           allowedCiphers: [aes256k]
@@ -130,10 +181,10 @@ spec:
             priorityClassName: system-cluster-critical
             resources:
               requests:
-                cpu: 100m
-                memory: 1Gi
+                cpu: 25m
+                memory: 512Mi
               limits:
-                memory: 4Gi
+                memory: 1Gi
         storageClass:
           enabled: true
           name: ceph-filesystem
@@ -171,10 +222,10 @@ spec:
               logs.observability.home.arpa/format: ceph
             resources:
               requests:
-                cpu: 100m
-                memory: 1Gi
+                cpu: 25m
+                memory: 384Mi
               limits:
-                memory: 2Gi
+                memory: 512Mi
             instances: 2
             priorityClassName: system-cluster-critical
         storageClass:

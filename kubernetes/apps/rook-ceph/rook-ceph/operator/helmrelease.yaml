@@ -22,3 +22,22 @@ spec:
       requests:
         cpu: 100m # unchangable
         memory: 128Mi # unchangable
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: ceph-csi-controller-manager
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: ceph-csi-controller-manager
+              spec:
+                template:
+                  spec:
+                    containers:
+                      - name: manager
+                        resources:
+                          limits:
+                            cpu: null

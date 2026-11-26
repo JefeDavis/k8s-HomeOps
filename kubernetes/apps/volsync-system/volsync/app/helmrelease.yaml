@@ -20,9 +20,34 @@ spec:
       logs.observability.home.arpa/format: zap
     metrics:
       disableAuth: true
+    resources:
+      requests:
+        cpu: 10m
+        memory: 96Mi
+      limits:
+        memory: 192Mi
     podSecurityContext:
       runAsNonRoot: true
       runAsUser: 1000
       runAsGroup: 1000
       seccompProfile:
         type: RuntimeDefault
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: volsync
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: volsync
+              spec:
+                template:
+                  spec:
+                    containers:
+                      - name: manager
+                        resources:
+                          limits:
+                            cpu: null

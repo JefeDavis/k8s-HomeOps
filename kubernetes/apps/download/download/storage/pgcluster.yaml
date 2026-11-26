@@ -14,10 +14,10 @@ spec:
     size: 10Gi
   resources:
     requests:
-      cpu: 50m
+      cpu: 25m
       memory: 256Mi
     limits:
-      memory: 1Gi
+      memory: 384Mi
   # Shared cluster: per-app databases/roles are declared by each tenant (see prowlarr/database).
   # initdb only creates the default bootstrap database.
   bootstrap:

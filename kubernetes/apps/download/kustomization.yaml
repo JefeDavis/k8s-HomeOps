@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
+  - ./flaresolverr/_networkpolicies/
   - ./prowlarr/_networkpolicies/
   - ./radarr/_networkpolicies/
   - ./sonarr/_networkpolicies/
@@ -12,6 +13,7 @@ resources:
   - ./rdt-client/_networkpolicies/
   # Flux-Kustomizations
   - ./download/ks.yaml
+  - ./flaresolverr/ks.yaml
   - ./prowlarr/ks.yaml
   - ./radarr/ks.yaml
   - ./sonarr/ks.yaml

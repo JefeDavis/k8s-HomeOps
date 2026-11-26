@@ -75,10 +75,10 @@ spec:
     # limits keep the reconcilers schedulable without CPU throttling.
     resources:
       requests:
-        cpu: 25m
-        memory: 96Mi
+        cpu: 10m
+        memory: 64Mi
       limits:
-        memory: 192Mi
+        memory: 128Mi
 
     webhook:
       priorityClassName: platform-high
@@ -137,9 +137,9 @@ spec:
       resources:
         requests:
           cpu: 10m
-          memory: 128Mi
+          memory: 96Mi
         limits:
-          memory: 256Mi
+          memory: 192Mi
       grafanaDashboard:
         enabled: true
   postRenderers:

@@ -66,10 +66,10 @@ spec:
                   - ALL
             resources:
               requests:
-                memory: 64Mi
-                cpu: 5m
+                memory: 32Mi
+                cpu: 10m
               limits:
-                memory: 164Mi
+                memory: 96Mi
 
     defaultPodOptions:
       automountServiceAccountToken: false

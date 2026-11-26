@@ -113,10 +113,10 @@ spec:
       exclusive: false # needed for istio
       resources:
         requests:
-          cpu: 100m
-          memory: 128Mi
+          cpu: 25m
+          memory: 64Mi
         limits:
-          memory: 256Mi
+          memory: 128Mi
 
     socketLB:
       hostNamespaceOnly: true # needed for istio
@@ -237,10 +237,10 @@ spec:
         backend:
           resources:
             requests:
-              cpu: 10m
-              memory: 64Mi
-            limits:
+              cpu: 50m
               memory: 128Mi
+            limits:
+              memory: 256Mi
           # The backend lists namespaces/pods/services via the kube API, so it still needs a token even
           # though serviceAccounts.ui.automount disables the auto-mounted one. Mount a projected token.
           extraVolumes: *serviceAccountVolumes
@@ -299,3 +299,22 @@ spec:
       serviceMonitor:
         enabled: true
         trustCRDsExist: true
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: DaemonSet
+              name: cilium
+            patch: |
+              apiVersion: apps/v1
+              kind: DaemonSet
+              metadata:
+                name: cilium
+              spec:
+                template:
+                  spec:
+                    initContainers:
+                      - name: install-cni-binaries
+                        resources:
+                          limits:
+                            cpu: null
