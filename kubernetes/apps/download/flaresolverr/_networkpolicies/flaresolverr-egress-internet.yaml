@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: flaresolverr-egress-internet
+  namespace: download
+spec:
+  description: >-
+    FlareSolverr drives headless Chrome to solve Cloudflare challenges for indexer sites, so it needs
+    egress to the world on 443/80. It is reached in-cluster by Prowlarr/the *arr over the ambient mesh
+    (ztunnel); it has no gateway route.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: flaresolverr
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP

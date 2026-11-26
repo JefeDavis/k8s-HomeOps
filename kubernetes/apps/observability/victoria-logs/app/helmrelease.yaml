@@ -37,10 +37,10 @@ spec:
       # Memory-only limit: bound the hard cap, leave CPU burstable.
       resources:
         requests:
-          cpu: 10m
-          memory: 64Mi
+          cpu: 25m
+          memory: 256Mi
         limits:
-          memory: 96Mi
+          memory: 512Mi
       # Expose /metrics to the Prometheus-Operator scrape path (alloy-metrics scrapes ServiceMonitors).
       serviceMonitor:
         enabled: true
