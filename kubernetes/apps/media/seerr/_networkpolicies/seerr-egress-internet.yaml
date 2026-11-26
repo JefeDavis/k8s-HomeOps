@@ -1,0 +1,24 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: seerr-egress-internet
+  namespace: media
+spec:
+  description: >-
+    seerr reaches external metadata providers (TheMovieDB) and Plex.tv auth over HTTPS/HTTP, so
+    egress to the world on 443/80 is permitted. In-cluster talk to Plex (media) and Sonarr/Radarr
+    (download) rides the ambient mesh (ztunnel); ingress from the external gateway is granted by the
+    ingress.policy.home.arpa/external-gateway label (global policy).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: seerr
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
