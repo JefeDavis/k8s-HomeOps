@@ -7,9 +7,11 @@ resources:
   - ./namespace.yaml
   - ./prowlarr/_networkpolicies/
   - ./radarr/_networkpolicies/
+  - ./sonarr/_networkpolicies/
   - ./rdt-client/_networkpolicies/
   # Flux-Kustomizations
   - ./download/ks.yaml
   - ./prowlarr/ks.yaml
   - ./radarr/ks.yaml
+  - ./sonarr/ks.yaml
   - ./rdt-client/ks.yaml
