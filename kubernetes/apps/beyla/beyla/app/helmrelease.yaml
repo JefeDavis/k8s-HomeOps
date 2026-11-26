@@ -1,0 +1,90 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: beyla
+  namespace: beyla
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: beyla
+    namespace: beyla
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  values:
+    preset: application
+    # Capability-based (not privileged:true): the chart drops ALL and adds only the eBPF caps
+    # Beyla needs, runs read-only root. contextPropagation stitches cross-node traces (forces
+    # hostNetwork + NET_ADMIN, the accepted cost of the full service graph).
+    privileged: false
+    contextPropagation:
+      enabled: true
+    priorityClassName: platform-low
+    resources:
+      requests:
+        cpu: 10m
+        memory: 512Mi
+      limits:
+        memory: 768Mi
+    # Per-node K8s metadata informer instead of the shared cache Deployment (3-node cluster).
+    k8sCache:
+      replicas: 0
+    # bpffs for pinning eBPF maps (context propagation needs /sys/fs/bpf/otel). The chart mounts
+    # cgroupfs + tracefs but not bpffs; mirror Cilium's mount (HostToContainer so the pod sees the
+    # host bpffs mount; Bidirectional would require a privileged container).
+    volumes:
+      - name: bpffs
+        hostPath:
+          path: /sys/fs/bpf
+          type: DirectoryOrCreate
+    volumeMounts:
+      - name: bpffs
+        mountPath: /sys/fs/bpf
+        mountPropagation: HostToContainer
+    config:
+      create: true
+      data:
+        attributes:
+          kubernetes:
+            enable: true
+        discovery:
+          instrument:
+            - k8s_namespace: "*"
+          exclude_instrument:
+            - k8s_namespace: kube-system
+            - k8s_namespace: rook-ceph
+            - k8s_namespace: istio-system
+            - k8s_namespace: alloy
+            - k8s_namespace: beyla
+            - k8s_namespace: observability
+            - k8s_namespace: flux-system
+            - k8s_namespace: cert-manager
+            - k8s_namespace: kyverno
+            - k8s_namespace: external-secrets
+            - k8s_namespace: cnpg-system
+            - k8s_namespace: spegel-system
+            - k8s_namespace: volsync-system
+            - k8s_namespace: kopiur-system
+            - k8s_namespace: device-system
+            - k8s_namespace: network
+            - k8s_namespace: system
+        otel_traces_export:
+          endpoint: http://alloy-traces.alloy.svc.cluster.local:4317
+          protocol: grpc
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: DaemonSet
+              name: beyla
+            patch: |
+              - op: add
+                path: /spec/template/spec/securityContext
+                value:
+                  seccompProfile:
+                    type: RuntimeDefault
+              - op: add
+                path: /spec/template/spec/containers/0/securityContext/allowPrivilegeEscalation
+                value: false
