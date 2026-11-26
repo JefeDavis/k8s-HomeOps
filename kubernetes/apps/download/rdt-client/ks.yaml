@@ -29,6 +29,8 @@ spec:
       namespace: kopiur-system
     - name: rdt-client-exceptions
       namespace: download
+    - name: download-storage
+      namespace: download
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
