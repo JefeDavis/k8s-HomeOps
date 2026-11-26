@@ -1,0 +1,195 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app lidarr
+  namespace: download
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: lidarr
+    namespace: download
+  driftDetection:
+    mode: enabled
+  values:
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          annotations:
+            logs.observability.home.arpa/format: starr
+          labels:
+            ingress.policy.home.arpa/internal-gateway: "true"
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/home-operations/lidarr
+              tag: 3.2.1.5196@sha256:ecbcc0dc629576ccba4af6d54de2fd0ac83b175f3c4fccf3024c44a2d01dbc7f
+            env:
+              TZ: ${TIMEZONE}
+              LIDARR__APP__INSTANCENAME: Lidarr
+              LIDARR__AUTH__METHOD: External
+              LIDARR__AUTH__REQUIRED: DisabledForLocalAddresses
+              LIDARR__SERVER__PORT: &port 8686
+              LIDARR__SERVER__ALLOWEDHOSTS: "lidarr.internal.${DOMAIN},lidarr.download.svc.cluster.local,lidarr.download.svc,lidarr"
+              LIDARR__APPLICATION_URL: "https://lidarr.internal.${DOMAIN}"
+              LIDARR__LOG__LEVEL: info
+              LIDARR__LOG__DBENABLED: "False"
+              LIDARR__POSTGRES__MAINDB: lidarr
+              LIDARR__POSTGRES__HOST: pg-download-rw
+              LIDARR__POSTGRES__PORT: "5432"
+              LIDARR__POSTGRES__USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-lidarr-app
+                    key: username
+              LIDARR__POSTGRES__PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-lidarr-app
+                    key: password
+              LIDARR__AUTH__APIKEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: "{{ .Release.Name }}"
+                    key: apiKey
+            probes:
+              liveness:
+                enabled: true
+                spec:
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: *port
+                    httpHeaders:
+                      - name: Host
+                        value: localhost
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 15m
+                memory: 192Mi
+              limits:
+                memory: 256Mi
+          exporter:
+            image:
+              repository: ghcr.io/onedr0p/exportarr
+              tag: v2.3.0
+            args:
+              - lidarr
+              - --enable-additional-metrics
+              - --log-format=json
+            env:
+              URL: "http://localhost:8686"
+              PORT: &metricsPort 9710
+              APIKEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: "{{ .Release.Name }}"
+                    key: apiKey
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 96Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: "RuntimeDefault" }
+
+    serviceAccount:
+      *app :
+        automountServiceAccountToken: false
+
+    service:
+      *app :
+        controller: *app
+        ports:
+          http:
+            port: *port
+          metrics:
+            port: *metricsPort
+
+    serviceMonitor:
+      metrics:
+        enabled: true
+        serviceName: *app
+        endpoints:
+          - port: metrics
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:music"
+        parentRefs:
+          - kind: ListenerSet
+            name: internal
+            namespace: gateways
+        hostnames:
+          - lidarr.internal.${DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                identifier: *app
+                port: http
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
+    persistence:
+      config:
+        existingClaim: ${KOPIUR_CLAIM}
+
+      media:
+        existingClaim: media-nfs
+
+      tmp:
+        type: emptyDir
+
+      backup:
+        existingClaim: lidarr-backup
+        globalMounts:
+          - path: /config/Backups

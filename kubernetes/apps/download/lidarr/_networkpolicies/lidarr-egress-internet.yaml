@@ -1,0 +1,25 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: lidarr-egress-internet
+  namespace: download
+spec:
+  description: >-
+    Lidarr reaches external metadata providers (MusicBrainz / api.lidarr.audio) and queries indexers
+    over HTTPS/HTTP. It is not routed through the gluetun VPN, so egress is permitted directly to the
+    world on 443/80. In-cluster talk to prowlarr/rdt-client rides the ambient mesh (ztunnel); ingress
+    from the internal gateway is granted by the ingress.policy.home.arpa/internal-gateway label
+    (global policy).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: lidarr
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP

@@ -1,0 +1,27 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: lidarr
+  namespace: download
+spec:
+  cluster:
+    name: pg-download
+  name: lidarr
+  ensure: present
+  login: true
+  passwordSecret:
+    name: pg-lidarr-app
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: lidarr
+  namespace: download
+spec:
+  cluster:
+    name: pg-download
+  name: lidarr
+  owner: lidarr
+  ensure: present
+  databaseReclaimPolicy: retain
