@@ -1,0 +1,27 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: bazarr
+  namespace: download
+spec:
+  cluster:
+    name: pg-download
+  name: bazarr
+  ensure: present
+  login: true
+  passwordSecret:
+    name: pg-bazarr-app
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: bazarr
+  namespace: download
+spec:
+  cluster:
+    name: pg-download
+  name: bazarr
+  owner: bazarr
+  ensure: present
+  databaseReclaimPolicy: retain

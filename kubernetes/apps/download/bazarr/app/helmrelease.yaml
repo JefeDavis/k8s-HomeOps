@@ -1,0 +1,124 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app bazarr
+  namespace: download
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: bazarr
+    namespace: download
+  driftDetection:
+    mode: enabled
+  values:
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          annotations:
+            logs.observability.home.arpa/format: plain
+          labels:
+            ingress.policy.home.arpa/internal-gateway: "true"
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/home-operations/bazarr
+              tag: 1.6.2@sha256:6c40dfa683f767d28d1dc502837ed0a5a57682a84231f03e704e2b3f61b25a46
+            env:
+              TZ: ${TIMEZONE}
+              BAZARR__PORT: &port 6767
+              # Bazarr's native Postgres env vars (read by the app, not BAZARR__ prefixed).
+              POSTGRES_ENABLED: "true"
+              POSTGRES_HOST: pg-download-rw
+              POSTGRES_PORT: "5432"
+              POSTGRES_DATABASE: bazarr
+              POSTGRES_USERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-bazarr-app
+                    key: username
+              POSTGRES_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-bazarr-app
+                    key: password
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 15m
+                memory: 192Mi
+              limits:
+                memory: 256Mi
+
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: "RuntimeDefault" }
+
+    serviceAccount:
+      *app :
+        automountServiceAccountToken: false
+
+    service:
+      *app :
+        controller: *app
+        ports:
+          http:
+            port: *port
+
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:subtitles"
+        parentRefs:
+          - kind: ListenerSet
+            name: internal
+            namespace: gateways
+        hostnames:
+          - bazarr.internal.${DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                identifier: *app
+                port: http
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
+    persistence:
+      config:
+        existingClaim: ${KOPIUR_CLAIM}
+
+      media:
+        existingClaim: media-nfs
+
+      tmp:
+        type: emptyDir
