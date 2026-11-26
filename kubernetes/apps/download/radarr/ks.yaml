@@ -1,0 +1,56 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app radarr
+  namespace: download
+spec:
+  targetNamespace: download
+  interval: 1h
+  path: "./kubernetes/apps/download/radarr/app"
+  components:
+    - ../../../../components/volsync
+    - ../../../../components/kopiur-migration
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  postBuild:
+    substitute:
+      APP: *app
+      VOLSYNC_CLAIM: radarr-config
+      VOLSYNC_CAPACITY: 20Gi
+      KOPIUR_CLAIM: radarr-config
+      KOPIUR_CAPACITY: 20Gi
+  wait: true
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: volsync-system
+    - name: download-storage
+      namespace: download
+    - name: radarr-database
+      namespace: download
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: radarr-database
+  namespace: download
+spec:
+  targetNamespace: download
+  interval: 1h
+  path: "./kubernetes/apps/download/radarr/database"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  dependsOn:
+    - name: download-storage
+      namespace: download

@@ -6,3 +6,4 @@ resources:
   - ./pgcluster.yaml
   - ./persistentvolume.yaml
   - ./persistentvolumeclaim.yaml
+  - ./media-nfs.yaml

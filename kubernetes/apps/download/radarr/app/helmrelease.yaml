@@ -1,0 +1,198 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app radarr
+  namespace: download
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: radarr
+    namespace: download
+  values:
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          annotations:
+            logs.observability.home.arpa/format: starr
+          labels:
+            ingress.policy.home.arpa/internal-gateway: "true"
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/home-operations/radarr
+              tag: 7.1.0.10948@sha256:d259bde2be6b1997c1832cf981d50017f919b305ed3dc9ce445c4661956553f3
+            env:
+              TZ: ${TIMEZONE}
+              RADARR__APP__INSTANCENAME: Radarr
+              RADARR__AUTH__METHOD: External
+              RADARR__AUTH__REQUIRED: DisabledForLocalAddresses
+              RADARR__SERVER__PORT: &port 7878
+              RADARR__SERVER__ALLOWEDHOSTS: "radarr.internal.${DOMAIN},radarr.download.svc.cluster.local,radarr.download.svc,radarr"
+              RADARR__APPLICATION_URL: "https://radarr.internal.${DOMAIN}"
+              RADARR__LOG__LEVEL: info
+              RADARR__LOG__DBENABLED: "False"
+              RADARR__POSTGRES__MAINDB: radarr
+              RADARR__POSTGRES__HOST: pg-download-rw
+              RADARR__POSTGRES__PORT: "5432"
+              RADARR__POSTGRES__USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-radarr-app
+                    key: username
+              RADARR__POSTGRES__PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-radarr-app
+                    key: password
+              RADARR__AUTH__APIKEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: "{{ .Release.Name }}"
+                    key: apiKey
+            probes:
+              liveness:
+                enabled: true
+                spec:
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: *port
+                    httpHeaders:
+                      - name: Host
+                        value: localhost
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 25m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+          exporter:
+            image:
+              repository: ghcr.io/onedr0p/exportarr
+              tag: v2.3.0
+            args:
+              - radarr
+              - --enable-additional-metrics
+              - --log-format=json
+            env:
+              URL: "http://localhost:7878"
+              PORT: &metricsPort 9710
+              APIKEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: "{{ .Release.Name }}"
+                    key: apiKey
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 128Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: "RuntimeDefault" }
+
+    serviceAccount:
+      *app :
+        automountServiceAccountToken: false
+
+    service:
+      *app :
+        controller: *app
+        ports:
+          http:
+            port: *port
+          metrics:
+            port: *metricsPort
+
+    serviceMonitor:
+      metrics:
+        enabled: true
+        serviceName: *app
+        endpoints:
+          - port: metrics
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:movie"
+        parentRefs:
+          - kind: ListenerSet
+            name: internal
+            namespace: gateways
+        hostnames:
+          - radarr.internal.${DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                identifier: *app
+                port: http
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
+    persistence:
+      config:
+        existingClaim: ${VOLSYNC_CLAIM}
+        globalMounts:
+          - path: /config
+
+      media:
+        existingClaim: media-nfs
+        globalMounts:
+          - path: /data
+
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+
+      backup:
+        existingClaim: radarr-backup
+        globalMounts:
+          - path: /config/Backups
