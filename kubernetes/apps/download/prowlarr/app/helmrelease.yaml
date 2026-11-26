@@ -35,14 +35,26 @@ spec:
               PROWLARR__SERVER__PORT: &port 9696
               PROWLARR__SERVER__ALLOWEDHOSTS: "prowlarr.internal.${DOMAIN},prowlarr.download.svc.cluster.local,prowlarr.download.svc,prowlarr"
               PROWLARR__APPLICATION_URL: "https://prowlarr.internal.${DOMAIN}"
-              PROWLARR__LOG__DBENABLED: "False"
               PROWLARR__LOG_LEVEL: info
+              PROWLARR__LOG__DBENABLED: "False"
+              PROWLARR__POSTGRES__MAINDB: prowlarr
+              PROWLARR__POSTGRES__HOST: pg-download-rw
+              PROWLARR__POSTGRES__PORT: "5432"
+              PROWLARR__POSTGRES__USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-prowlarr-app
+                    key: username
+              PROWLARR__POSTGRES__PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-prowlarr-app
+                    key: password
               PROWLARR__AUTH__APIKEY:
                 valueFrom:
                   secretKeyRef:
                     name: "{{ .Release.Name }}"
                     key: apiKey
-              PROWLARR__LOG__LEVEL: info
             probes:
               liveness:
                 enabled: true

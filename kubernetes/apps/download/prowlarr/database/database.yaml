@@ -1,0 +1,27 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: prowlarr
+  namespace: download
+spec:
+  cluster:
+    name: pg-download
+  name: prowlarr
+  ensure: present
+  login: true
+  passwordSecret:
+    name: pg-prowlarr-app
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: prowlarr
+  namespace: download
+spec:
+  cluster:
+    name: pg-download
+  name: prowlarr
+  owner: prowlarr
+  ensure: present
+  databaseReclaimPolicy: retain

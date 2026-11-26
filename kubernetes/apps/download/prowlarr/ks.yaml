@@ -27,5 +27,25 @@ spec:
       namespace: rook-ceph
     - name: kopiur
       namespace: kopiur-system
+    - name: prowlarr-database
+      namespace: download
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: prowlarr-database
+  namespace: download
+spec:
+  targetNamespace: download
+  interval: 1h
+  path: "./kubernetes/apps/download/prowlarr/database"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  dependsOn:
     - name: download-storage
       namespace: download
