@@ -7,9 +7,12 @@ spec:
   kind: Password
   generator:
     passwordSpec:
-      length: 30
+      length: 32
       digits: 5
-      symbols: 5
-      symbolCharacters: "-_&*^!"
+      # Alphanumeric only: DB passwords flow through connection URIs (pgloader, DSNs),
+      # and chars like '^' require fragile percent-encoding. 32 chars keeps entropy high.
+      symbols: 0
+      # symbols: 5
+      # symbolCharacters: "-_&*^!"
       noUpper: false
       allowRepeat: true
