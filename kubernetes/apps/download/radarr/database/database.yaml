@@ -1,0 +1,27 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: radarr
+  namespace: download
+spec:
+  cluster:
+    name: pg-download
+  name: radarr
+  ensure: present
+  login: true
+  passwordSecret:
+    name: pg-radarr-app
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: radarr
+  namespace: download
+spec:
+  cluster:
+    name: pg-download
+  name: radarr
+  owner: radarr
+  ensure: present
+  databaseReclaimPolicy: retain

@@ -6,8 +6,10 @@ resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
   - ./prowlarr/_networkpolicies/
+  - ./radarr/_networkpolicies/
   - ./rdt-client/_networkpolicies/
   # Flux-Kustomizations
   - ./download/ks.yaml
   - ./prowlarr/ks.yaml
+  - ./radarr/ks.yaml
   - ./rdt-client/ks.yaml
