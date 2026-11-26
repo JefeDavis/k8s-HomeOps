@@ -46,6 +46,15 @@ spec:
     name: k8s-homeops
     namespace: flux-system
   wait: true
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: DatabaseRole
+      current: has(status.applied) && status.applied
+      failed: has(status.applied) && !status.applied
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Database
+      current: has(status.applied) && status.applied
+      failed: has(status.applied) && !status.applied
   dependsOn:
     - name: download-storage
       namespace: download
