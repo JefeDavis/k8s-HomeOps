@@ -108,13 +108,13 @@ spec:
       # burst, trading a brief CPU bump for staying under the hard cap.
       extraEnv:
         - name: GOMEMLIMIT
-          value: "230MiB"
+          value: "460MiB"
       resources:
         requests:
           cpu: 10m
-          memory: 96Mi
+          memory: 256Mi
         limits:
-          memory: 128Mi
+          memory: 512Mi
       configMap:
         content: |
           logging {
