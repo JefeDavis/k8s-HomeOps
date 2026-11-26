@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: egress-vpn
+  name: rdt-client-egress-vpn
   namespace: download
 spec:
   description: >-

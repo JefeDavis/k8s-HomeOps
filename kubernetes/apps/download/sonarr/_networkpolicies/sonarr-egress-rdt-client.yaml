@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: sonarr-egress-rdt-client
+  namespace: download
+spec:
+  description: >-
+    Sonarr reaches the rdt-client API on 6500 to queue and manage downloads. rdt-client is excluded
+    from the ambient mesh (gluetun sidecar), so this talk is direct rather than tunneled through
+    ztunnel and needs an explicit CNI-layer egress allow.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: sonarr
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:app.kubernetes.io/name: rdt-client
+      toPorts:
+        - ports:
+            - port: "6500"
+              protocol: TCP

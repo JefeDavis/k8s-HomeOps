@@ -1,0 +1,27 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: rdt-client-ingress-arr
+  namespace: download
+spec:
+  description: >-
+    rdt-client sits outside the Istio ambient mesh (the gluetun sidecar owns its network namespace),
+    so the allow-ambient backstop and ztunnel AuthorizationPolicies do not cover reaching it. This
+    grants the *arr download clients direct in-cluster ingress to the rdt-client API on 6500. Scope
+    starts at radarr/sonarr; expand the matchExpression as more clients adopt rdt-client.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: rdt-client
+  ingress:
+    - fromEndpoints:
+        - matchExpressions:
+            - key: k8s:app.kubernetes.io/name
+              operator: In
+              values:
+                - radarr
+                - sonarr
+      toPorts:
+        - ports:
+            - port: "6500"
+              protocol: TCP

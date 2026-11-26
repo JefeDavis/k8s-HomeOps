@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   # sonarr
   - ./sonarr-egress-internet.yaml
+  - ./sonarr-egress-rdt-client.yaml
