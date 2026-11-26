@@ -181,13 +181,9 @@ spec:
     persistence:
       config:
         existingClaim: ${KOPIUR_CLAIM}
-        globalMounts:
-          - path: /config
 
       tmp:
         type: emptyDir
-        globalMounts:
-          - path: /tmp
 
       backup:
         existingClaim: prowlarr-backup
