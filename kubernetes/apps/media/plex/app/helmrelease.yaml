@@ -182,10 +182,11 @@ spec:
         globalMounts:
           - path: /config/Library/Application Support/Plex Media Server/Logs
 
-      media:
-        existingClaim: media-nfs
+      library:
+        existingClaim: library-nfs
         globalMounts:
-          - readOnly: true
+          - path: /library
+            readOnly: true
 
       transcode:
         type: custom

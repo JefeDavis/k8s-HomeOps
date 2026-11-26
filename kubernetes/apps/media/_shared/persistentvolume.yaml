@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: media-nfs
+  name: library-nfs
 spec:
   capacity:
     storage: 64Ti
@@ -17,7 +17,7 @@ spec:
     - nodiratime
   nfs:
     server: 10.77.0.2
-    path: /volume1/media
+    path: /volume1/media/library
   claimRef:
-    name: media-nfs
+    name: library-nfs
     namespace: media
