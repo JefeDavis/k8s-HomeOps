@@ -1,0 +1,27 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: qui
+  namespace: download
+spec:
+  cluster:
+    name: pg-download
+  name: qui
+  ensure: present
+  login: true
+  passwordSecret:
+    name: pg-qui-app
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: qui
+  namespace: download
+spec:
+  cluster:
+    name: pg-download
+  name: qui
+  owner: qui
+  ensure: present
+  databaseReclaimPolicy: retain

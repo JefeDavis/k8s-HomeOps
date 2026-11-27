@@ -12,6 +12,8 @@ resources:
   - ./radarr/_networkpolicies/
   - ./shelfmark/_networkpolicies/
   - ./sonarr/_networkpolicies/
+  - ./qbittorrent/_networkpolicies/
+  - ./qui/_networkpolicies/
   - ./rdt-client/_networkpolicies/
   # Flux-Kustomizations
   - ./download/ks.yaml
@@ -22,4 +24,6 @@ resources:
   - ./radarr/ks.yaml
   - ./shelfmark/ks.yaml
   - ./sonarr/ks.yaml
+  - ./qbittorrent/ks.yaml
+  - ./qui/ks.yaml
   - ./rdt-client/ks.yaml

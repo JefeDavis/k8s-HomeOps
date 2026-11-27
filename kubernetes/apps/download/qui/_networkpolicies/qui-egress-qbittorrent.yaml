@@ -1,0 +1,22 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: qui-egress-qbittorrent
+  namespace: download
+spec:
+  description: >-
+    qui reaches the qbittorrent WebUI/API on 8080 to manage torrents. qbittorrent is excluded from
+    the ambient mesh (the gluetun sidecar owns its network namespace), so this talk is direct rather
+    than tunneled through ztunnel and needs an explicit CNI-layer egress allow.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: qui
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:app.kubernetes.io/name: qbittorrent
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP

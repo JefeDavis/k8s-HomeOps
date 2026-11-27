@@ -1,0 +1,29 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: qbittorrent-ingress-arr
+  namespace: download
+spec:
+  description: >-
+    qbittorrent sits outside the Istio ambient mesh (the gluetun sidecar owns its network namespace),
+    so the allow-ambient backstop and ztunnel AuthorizationPolicies do not cover reaching it. This
+    grants the *arr download clients and the qui WebUI direct in-cluster ingress to the qbittorrent
+    WebUI/API on 8080.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: qbittorrent
+  ingress:
+    - fromEndpoints:
+        - matchExpressions:
+            - key: k8s:app.kubernetes.io/name
+              operator: In
+              values:
+                - lidarr
+                - radarr
+                - sonarr
+                - qui
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP

@@ -1,0 +1,24 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: qui-egress-internet
+  namespace: download
+spec:
+  description: >-
+    qui fetches tracker favicons and checks for updates over HTTPS/HTTP. It is not routed through a
+    VPN, so egress is permitted directly to the world on 443/80. Postgres talk rides the ambient
+    mesh (ztunnel); ingress from the internal gateway is granted by the
+    ingress.policy.home.arpa/internal-gateway label (global policy).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: qui
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP

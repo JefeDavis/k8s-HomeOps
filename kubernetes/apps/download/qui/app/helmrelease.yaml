@@ -1,0 +1,169 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app qui
+  namespace: download
+spec:
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  chartRef:
+    kind: OCIRepository
+    name: qui
+    namespace: download
+  values:
+    controllers:
+      *app :
+        type: deployment
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          labels:
+            ingress.policy.home.arpa/internal-gateway: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/autobrr/qui
+              tag: v1.37.0@sha256:73e662791712a01dd1f7565b21792a406e3478f7257937e9e0bb110614cc4075
+            env:
+              TZ: ${TIMEZONE}
+              GOMEMLIMIT: 1843MiB
+              QUI__HOST: 0.0.0.0
+              QUI__PORT: &uiport 7476
+              QUI__LOG_LEVEL: INFO
+              QUI__ALLOWED_HOSTS: "qui.internal.${DOMAIN},qui.download.svc.cluster.local,qui.download.svc,qui"
+              QUI__DISABLE_SELF_UPDATE: "true"
+              QUI__AUTH_DISABLED: "true"
+              QUI__I_ACKNOWLEDGE_THIS_IS_A_BAD_IDEA: "true"
+              QUI__AUTH_DISABLED_ALLOWED_CIDRS: 10.77.0.0/24,172.22.0.0/16
+              QUI__SESSION_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: qui
+                    key: sessionSecret
+              QUI__METRICS_ENABLED: "true"
+              QUI__METRICS_HOST: 0.0.0.0
+              QUI__METRICS_PORT: &metricsPort 9074
+              QUI__DATABASE_ENGINE: postgres
+              QUI__DATABASE_HOST: pg-download-rw.download.svc.cluster.local
+              QUI__DATABASE_PORT: "5432"
+              QUI__DATABASE_NAME: qui
+              QUI__DATABASE_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-qui-app
+                    key: username
+              QUI__DATABASE_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-qui-app
+                    key: password
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz/liveness
+                    port: *uiport
+                    httpHeaders:
+                      - { name: Host, value: &probehost qui.download.svc.cluster.local }
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz/readiness
+                    port: *uiport
+                    httpHeaders:
+                      - { name: Host, value: *probehost }
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz/readiness
+                    port: *uiport
+                    httpHeaders:
+                      - { name: Host, value: *probehost }
+                  failureThreshold: 30
+                  periodSeconds: 5
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 65532
+              runAsGroup: 65532
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+              seccompProfile: { type: "RuntimeDefault" }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 2Gi
+
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: "RuntimeDefault" }
+
+    serviceAccount:
+      *app :
+        automountServiceAccountToken: false
+
+    service:
+      *app :
+        controller: *app
+        ports:
+          http:
+            port: *uiport
+          metrics:
+            port: *metricsPort
+
+    serviceMonitor:
+      *app :
+        endpoints:
+          - port: metrics
+
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:download-box"
+        parentRefs:
+          - kind: ListenerSet
+            name: internal
+            namespace: gateways
+        hostnames:
+          - qui.internal.${DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                identifier: *app
+                port: http
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
+    persistence:
+      config:
+        type: emptyDir
+
+      tmp:
+        type: emptyDir

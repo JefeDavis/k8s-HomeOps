@@ -1,0 +1,223 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app qbittorrent
+  namespace: download
+spec:
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  chartRef:
+    kind: OCIRepository
+    name: qbittorrent
+    namespace: download
+  values:
+    controllers:
+      *app :
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          annotations:
+            logs.observability.home.arpa/format: plain
+          labels:
+            ingress.policy.home.arpa/internal-gateway: "true"
+            egress.policy.home.arpa/vpn: "true"
+            istio.io/dataplane-mode: none
+        initContainers:
+          gluetun:
+            image:
+              repository: ghcr.io/qdm12/gluetun
+              tag: v3.41.3
+            restartPolicy: Always
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["/gluetun-entrypoint", "healthcheck"]
+                  initialDelaySeconds: 5
+                  periodSeconds: 5
+                  failureThreshold: 30
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["/gluetun-entrypoint", "healthcheck"]
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+            env:
+              VPN_TYPE: wireguard
+              PUID: "0"
+              PGID: "0"
+              FIREWALL: "on"
+              FIREWALL_OUTBOUND_SUBNETS: 10.77.0.0/24,172.16.0.0/12
+              FIREWALL_INPUT_PORTS: "8080"
+              DNS_SERVER: "off"
+              VPN_PORT_FORWARDING: "on"
+              PORT_FORWARD_ONLY: "on"
+              VPN_PORT_FORWARDING_STATUS_FILE: /gluetun/forwarded_port
+              VPN_PORT_FORWARDING_UP_COMMAND: |-
+                /bin/sh -c 'wget -O- -nv --retry-connrefused --post-data "json={\"listen_port\":{{ "{{PORT}}" }},\"current_network_interface\":\"{{ "{{VPN_INTERFACE}}" }}\",\"random_port\":false,\"upnp\":false}" http://127.0.0.1:8080/api/v2/app/setPreferences'
+              VPN_PORT_FORWARDING_DOWN_COMMAND: |-
+                /bin/sh -c 'wget -O- -nv --retry-connrefused --post-data "json={\"listen_port\":0,\"current_network_interface\":\"lo\"}" http://127.0.0.1:8080/api/v2/app/setPreferences'
+              LOG_LEVEL: info
+              TZ: ${TIMEZONE}
+            envFrom:
+              - secretRef:
+                  name: qbittorrent-secret
+            securityContext:
+              runAsNonRoot: false
+              runAsUser: 0
+              runAsGroup: 0
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities:
+                add: ["NET_ADMIN", "NET_RAW"]
+                drop: ["ALL"]
+              seccompProfile: { type: "RuntimeDefault" }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 96Mi
+        containers:
+          *app :
+            image:
+              repository: ghcr.io/home-operations/qbittorrent
+              tag: 5.3.1@sha256:fcdbc4ac4a66d8c205ac67e4fe1b578158aaee0a50369c3d04918977f4f359c4
+            env:
+              TZ: ${TIMEZONE}
+              QBT_WEBUI_PORT: &port 8080
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v2/app/version
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 65532
+              runAsGroup: 65532
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+              seccompProfile: { type: "RuntimeDefault" }
+            resources:
+              requests:
+                cpu: 200m
+                memory: 1Gi
+              limits:
+                memory: 6Gi
+
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      dnsConfig:
+        options:
+          - { name: ndots, value: "1" }
+          - { name: attempts, value: "3" }
+          - { name: timeout, value: "2" }
+      securityContext:
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: "RuntimeDefault" }
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: *app
+
+    serviceAccount:
+      *app :
+        automountServiceAccountToken: false
+
+    service:
+      *app :
+        controller: *app
+        ports:
+          http:
+            port: *port
+
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:cloud-download"
+        parentRefs:
+          - kind: ListenerSet
+            name: internal
+            namespace: gateways
+        hostnames:
+          - qbittorrent.internal.${DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                identifier: *app
+                port: http
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
+    persistence:
+      tun:
+        type: hostPath
+        hostPath: /dev/net/tun
+        hostPathType: CharDevice
+        advancedMounts:
+          *app :
+            gluetun:
+              - path: /dev/net/tun
+
+      config:
+        existingClaim: ${KOPIUR_CLAIM}
+        advancedMounts:
+          *app :
+            *app :
+              - path: /config
+
+      media:
+        existingClaim: media-nfs
+        advancedMounts:
+          *app :
+            *app :
+              - path: /media
+
+      run:
+        type: emptyDir
+        advancedMounts:
+          *app :
+            *app :
+              - path: /run
+
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          *app :
+            gluetun:
+              - path: /tmp/gluetun
+            *app :
+              - path: /tmp
