@@ -1,0 +1,25 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: shelfmark-egress-internet
+  namespace: download
+spec:
+  description: >-
+    Shelfmark reaches external book metadata and direct sources (Open Library, Anna's Archive,
+    Z-Library, LibriVox) over HTTPS/HTTP, so egress to the world on 443/80 is permitted. In-cluster
+    talk to Prowlarr and the download clients rides the ambient mesh (ztunnel); ingress from the
+    internal gateway is granted by the ingress.policy.home.arpa/internal-gateway label (global
+    policy).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: shelfmark
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
