@@ -38,7 +38,7 @@ spec:
               PUID: "0"
               PGID: "0"
               FIREWALL: "on"
-              FIREWALL_OUTBOUND_SUBNETS: 10.0.0.0/8,172.16.0.0/12
+              FIREWALL_OUTBOUND_SUBNETS: 10.77.0.0/24,172.16.0.0/12
               FIREWALL_INPUT_PORTS: "6500"
               DNS_SERVER: "off"
               VPN_PORT_FORWARDING: "off"
