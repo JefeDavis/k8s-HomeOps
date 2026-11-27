@@ -30,7 +30,7 @@ spec:
         seccompProfile: { type: RuntimeDefault }
       containers:
         - name: backup
-          image: docker.io/library/alpine:3.21
+          image: docker.io/library/alpine:3.24
           command:
             - /bin/sh
             - -c
