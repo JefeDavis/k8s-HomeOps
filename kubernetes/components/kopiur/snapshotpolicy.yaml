@@ -31,5 +31,5 @@ spec:
       schedule:
         cron: 0 6 * * *
         jitter: 1h
-        timezone: America/New_York
+        timezone: ${TIMEZONE}
   volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}
