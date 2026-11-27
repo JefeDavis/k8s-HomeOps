@@ -1,0 +1,120 @@
+---
+# MANUAL APPLY ONLY -- not referenced by any kustomization, so Flux ignores it.
+# Migrates Radarr's main SQLite DB into the shared CNPG cluster (data-only).
+# Only the MAIN db is migrated; the log db (radarr-log) starts fresh (throwaway logs).
+#
+# PROCEDURE (data-only -- the app owns the schema):
+#   1. pg-download + radarr Database/DatabaseRole exist; config restored via volsync.
+#   2. Radarr has POSTGRES env -> it starts on the EMPTY radarr-main/radarr-log and creates schema.
+#      Watch for "Now listening". Then scale to 0:
+#        kubectl -n download scale sts/radarr --replicas=0
+#        kubectl -n download wait --for=delete pod -l app.kubernetes.io/name=radarr --timeout=120s
+#   3. kubectl apply -f this file; wait for completion; check logs.
+#        kubectl -n download wait --for=condition=complete job/radarr-pgloader --timeout=600s
+#        kubectl -n download logs job/radarr-pgloader
+#   4. Scale Radarr back to 1 -- it now runs on Postgres with the migrated data.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: radarr-pgloader
+  namespace: download
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: radarr-pgloader
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: pgloader
+          image: ghcr.io/roxedus/pgloader:latest@sha256:1a7a86ad56623c00ee714ee4969913ed5c6f59ac9785073e2ffd1bea9cc54d31
+          env:
+            - name: HOME
+              value: /scratch
+            - name: APP_DB
+              value: radarr.db
+            - name: PGHOST
+              value: pg-download-rw
+            - name: PGDATABASE
+              value: radarr
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: pg-radarr-app
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pg-radarr-app
+                  key: password
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              echo ">> staging ${APP_DB} to scratch"
+              cp -v "/config/${APP_DB}" "/scratch/${APP_DB}"
+              cp -v "/config/${APP_DB}-wal" /scratch/ 2>/dev/null || true
+              cp -v "/config/${APP_DB}-shm" /scratch/ 2>/dev/null || true
+              # DB password is alphanumeric (database-password-generator, symbols=0) -> URI-safe as-is
+              cat > /scratch/migrate.load <<EOF
+              LOAD DATABASE
+                   FROM sqlite:///scratch/${APP_DB}
+                   INTO postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:5432/${PGDATABASE}
+               WITH data only, quote identifiers,
+                    prefetch rows = 1000, batch size = 10MB
+               SET work_mem to '64MB', maintenance_work_mem to '256MB'
+               BEFORE LOAD DO
+                 \$\$ DO \$body\$
+                    DECLARE r RECORD;
+                    BEGIN
+                      FOR r IN SELECT tablename FROM pg_tables WHERE schemaname='public' LOOP
+                        EXECUTE format('TRUNCATE TABLE %I RESTART IDENTITY CASCADE', r.tablename);
+                      END LOOP;
+                    END \$body\$; \$\$
+               AFTER LOAD DO
+                 \$\$ DO \$body\$
+                    DECLARE r RECORD;
+                    BEGIN
+                      FOR r IN
+                        SELECT s.oid::regclass::text AS seq, t.relname AS tbl, a.attname AS col
+                        FROM pg_class s
+                        JOIN pg_depend d ON d.objid=s.oid AND d.deptype IN ('a','i')
+                        JOIN pg_class t ON t.oid=d.refobjid
+                        JOIN pg_attribute a ON a.attrelid=t.oid AND a.attnum=d.refobjsubid
+                        WHERE s.relkind='S'
+                      LOOP
+                        EXECUTE format('SELECT setval(%L, COALESCE((SELECT MAX(%I) FROM %I),1), true)', r.seq, r.col, r.tbl);
+                      END LOOP;
+                    END \$body\$; \$\$
+               ;
+              EOF
+              echo ">> running pgloader (data-only)"
+              pgloader /scratch/migrate.load
+              echo ">> migration complete"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: scratch
+              mountPath: /scratch
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: radarr-config
+        - name: scratch
+          emptyDir: {}

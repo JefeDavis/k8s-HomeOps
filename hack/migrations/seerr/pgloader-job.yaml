@@ -1,0 +1,124 @@
+---
+# MANUAL APPLY ONLY -- not referenced by any kustomization, so Flux ignores it.
+# Migrates seerr's SQLite DB into Postgres (data-only) -- the method seerr's own docs recommend.
+# seerr runs on SQLite today; use this only when you decide to move it to Postgres.
+#
+# PREREQUISITES (seerr lives in `media`, pg-download lives in `download`):
+#   1. Create a seerr Database + DatabaseRole on a cluster, and a creds secret the job can read.
+#      Easiest cross-namespace options:
+#        a) point at pg-download: host pg-download-rw.download.svc.cluster.local, and make a
+#           `pg-seerr-app` secret available IN media (reflector/ESO), OR
+#        b) stand up a pg-media cluster and keep it same-namespace (cleaner long-term).
+#   2. Start seerr once with DB_TYPE=postgres (+ DB_HOST/PORT/USER/PASS/NAME) so it creates the
+#      Postgres schema, then scale to 0 before running this (data-only needs the schema to exist).
+#
+#   kubectl -n media scale sts/seerr --replicas=0
+#   kubectl -n media wait --for=delete pod -l app.kubernetes.io/name=seerr --timeout=120s
+#   kubectl apply -f hack/migrations/seerr/pgloader-job.yaml
+#   kubectl -n media logs job/seerr-pgloader
+#   kubectl -n media scale sts/seerr --replicas=1
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seerr-pgloader
+  namespace: media
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: seerr-pgloader
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: pgloader
+          image: ghcr.io/roxedus/pgloader:latest@sha256:1a7a86ad56623c00ee714ee4969913ed5c6f59ac9785073e2ffd1bea9cc54d31
+          env:
+            - name: HOME
+              value: /scratch
+            - name: SQLITE_PATH
+              value: /config/db/db.sqlite3
+            - name: PGHOST
+              value: pg-download-rw.download.svc.cluster.local
+            - name: PGDATABASE
+              value: seerr
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: pg-seerr-app
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pg-seerr-app
+                  key: password
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              echo ">> staging ${SQLITE_PATH} to scratch"
+              cp -v "${SQLITE_PATH}" /scratch/db.sqlite3
+              cp -v "${SQLITE_PATH}-wal" /scratch/ 2>/dev/null || true
+              cp -v "${SQLITE_PATH}-shm" /scratch/ 2>/dev/null || true
+              # DB password is alphanumeric (database-password-generator, symbols=0) -> URI-safe as-is
+              cat > /scratch/migrate.load <<EOF
+              LOAD DATABASE
+                   FROM sqlite:///scratch/db.sqlite3
+                   INTO postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:5432/${PGDATABASE}
+               WITH data only, quote identifiers,
+                    prefetch rows = 1000, batch size = 10MB
+               SET work_mem to '64MB', maintenance_work_mem to '256MB'
+               BEFORE LOAD DO
+                 \$\$ DO \$body\$
+                    DECLARE r RECORD;
+                    BEGIN
+                      FOR r IN SELECT tablename FROM pg_tables WHERE schemaname='public' LOOP
+                        EXECUTE format('TRUNCATE TABLE %I RESTART IDENTITY CASCADE', r.tablename);
+                      END LOOP;
+                    END \$body\$; \$\$
+               AFTER LOAD DO
+                 \$\$ DO \$body\$
+                    DECLARE r RECORD;
+                    BEGIN
+                      FOR r IN
+                        SELECT s.oid::regclass::text AS seq, t.relname AS tbl, a.attname AS col
+                        FROM pg_class s
+                        JOIN pg_depend d ON d.objid=s.oid AND d.deptype IN ('a','i')
+                        JOIN pg_class t ON t.oid=d.refobjid
+                        JOIN pg_attribute a ON a.attrelid=t.oid AND a.attnum=d.refobjsubid
+                        WHERE s.relkind='S'
+                      LOOP
+                        EXECUTE format('SELECT setval(%L, COALESCE((SELECT MAX(%I) FROM %I),1), true)', r.seq, r.col, r.tbl);
+                      END LOOP;
+                    END \$body\$; \$\$
+               ;
+              EOF
+              echo ">> running pgloader (data-only)"
+              pgloader /scratch/migrate.load
+              echo ">> migration complete"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: scratch
+              mountPath: /scratch
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: seerr-config
+        - name: scratch
+          emptyDir: {}

@@ -1,0 +1,124 @@
+---
+# MANUAL APPLY ONLY -- not referenced by any kustomization, so Flux ignores it.
+# REUSABLE TEMPLATE for migrating an *arr app's SQLite DB into the shared CNPG cluster.
+# To reuse for radarr/sonarr/lidarr: copy this file, then change the 5 marked <EDIT> fields.
+# Sonarr/Radarr/Lidarr have a SECOND "log" database -- run this twice (once per DB): set
+# APP_DB=<app>.db / PGDATABASE=<app>-main, then logs.db / PGDATABASE=<app>-log. Bazarr differs
+# (single DB under /config/db/); adjust APP_DB accordingly.
+#
+# PROCEDURE (data-only is the servarr-blessed method -- the app owns the schema):
+#   1. Ensure pg-download + the app's Database/DatabaseRole exist (GitOps).
+#   2. Add PROWLARR__POSTGRES__* env to the app + `dependsOn: prowlarr-database`, reconcile.
+#      The app starts on the EMPTY Postgres DB and creates its schema (watch for "Now listening").
+#   3. Scale the app to 0:   kubectl -n download scale sts/prowlarr --replicas=0
+#      kubectl -n download wait --for=delete pod -l app.kubernetes.io/name=prowlarr --timeout=120s
+#   4. kubectl apply -f this file; wait for completion; check logs.
+#      kubectl -n download wait --for=condition=complete job/prowlarr-pgloader --timeout=600s
+#      kubectl -n download logs job/prowlarr-pgloader
+#   5. Scale the app back to 1 -- it now runs on Postgres with the migrated data.
+#   6. Verify indexers/history, then delete the dead /config/*.db files.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prowlarr-pgloader # <EDIT 1> <app>-pgloader
+  namespace: download
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prowlarr-pgloader
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: pgloader
+          image: ghcr.io/roxedus/pgloader:latest@sha256:1a7a86ad56623c00ee714ee4969913ed5c6f59ac9785073e2ffd1bea9cc54d31
+          env:
+            - name: HOME
+              value: /scratch
+            - name: APP_DB
+              value: prowlarr.db # <EDIT 2> source sqlite file under /config
+            - name: PGHOST
+              value: pg-download-rw
+            - name: PGDATABASE
+              value: prowlarr # <EDIT 3> target database name
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: pg-prowlarr-app # <EDIT 4> role credential secret
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pg-prowlarr-app # <EDIT 4>
+                  key: password
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              echo ">> staging ${APP_DB} to scratch"
+              cp -v "/config/${APP_DB}" "/scratch/${APP_DB}"
+              cp -v "/config/${APP_DB}-wal" /scratch/ 2>/dev/null || true
+              cp -v "/config/${APP_DB}-shm" /scratch/ 2>/dev/null || true
+              # DB password is alphanumeric (database-password-generator, symbols=0) -> URI-safe as-is
+              cat > /scratch/migrate.load <<EOF
+              LOAD DATABASE
+                   FROM sqlite:///scratch/${APP_DB}
+                   INTO postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:5432/${PGDATABASE}
+               WITH data only, quote identifiers,
+                    prefetch rows = 1000, batch size = 10MB
+               SET work_mem to '64MB', maintenance_work_mem to '256MB'
+               BEFORE LOAD DO
+                 \$\$ DO \$body\$
+                    DECLARE r RECORD;
+                    BEGIN
+                      FOR r IN SELECT tablename FROM pg_tables WHERE schemaname='public' LOOP
+                        EXECUTE format('TRUNCATE TABLE %I RESTART IDENTITY CASCADE', r.tablename);
+                      END LOOP;
+                    END \$body\$; \$\$
+               AFTER LOAD DO
+                 \$\$ DO \$body\$
+                    DECLARE r RECORD;
+                    BEGIN
+                      FOR r IN
+                        SELECT s.oid::regclass::text AS seq, t.relname AS tbl, a.attname AS col
+                        FROM pg_class s
+                        JOIN pg_depend d ON d.objid=s.oid AND d.deptype IN ('a','i')
+                        JOIN pg_class t ON t.oid=d.refobjid
+                        JOIN pg_attribute a ON a.attrelid=t.oid AND a.attnum=d.refobjsubid
+                        WHERE s.relkind='S'
+                      LOOP
+                        EXECUTE format('SELECT setval(%L, COALESCE((SELECT MAX(%I) FROM %I),1), true)', r.seq, r.col, r.tbl);
+                      END LOOP;
+                    END \$body\$; \$\$
+               ;
+              EOF
+              echo ">> running pgloader (data-only)"
+              pgloader /scratch/migrate.load
+              echo ">> migration complete"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: scratch
+              mountPath: /scratch
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: prowlarr-config # <EDIT 5> <app>-config
+        - name: scratch
+          emptyDir: {}

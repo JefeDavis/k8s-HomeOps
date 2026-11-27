@@ -1,0 +1,57 @@
+---
+# MANUAL APPLY ONLY -- not referenced by any kustomization.
+# Fixes pgloader "column not found" caused by VERSION SKEW: the restored sonarr.db was written by
+# an older Sonarr than the deployed image, so its schema doesn't match the app-created Postgres
+# schema. This runs the DEPLOYED Sonarr against the SQLite db (no Postgres env) so Sonarr's own
+# migrator upgrades sonarr.db in place to this image's version. Then the data-only pgloader works.
+#
+# Run the sqlite-backup-job FIRST for safety (it snapshots sonarr.db to NFS).
+#
+#   kubectl -n download scale sts/sonarr --replicas=0
+#   kubectl -n download wait --for=delete pod -l app.kubernetes.io/name=sonarr --timeout=120s
+#   kubectl apply -f hack/migrations/sonarr/schema-upgrade-pod.yaml
+#   kubectl -n download logs -f pod/sonarr-schema-upgrade   # wait for migrations + "Now listening on"
+#   kubectl -n download delete pod sonarr-schema-upgrade
+#   # then: kubectl -n download delete job sonarr-pgloader --ignore-not-found
+#   #       kubectl apply -f hack/migrations/sonarr/pgloader-job.yaml
+#   #       kubectl -n download scale sts/sonarr --replicas=1
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sonarr-schema-upgrade
+  namespace: download
+  labels:
+    app.kubernetes.io/name: sonarr-schema-upgrade
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  enableServiceLinks: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    fsGroup: 65532
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile: { type: RuntimeDefault }
+  containers:
+    - name: sonarr
+      image: ghcr.io/home-operations/sonarr:5.0.0.3041@sha256:ec7797f30e65cc411fba6768ed575337a5787de7d06c382173df610f2d23a317
+      # No SONARR__POSTGRES__* on purpose -> Sonarr uses /config/sonarr.db (SQLite) and migrates it.
+      env:
+        - name: TZ
+          value: America/New_York
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities: { drop: ["ALL"] }
+      volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: tmp
+          mountPath: /tmp
+  volumes:
+    - name: config
+      persistentVolumeClaim:
+        claimName: sonarr-config
+    - name: tmp
+      emptyDir: {}
