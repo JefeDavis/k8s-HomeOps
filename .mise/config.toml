@@ -2,7 +2,7 @@ min_version = "2026.11.3"
 monorepo_root = true
 
 [tools]
-"aqua:siderolabs/talos" = "1.14.6"
+"aqua:siderolabs/talos" = "1.14.7"
 "github:mitsuhiko/minijinja" = "latest"
 "aqua:getsops/sops" = "3.13.3"
 "aqua:mikefarah/yq" = "4.54.3"
