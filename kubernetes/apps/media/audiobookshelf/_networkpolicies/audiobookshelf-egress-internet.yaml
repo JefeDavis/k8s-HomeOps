@@ -1,0 +1,24 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: audiobookshelf-egress-internet
+  namespace: media
+spec:
+  description: >-
+    Audiobookshelf reaches external metadata providers (Audnexus, Google Books, iTunes) and podcast
+    RSS/enclosure hosts over HTTPS/HTTP, so egress to the world on 443/80 is permitted. Ingress from
+    the external gateway is granted by the ingress.policy.home.arpa/external-gateway label (global
+    policy).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: audiobookshelf
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
