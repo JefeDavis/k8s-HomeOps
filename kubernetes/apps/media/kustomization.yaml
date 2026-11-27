@@ -6,10 +6,12 @@ resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
   - ./_shared/
+  - ./agregarr/_networkpolicies/
   - ./audiobookshelf/_networkpolicies/
   - ./plex/_networkpolicies/
   - ./seerr/_networkpolicies/
   # Flux-Kustomizations
+  - ./agregarr/ks.yaml
   - ./audiobookshelf/ks.yaml
   - ./plex/ks.yaml
   - ./seerr/ks.yaml

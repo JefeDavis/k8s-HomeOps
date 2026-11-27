@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app agregarr
+  namespace: media
+spec:
+  targetNamespace: media
+  interval: 1h
+  path: "./kubernetes/apps/media/agregarr/app"
+  components:
+    - ../../../../components/kopiur
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  postBuild:
+    substitute:
+      APP: *app
+      KOPIUR_CLAIM: agregarr-config
+      KOPIUR_CAPACITY: 5Gi
+  wait: true
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: kopiur
+      namespace: kopiur-system

@@ -1,0 +1,25 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: agregarr-egress-internet
+  namespace: media
+spec:
+  description: >-
+    Agregarr pulls collection lists from external providers (Trakt, IMDb, TMDB, Letterboxd, MDBList,
+    FlixPatrol, AniList, MyAnimeList) over HTTPS/HTTP, including headless-Chromium scraping, so egress
+    to the world on 443/80 is permitted. In-cluster talk to Plex and seerr (media) and Radarr/Sonarr
+    (download) rides the ambient mesh (ztunnel); ingress from the internal gateway is granted by the
+    ingress.policy.home.arpa/internal-gateway label (global policy).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: agregarr
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
