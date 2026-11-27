@@ -279,6 +279,8 @@ spec:
       datapathMode: veth
       masquerade: true
       preallocateMaps: true
+      vlanBypass:
+        - 90
     bandwidthManager:
       enabled: true
       bbr: true
