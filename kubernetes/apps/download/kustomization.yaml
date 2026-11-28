@@ -14,6 +14,7 @@ resources:
   - ./recyclarr/_networkpolicies/
   - ./shelfmark/_networkpolicies/
   - ./sonarr/_networkpolicies/
+  - ./thelounge/_networkpolicies/
   - ./qbittorrent/_networkpolicies/
   - ./qui/_networkpolicies/
   - ./rdt-client/_networkpolicies/
@@ -28,6 +29,7 @@ resources:
   - ./recyclarr/ks.yaml
   - ./shelfmark/ks.yaml
   - ./sonarr/ks.yaml
+  - ./thelounge/ks.yaml
   - ./qbittorrent/ks.yaml
   - ./qui/ks.yaml
   - ./rdt-client/ks.yaml

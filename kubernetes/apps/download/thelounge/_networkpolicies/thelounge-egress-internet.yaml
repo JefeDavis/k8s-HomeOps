@@ -1,0 +1,29 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: thelounge-egress-internet
+  namespace: download
+spec:
+  description: >-
+    thelounge is a web IRC client: it connects out to arbitrary IRC servers over plain (6667) and TLS
+    (6697) and fetches link previews / inline images over HTTPS/HTTP. It is not routed through a VPN,
+    so egress is permitted directly to the world. Ingress from the internal gateway is granted by the
+    ingress.policy.home.arpa/internal-gateway label (global policy). IRC networks on non-standard ports
+    need their port added here.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: thelounge
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
+            - port: "6697"
+              protocol: TCP
+            - port: "6667"
+              protocol: TCP
