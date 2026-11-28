@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: recyclarr-egress-internet
+  namespace: download
+spec:
+  description: >-
+    Recyclarr fetches the TRaSH Guides data (custom formats, quality definitions) from GitHub over
+    HTTPS, so egress to the world on 443/80 is permitted. In-cluster talk to Radarr and Sonarr rides
+    the ambient mesh (ztunnel); it has no gateway route.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: recyclarr
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP

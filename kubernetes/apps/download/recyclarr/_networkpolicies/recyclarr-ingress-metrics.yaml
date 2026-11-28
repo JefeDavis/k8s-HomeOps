@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: recyclarr-ingress-metrics
+  namespace: download
+spec:
+  description: >-
+    Allows the alloy-metrics collector to scrape recyclarr's Prometheus metrics on the management
+    port (7983).
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: recyclarr
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: alloy
+            k8s:app.kubernetes.io/name: alloy
+            k8s:app.kubernetes.io/instance: alloy-metrics
+      toPorts:
+        - ports:
+            - port: "7983"
+              protocol: TCP

@@ -1,0 +1,69 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: recyclarr
+  namespace: download
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: recyclarr
+    namespace: download
+  driftDetection:
+    mode: enabled
+  values:
+    apiKey:
+      existingSecret: recyclarr-secret
+      existingSecretKey: api-key
+
+    configs:
+      existingConfigMap: recyclarr-configmap
+
+    settings:
+      content: |
+        server:
+          schedule:
+            cron: "0 4 * * *"
+
+    env:
+      - name: TZ
+        value: ${TIMEZONE}
+      - name: RADARR_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: radarr
+            key: apiKey
+      - name: SONARR_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: sonarr
+            key: apiKey
+
+    persistence:
+      state:
+        enabled: true
+        storageClass: ceph-block
+        size: 1Gi
+      data:
+        enabled: false
+
+    service:
+      port: 7982
+
+    serviceMonitor:
+      enabled: true
+
+    deploymentAnnotations:
+      reloader.stakater.com/auto: "true"
+
+    podAnnotations:
+      logs.observability.home.arpa/format: plain
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
