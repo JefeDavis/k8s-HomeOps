@@ -1,0 +1,54 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app autobrr
+  namespace: download
+spec:
+  targetNamespace: download
+  interval: 1h
+  path: "./kubernetes/apps/download/autobrr/app"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  postBuild:
+    substitute:
+      APP: *app
+  wait: true
+  dependsOn:
+    - name: download-storage
+      namespace: download
+    - name: autobrr-database
+      namespace: download
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: autobrr-database
+  namespace: download
+spec:
+  targetNamespace: download
+  interval: 1h
+  path: "./kubernetes/apps/download/autobrr/database"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: k8s-homeops
+    namespace: flux-system
+  wait: true
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: DatabaseRole
+      current: has(status.applied) && status.applied
+      failed: has(status.applied) && !status.applied
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Database
+      current: has(status.applied) && status.applied
+      failed: has(status.applied) && !status.applied
+  dependsOn:
+    - name: download-storage
+      namespace: download

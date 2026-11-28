@@ -8,8 +8,8 @@ spec:
   description: >-
     qbittorrent sits outside the Istio ambient mesh (the gluetun sidecar owns its network namespace),
     so the allow-ambient backstop and ztunnel AuthorizationPolicies do not cover reaching it. This
-    grants the *arr download clients and the qui WebUI direct in-cluster ingress to the qbittorrent
-    WebUI/API on 8080.
+    grants the *arr download clients, the qui WebUI, and autobrr direct in-cluster ingress to the
+    qbittorrent WebUI/API on 8080.
   endpointSelector:
     matchLabels:
       k8s:app.kubernetes.io/name: qbittorrent
@@ -23,6 +23,7 @@ spec:
                 - radarr
                 - sonarr
                 - qui
+                - autobrr
       toPorts:
         - ports:
             - port: "8080"

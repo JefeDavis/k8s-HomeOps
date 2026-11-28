@@ -1,0 +1,165 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app autobrr
+  namespace: download
+spec:
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  chartRef:
+    kind: OCIRepository
+    name: autobrr
+    namespace: download
+  values:
+    controllers:
+      *app :
+        type: deployment
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          labels:
+            ingress.policy.home.arpa/internal-gateway: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/autobrr/autobrr
+              tag: v1.91.1@sha256:8c63fa0ba732eb33b2e531a84b3de3c99ae88e87c49bf077a6194020667ef92f
+            env:
+              TZ: ${TIMEZONE}
+              GOMEMLIMIT: 900MiB
+              AUTOBRR__HOST: 0.0.0.0
+              AUTOBRR__PORT: &port 7474
+              AUTOBRR__LOG_LEVEL: INFO
+              AUTOBRR__CHECK_FOR_UPDATES: "false"
+              AUTOBRR__AUTH_DISABLED: "true"
+              AUTOBRR__AUTH_DISABLED_ACKNOWLEDGEMENT: I_ACKNOWLEDGE_THIS_IS_A_BAD_IDEA
+              AUTOBRR__AUTH_ALLOWED_PEER_CIDRS: 10.77.0.0/24,172.22.0.0/16
+              AUTOBRR__AUTH_ALLOWED_HOSTS: "autobrr.internal.${DOMAIN},autobrr.download.svc.cluster.local,autobrr.download.svc,autobrr"
+              AUTOBRR__CORS_ALLOWED_ORIGINS: "https://autobrr.internal.${DOMAIN}"
+              AUTOBRR__METRICS_ENABLED: "true"
+              AUTOBRR__METRICS_HOST: 0.0.0.0
+              AUTOBRR__METRICS_PORT: &metricsPort 9074
+              AUTOBRR__DATABASE_TYPE: postgres
+              AUTOBRR__POSTGRES_HOST: pg-download-rw.download.svc.cluster.local
+              AUTOBRR__POSTGRES_PORT: "5432"
+              AUTOBRR__POSTGRES_DATABASE: autobrr
+              AUTOBRR__POSTGRES_SSLMODE: disable
+              AUTOBRR__POSTGRES_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-autobrr-app
+                    key: username
+              AUTOBRR__POSTGRES_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: pg-autobrr-app
+                    key: password
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/healthz/liveness
+                    port: *port
+                    httpHeaders:
+                      - { name: Host, value: &probehost autobrr.download.svc.cluster.local }
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/healthz/readiness
+                    port: *port
+                    httpHeaders:
+                      - { name: Host, value: *probehost }
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/healthz/readiness
+                    port: *port
+                    httpHeaders:
+                      - { name: Host, value: *probehost }
+                  failureThreshold: 30
+                  periodSeconds: 5
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 65532
+              runAsGroup: 65532
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+              seccompProfile: { type: "RuntimeDefault" }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 1Gi
+
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: "RuntimeDefault" }
+
+    serviceAccount:
+      *app :
+        automountServiceAccountToken: false
+
+    service:
+      *app :
+        ports:
+          http:
+            port: *port
+          metrics:
+            port: *metricsPort
+
+    serviceMonitor:
+      *app :
+        endpoints:
+          - port: metrics
+
+    route:
+      *app :
+        enabled: true
+        kind: HTTPRoute
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "mdi:download-network"
+        parentRefs:
+          - kind: ListenerSet
+            name: internal
+            namespace: gateways
+        hostnames:
+          - autobrr.internal.${DOMAIN}
+        rules:
+          - backendRefs:
+              - kind: Service
+                identifier: *app
+                port: http
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+
+    persistence:
+      config:
+        type: emptyDir
+
+      tmp:
+        type: emptyDir

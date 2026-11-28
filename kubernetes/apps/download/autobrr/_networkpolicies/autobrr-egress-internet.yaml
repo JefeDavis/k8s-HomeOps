@@ -1,0 +1,29 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autobrr-egress-internet
+  namespace: download
+spec:
+  description: >-
+    autobrr joins tracker announce channels over IRC (6667 plain, 6697 TLS) and reaches indexer and
+    notification APIs over HTTPS/HTTP. It is not routed through a VPN, so egress is permitted directly
+    to the world. Postgres talk rides the ambient mesh (ztunnel); ingress from the internal gateway is
+    granted by the ingress.policy.home.arpa/internal-gateway label (global policy). Trackers on
+    non-standard IRC ports need their port added here.
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/name: autobrr
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
+            - port: "6697"
+              protocol: TCP
+            - port: "6667"
+              protocol: TCP
